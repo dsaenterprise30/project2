@@ -1,9 +1,9 @@
 import express from "express";
-import { 
-    createRentListing, 
-    getAllRentListings, 
-    updateRentListingById, 
-    deleteRentListingById 
+import {
+    createRentListing,
+    getAllRentListings,
+    updateRentListingById,
+    deleteRentListingById
 } from "../controllers/rentController.js";
 import { verifyAccessToken } from "../middleware/userAuth.js";
 import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
@@ -23,6 +23,9 @@ router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteRentList
 // route 4: delete a single Rent listing by ID
 
 //Route 5: fetch all rent listings for public access
-router.get("/all-public",verifyAccessToken, getAllRentListings);
+router.get("/all-public", verifyAccessToken, getAllRentListings);
+
+import { sendInterestSMS } from "../controllers/rentController.js";
+router.post("/send-interest", verifyAccessToken, sendInterestSMS);
 
 export default router;

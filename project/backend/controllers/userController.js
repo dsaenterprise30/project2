@@ -455,3 +455,59 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ message: "Server error: " + error.message });
   }
 };
+
+// Route 14 - Admin Register User (Direct Creation)
+export const registerUserByAdmin = async (req, res) => {
+  let { fullName, mobileNumber, password } = req.body;
+
+  try {
+    if (!fullName || !mobileNumber || !password) {
+      return res.status(400).json({ msg: 'Please enter all fields.' });
+    }
+
+    // Ensure mobile number starts with 91 (as per Schema validation)
+    let mobileStr = String(mobileNumber);
+    if (!mobileStr.startsWith('91')) {
+      mobileStr = '91' + mobileStr;
+    }
+    const formattedMobile = Number(mobileStr);
+
+    const existingUser = await User.findOne({ mobileNumber: formattedMobile });
+    if (existingUser) {
+      return res.status(400).json({ msg: 'A user with this mobile number already exists.' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ msg: 'Password must be at least 6 characters long.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashpassword = await bcrypt.hash(password, salt);
+
+    // Create user directly (skip pending state if admin creates it)
+    const newUser = new User({
+      fullName,
+      mobileNumber: formattedMobile,
+      password: hashpassword,
+      subscriptionActive: false,
+      subscriptionStatus: "Inactive",
+      subscriptionExpiry: null,
+      hasUsedTrial: false,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: '✅ User created successfully by Admin.',
+      data: {
+        id: newUser._id,
+        fullName: newUser.fullName,
+        mobileNumber: newUser.mobileNumber
+      }
+    });
+  } catch (error) {
+    console.error('Error creating user by admin:', error);
+    res.status(500).json({ msg: 'Server error creating user.' });
+  }
+};

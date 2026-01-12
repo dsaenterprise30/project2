@@ -1076,6 +1076,93 @@
                 text-align: left;
             }
         }
+
+        /* Responsive Styles */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: #1e3a8a;
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                max-height: 500px;
+                padding-bottom: 1rem;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                padding: 1rem;
+                display: block;
+            }
+
+            /* Responsive Table (Card View) */
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .properties-table thead {
+                display: none;
+            }
+
+            .properties-table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .properties-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                text-align: right;
+                border-bottom: 1px solid #f1f5f9;
+            }
+
+            .properties-table td:last-child {
+                border-bottom: none;
+            }
+
+            .properties-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #64748b;
+                text-align: left;
+                margin-right: 1rem;
+            }
+
+            /* Adjust buttons for mobile */
+            .action-btn {
+                width: auto;
+                padding: 0.5rem 1rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -1202,7 +1289,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="search-group">
                     <label class="search-label">Ownership Type</label>
                     <div class="dropdown" id="ownershipType">
@@ -1336,8 +1423,96 @@
     <script type="module">
         import { API_BASE_URL } from './config.js';
         window.API_BASE_URL = API_BASE_URL;
+
+        // Make function globally available for onclick events
+        window.handleContactClick = async function (btnElement, contactNumber, propertyId, propertyType) {
+
+            // 1. Reveal Number UI
+            const cell = btnElement.parentElement; // td or div.card-value
+
+            // 2. Call Backend to Send SMS
+            const token = localStorage.getItem("userToken");
+            if (!token) {
+                alert("Please login to contact owners.");
+                return;
+            }
+
+            // UI Feedback (Loading)
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "Sending...";
+            btnElement.disabled = true;
+
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/rentflats/send-interest`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        propertyOwnerContact: contactNumber,
+                        propertyDetails: { id: propertyId, type: propertyType } // Sending structured details
+                    })
+                });
+
+                if (response.ok) {
+                    // Success: Reveal Number
+                    cell.innerHTML = ""; // clear button
+
+
+                    // Success: Reveal Number
+                    // cell.innerHTML = ""; // already cleared above? No, the clearing happens before this block in the old code.
+                    // Wait, in the old code 'cell.innerHTML = ""' is BEFORE the targetSnippetStart.
+                    // So we don't need to put it again if we don't touch it.
+                    // BUT, the new logic uses 'cell.appendChild(link)' directly.
+
+                    const link = document.createElement('a');
+                    link.href = `tel:${contactNumber}`;
+                    link.innerText = contactNumber;
+                    link.style.textDecoration = 'none';
+                    link.style.color = 'inherit';
+                    link.style.fontWeight = 'bold';
+                    cell.appendChild(link);
+
+                    // Success Feedback
+                    alert("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
+
+
+                } else {
+                    throw new Error("Failed to send interest.");
+                }
+
+            } catch (error) {
+                console.error("Error sending SMS:", error);
+                alert("Could not send SMS, but here is the contact.");
+
+                // Fallback: Reveal number anyway if SMS fails (optional decision)
+                cell.innerHTML = `<a href="tel:${contactNumber}">${contactNumber}</a>`;
+            }
+        };
     </script>
     <script>
+        // Hamburger Menu Logic
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+
+            // Animate hamburger lines
+            const spans = hamburger.querySelectorAll('span');
+            if (navLinks.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
+
+        // Initialize user data and fetch properties
         document.addEventListener('DOMContentLoaded', function () {
             // --- LOGIN CHECK ---
             const token = localStorage.getItem("userToken");
@@ -1363,7 +1538,7 @@
             const tableMessage = document.getElementById('tableMessage');
             const priceInput = document.getElementById('priceInput');
             const contactInput = document.getElementById('contactInput');
-            const BASE_URL = `${window.API_BASE_URL}/api/rentflats`;            
+            const BASE_URL = `${window.API_BASE_URL}/api/rentflats`;
 
 
             // --- SIDE PANEL LOGIC ---
@@ -1535,7 +1710,13 @@
                 <td data-label="Property Type">${property.propertyType || ''}</td>
                 <td data-label="Rent">${displayPrice}</td>
                 <td data-label="Name">${property.userName || ''}</td>
-                <td data-label="Contact">${displayContact || ''}</td>
+                <td data-label="Contact">
+                    <button class="action-btn" style="background: #28a745; margin:0;" 
+                        data-sender-mobile="${userData?.mobileNumber || ''}"
+                        onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
+                        Show Contact
+                    </button>
+                </td>
                 <td data-label="Tenant Type">${property.tenantType || ''}</td>
                 <td data-label="Ownership Type">${property.ownershipType || 'Agent'}</td>
                 <td data-label="Date">${property.date ? new Date(property.date).toLocaleDateString() : ''}</td>
@@ -1561,7 +1742,15 @@
                 <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
                 <div class="card-row"><span class="card-label">Rent:</span> <span class="card-value">${displayPrice}</span></div>
                 <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
-                <div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${property.contact || ''}</span></div>
+                <div class="card-row"><span class="card-label">Contact:</span> 
+                    <span class="card-value">
+                        <button class="action-btn" style="background: #28a745; margin:0; padding: 5px 10px; font-size: 0.9em;" 
+                            data-sender-mobile="${userData?.mobileNumber || ''}"
+                            onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
+                            Show Contact
+                        </button>
+                    </span>
+                </div>
                 <div class="card-row"><span class="card-label">Tenant Type:</span> <span class="card-value">${property.tenantType || ''}</span></div>
                 <div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${property.ownershipType || ''}</span></div>
                 <div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${property.date ? new Date(property.date).toLocaleDateString() : ''}</span></div>

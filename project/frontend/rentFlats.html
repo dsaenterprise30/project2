@@ -599,6 +599,98 @@
             color: #333;
         }
 
+        /* Responsive Design & Card View */
+        .card-view {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .card-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .card-value {
+            color: #1f2937;
+            text-align: right;
+        }
+
+        .card-actions {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 15px;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            /* Hide Table, Show Cards on Mobile */
+            .table-container {
+                display: none;
+            }
+
+            .card-view {
+                display: flex;
+            }
+
+            .search-section {
+                flex-direction: column;
+            }
+
+            .search-group {
+                width: 100%;
+            }
+
+            .dropdown {
+                width: 100%;
+            }
+
+            .side-panel {
+                width: 100% !important;
+                /* Full width on mobile */
+            }
+        }
+
         .modal-actions button {
             padding: 10px 20px;
             border: none;

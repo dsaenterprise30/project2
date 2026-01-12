@@ -470,6 +470,7 @@
                 flex-direction: column;
                 padding: 1rem 0;
                 gap: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
 
             .nav-links.active {
@@ -489,11 +490,6 @@
                 padding: 1.5rem 1rem;
             }
 
-            .nav-links a[href="#login"]:hover {
-                transform: scale(1.1);
-                background: rgba(255, 255, 255, 0.2);
-            }
-
             .listings-section {
                 margin: 10px;
                 max-width: none;
@@ -504,22 +500,39 @@
                 overflow: visible;
             }
 
-            .property-table-container.hidden {
-                display: none;
+            /* Card View Styles */
+            .card-item {
+                background: white;
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
             }
-        }
 
-        @media (min-width: 769px) {
-            .property-table.mobile-table {
-                display: table;
+            .card-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 0.95rem;
             }
 
-            .property-table.mobile-table thead,
-            .property-table.mobile-table tbody,
-            .property-table.mobile-table tr,
-            .property-table.mobile-table th,
-            .property-table.mobile-table td {
-                display: table-cell;
+            .card-row:last-child {
+                border-bottom: none;
+            }
+
+            .card-label {
+                font-weight: 600;
+                color: #64748b;
+            }
+
+            .card-value {
+                color: #333;
+                font-weight: 500;
+                text-align: right;
+                word-break: break-word;
+                max-width: 60%;
             }
         }
 
@@ -1327,7 +1340,7 @@
             const tableMessage = document.getElementById('tableMessage');
             const priceInput = document.getElementById('priceInput');
             const contactInput = document.getElementById('contactInput');
-            const BASE_URL = `${window.API_BASE_URL}/api/sellflats`;            
+            const BASE_URL = `${window.API_BASE_URL}/api/sellflats`;
 
             // --- SIDE PANEL LOGIC ---
             const overlay = document.getElementById('overlay');
@@ -1458,7 +1471,7 @@
                 <td data-label="Property Type">${property.propertyType || ''}</td>
                 <td data-label="Price">${displayPrice}</td>
                 <td data-label="Name">${property.userName || ''}</td>
-                <td data-label="Contact">${(function(){let c = property.contact || ''; if (typeof c === 'string' && c.startsWith('91')) c = c.replace(/^91/, '+91 '); return c; })() || ''}</td>
+                <td data-label="Contact">${(function () { let c = property.contact || ''; if (typeof c === 'string' && c.startsWith('91')) c = c.replace(/^91/, '+91 '); return c; })() || ''}</td>
                 <td data-label="Date">${property.date ? new Date(property.date).toLocaleDateString() : ''}</td>
                 <td data-label="Ownership">${property.ownershipType || ''}</td>
             `;
@@ -1482,7 +1495,7 @@
                 <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
                 <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
                 <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
-                <div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${(function(){let c = property.contact || ''; if (typeof c === 'string' && c.startsWith('91')) c = c.replace(/^91/, '+91 '); return c; })() || ''}</span></div>
+                <div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${(function () { let c = property.contact || ''; if (typeof c === 'string' && c.startsWith('91')) c = c.replace(/^91/, '+91 '); return c; })() || ''}</span></div>
                 <div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${property.date ? new Date(property.date).toLocaleDateString() : ''}</span></div>
                 <div class="card-row"><span class="card-label">Ownership:</span> <span class="card-value">${property.ownershipType || ''}</span></div>
             `;
@@ -1627,7 +1640,7 @@
                     updateSelectedFilters();
                     showTableMessage('⚠️ Please use the search filters above to find properties.');
                 });
-            } 
+            }
 
             document.addEventListener('click', () => dropdowns.forEach(d => d.classList.remove('active')));
 

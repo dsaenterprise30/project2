@@ -13,6 +13,7 @@ import cookieParser from "cookie-parser";
 //import { verifyAccessToken } from "./middleware/userAuth.js"; 
 //import { checkAdminNumber } from "./middleware/checkAdminNumber.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
 import planRoutes from "./routes/planRoutes.js";
 
@@ -40,6 +41,7 @@ app.use('/api/rentflats', rentRoutes);
 app.use('/api/sellflats', sellRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/plans", planRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
