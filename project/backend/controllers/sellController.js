@@ -1,4 +1,4 @@
-import SellFlat from "../models/sellflats.js";
+import comercialProperty from "../models/comercial.js";
 import User from "../models/User.js";
 
 // Helper function to sanitize and parse the price string

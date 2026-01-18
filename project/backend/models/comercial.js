@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const sellFlatSchema = new mongoose.Schema({
+const comercialPropertySchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -48,11 +48,11 @@ const sellFlatSchema = new mongoose.Schema({
 // Note: explicit index for `contact` removed to avoid collisions with existing DB indexes.
 // If you need a new index, add it after cleaning up existing indexes in the DB.
 
-const SellFlat = mongoose.model('SellFlat', sellFlatSchema);
+const comercialProperty = mongoose.model('comercialProperty', comercialPropertySchema);
 
 // ✅ Ensure indexes build at startup
-SellFlat.init()
+comercialProperty.init()
     .then(() => console.log(""))
-    .catch(err => console.error("❌ Error ensuring SellFlat indexes:", err));
+    .catch(err => console.error("❌ Error ensuring comercialProperty indexes:", err));
 
-export default SellFlat;
+export default comercialProperty;

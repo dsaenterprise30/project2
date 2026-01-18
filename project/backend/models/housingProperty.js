@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const RentFlatSchema = new mongoose.Schema({
+const housingPropertySchema = new mongoose.Schema({
     userName: {
         type: String,
         required: true
@@ -45,11 +45,11 @@ const RentFlatSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-const RentFlat = mongoose.model('RentFlat', RentFlatSchema);
+const housingProperty = mongoose.model('housingProperty', housingPropertySchema);
 
 // ✅ Ensure indexes are built when model loads
-RentFlat.init()
+housingProperty.init()
     .then(() => console.log(""))
-    .catch(err => console.error("❌ Error ensuring RentFlat indexes:", err));
+    .catch(err => console.error("❌ Error ensuring housingProperty indexes:", err));
 
-export default RentFlat;
+export default housingProperty;

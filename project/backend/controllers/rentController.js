@@ -1,4 +1,4 @@
-import RentFlat from "../models/rentflats.js";
+//import RentFlat from "../models/rentflats.js";
 import User from "../models/User.js";
 import ContactClick from "../models/ContactClick.js";
 

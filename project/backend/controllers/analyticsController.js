@@ -40,8 +40,8 @@ export const getClickAnalytics = async (req, res) => {
 
 // Get Analytics for a Specific User (Inbound Leads)
 import User from "../models/User.js";
-import RentFlat from "../models/rentflats.js";
-import SellFlat from "../models/sellflats.js";
+//import RentFlat from "../models/rentflats.js";
+//import SellFlat from "../models/sellflats.js";
 
 export const getUserInterests = async (req, res) => {
     const { userId } = req.params;
