@@ -1,5 +1,7 @@
 import comercialProperty from "../models/comercial.js";
-import User from "../models/User.js";
+import Brokers from "../models/Brokers.js";
+import Builder from "../models/Builder.js";
+import ContactClick from "../models/ContactClick.js";
 
 // Helper function to sanitize and parse the price string
 const parsePrice = (priceString) => {
@@ -14,8 +16,8 @@ const cleanMobileNumber = (mobileString) => {
     return mobileString.replace(/\D/g, '');
 };
 
-// Route 1: Create a new sell listing
-export const createSellListing = async (req, res) => {
+// Route 1: Create a new comercial listing
+export const createComercialListing = async (req, res) => {
     const { contact, area, location, propertyType, price, date, ownershipType, name } = req.body || {};
 
     try {
@@ -82,8 +84,8 @@ export const createSellListing = async (req, res) => {
     }
 };
 
-// Route 2: Get all sell listings
-export const getAllSellListings = async (req, res) => {
+// Route 2: Get all comercial listings
+export const getAllComercialListings = async (req, res) => {
     try {
         const listings = await SellFlat.find().lean();
 
@@ -111,8 +113,8 @@ export const getAllSellListings = async (req, res) => {
     }
 };
 
-// Route 3: Update a sell listing by its ID
-export const updateSellListingById = async (req, res) => {
+// Route 3: Update a comercial listing by its ID
+export const updateComercialListingById = async (req, res) => {
     const { id } = req.params;
     const { location, area, propertyType, price, name, contact, date, ownershipType } = req.body || {};
 
@@ -144,8 +146,8 @@ export const updateSellListingById = async (req, res) => {
     }
 };
 
-// Route 4: Delete a sell listing by its ID
-export const deleteSellListingById = async (req, res) => {
+// Route 4: Delete a comercial listing by its ID
+export const deleteComercialListingById = async (req, res) => {
     const { id } = req.params; // Get ID from URL parameter
 
     try {

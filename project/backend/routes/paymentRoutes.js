@@ -1,7 +1,7 @@
 // paymentRoutes.js
 import express from "express";
 import razorpay from "../config/razorpay.js";
-import User from "../models/User.js";
+//import User from "../models/User.js";
 import dotenv from "dotenv";
 import SubscriptionPlan from "../models/subscriptionPlan.js";
 dotenv.config();

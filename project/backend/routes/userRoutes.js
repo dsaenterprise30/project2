@@ -22,7 +22,7 @@ import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
 import checkSubscription from "../middleware/checkSubscription.js";
 
 // Import the User model
-import User from "../models/User.js";
+//import User from "../models/User.js";
 
 // User routes
 

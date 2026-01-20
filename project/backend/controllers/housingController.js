@@ -1,5 +1,6 @@
 //import RentFlat from "../models/rentflats.js";
-import User from "../models/User.js";
+import Brokers from "../models/Brokers.js";
+import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 
 // Helper function to sanitize and parse the price string
@@ -15,8 +16,8 @@ const cleanMobileNumber = (mobileString) => {
     return mobileString.replace(/\D/g, '');
 };
 
-// Route 1: Create a new rent listing
-export const createRentListing = async (req, res) => {
+// Route 1: Create a new housing listing
+export const createHousingListing = async (req, res) => {
     const { contact, area, location, propertyType, price, name, date, tenantType, ownershipType } = req.body || {};
 
     try {
@@ -85,8 +86,8 @@ export const createRentListing = async (req, res) => {
 };
 
 
-// Route 2: Get all rent listings
-export const getAllRentListings = async (req, res) => {
+// Route 2: Get all housing listings
+export const getAllHousingListings = async (req, res) => {
     try {
         const listings = await RentFlat.find().lean();
 
@@ -117,8 +118,8 @@ export const getAllRentListings = async (req, res) => {
     }
 };
 
-// Route 3: Update a rent listing by its ID
-export const updateRentListingById = async (req, res) => {
+// Route 3: Update a housing listing by its ID
+export const updateHousingListingById = async (req, res) => {
     const { id } = req.params;
     // ✅ CORRECTED: Destructure tenantType
     const { location, area, propertyType, price, name, contact, date, tenantType, ownershipType } = req.body || {};
@@ -152,8 +153,8 @@ export const updateRentListingById = async (req, res) => {
     }
 };
 
-// Route 4: Delete a rent listing by its ID
-export const deleteRentListingById = async (req, res) => {
+// Route 4: Delete a housing listing by its ID
+export const deleteHousingListingById = async (req, res) => {
     const { id } = req.params;
 
     try {

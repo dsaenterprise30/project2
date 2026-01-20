@@ -5,9 +5,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
 import userRoutes from "./routes/userRoutes.js";
-import rentRoutes from "./routes/rentRoutes.js";
-import sellRoutes from "./routes/sellRoutes.js";
 import cookieParser from "cookie-parser";
+import housingRoutes from "./routes/housingRoutes.js";
+import comercialRoutes from "./routes/comercialRoutes.js";
 //import adminRoutes from "./routes/adminRoutes.js"; 
 //import { firebaseconfig } from "./controllers/firebase.js"; 
 //import { verifyAccessToken } from "./middleware/userAuth.js"; 
@@ -37,8 +37,8 @@ app.use(cookieParser());
 
 // Use routes
 app.use('/api/users', userRoutes);
-app.use('/api/rentflats', rentRoutes);
-app.use('/api/sellflats', sellRoutes);
+app.use('/api/housing', housingRoutes);
+app.use('/api/comercial', comercialRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/analytics", analyticsRoutes);
