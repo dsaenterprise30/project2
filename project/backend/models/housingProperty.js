@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 
 const housingPropertySchema = new mongoose.Schema({
-    userName: {
+    projectName: {
         type: String,
         required: true
     },
-    location: {
+    address: {
         type: String,
         required: true
     },
-    area: {
-        type: String
+    location:{
+        type: String,
+    },
+    carpetArea: {
+        type: Number,
     },
     propertyType: {
         type: String,
@@ -20,6 +23,9 @@ const housingPropertySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    builderName: {
+        type: String,
+    },
     contact: {
         type: String,
         required: [true, 'Mobile number is required.'],
@@ -27,20 +33,10 @@ const housingPropertySchema = new mongoose.Schema({
         match: [/^91+[0-9]{10}$/, 'Please fill a valid 10-digit mobile number.'],
         index: true // ✅ Index for faster lookups
     },
-    date: {
-        type: Date,
-        required: true
-    },
-    tenantType: {
+    allocationStatus: {
         type: String,
-        required: true,
-        enum: ['Any', 'Family', 'Bachelors']
-    },
-    ownershipType: {
-        type: String,
-        required: true,
-        enum: ['Owner', 'Agent']
-    },
+        enum: ['Rora', 'Possesion']
+    }
 }, { 
     timestamps: true 
 });

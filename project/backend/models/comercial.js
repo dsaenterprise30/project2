@@ -6,7 +6,7 @@ const comercialPropertySchema = new mongoose.Schema({
         ref: 'User',
         required: false
     },
-    userName: {
+    projectName: {
         type: String,
         required: false
     },
@@ -17,7 +17,7 @@ const comercialPropertySchema = new mongoose.Schema({
     area: {
         type: String
     },
-    propertyType: {
+    carpetArea: {
         type: String,
         required: true
     },
@@ -33,11 +33,6 @@ const comercialPropertySchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        required: true
-    },
-    ownershipType: {
-        type: String,
-        required: true
     },
     createdAt: {
         type: Date,
