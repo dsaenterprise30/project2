@@ -1,79 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Team</title>
+    <title>Our Team - DSA Enterprise</title>
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+        /* --- Premium Design System --- */
+        :root {
+            /* Palette */
+            --primary: #0f172a;
+            /* Slate 900 */
+            --primary-light: #1e293b;
+            /* Slate 800 */
+            --accent: #3b82f6;
+            /* Blue 500 */
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            /* Emerald 500 */
+            --danger: #ef4444;
+            /* Red 500 */
+            --text-main: #f8fafc;
+            /* Slate 50 */
+            --text-muted: #94a3b8;
+            /* Slate 400 */
+
+            --glass-bg: rgba(15, 23, 42, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(30, 41, 59, 0.7);
+
+            /* Typography */
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Spacing & Radius */
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Base & Reset --- */
         * {
-            padding: 0;
             margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            font-family: Poppins, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);;
+            font-family: var(--font-body);
+            background-color: var(--primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+            padding-top: 80px;
+            /* Space for navbar */
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo img {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 2rem 0 1rem;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
         }
 
         .home-container {
             width: 100%;
-            min-height: 100vh;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            padding: 50px 20px;
+            padding: 0 2rem 4rem;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .profile-card {
             position: relative;
-            width: 260px;
-            height: 260px;
-            background-color: #fff;
+            width: 300px;
+            /* Slightly wider */
+            height: 300px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
             padding: 30px;
             border-radius: 50%;
-            box-shadow: -5px 8px 45px rgba(51, 51, 51, 0.126);
-            transition: all .4s;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.4s ease;
             margin: 20px;
             flex-shrink: 0;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
         }
 
         .profile-card:hover {
-            border-radius: 10px;
-            height: 330px;
+            border-radius: var(--radius-lg);
+            height: 380px;
+            transform: translateY(-10px);
+            border-color: rgba(59, 130, 246, 0.3);
         }
 
         .profile-card .img {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: all .4s;
-            padding-top: 20px;
+            transition: all 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .profile-card:hover .img {
-            transform: translateY(-50px);
+            transform: translateY(-60px) scale(0.9);
         }
 
         .img img {
-            object-fit: fill;
-            width: 100%;
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
             border-radius: 50%;
-            transition: all .4s;
-            z-index: 99;
-            display: block;
-            margin: 0 auto;
+            transition: all 0.4s;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .profile-card:hover img {
-            border-radius: 10px;
+            border-radius: var(--radius-md);
+            border-color: var(--accent);
         }
 
         .caption {
@@ -84,8 +212,8 @@
             transform: translateX(-50%);
             opacity: 0;
             pointer-events: none;
-            transition: all .5s;
-            width: calc(100% - 60px);
+            transition: all 0.5s;
+            width: 100%;
         }
 
         .profile-card:hover .caption {
@@ -95,38 +223,36 @@
         }
 
         .caption h3 {
-            font-size: 21px;
-            color: #0c52a1;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--text-main);
             font-weight: 600;
-            margin-top: 10px;
+            margin-bottom: 0.5rem;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-            position: relative;
-            top: 22px;
-            padding: 0 5px;
         }
 
         .caption p {
-            font-size: 15px;
-            font-weight: 500;
-            margin: 2px 0 12px 0;
-            position: relative;
-            top: 13px;
-
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--accent);
+            margin-bottom: 1rem;
         }
 
-        .caption .social-links i {
-            font-size: 21px;
-            margin: 0 3px;
-            cursor: pointer;
-            color: #333;
-            transition: all .4s;
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
         }
 
-        .caption .social-links i:hover {
-            color: #0c52a1;
+        .social-links a {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
         }
 
         @media (max-width: 1150px) {
@@ -140,63 +266,84 @@
         }
     </style>
 </head>
+
 <body>
+    <nav class="navbar">
+        <div class="logo">
+            <a onclick="history.back()" style="cursor: pointer; margin-right: 0.5rem;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <a>
+                <img src="img/DSA.png" alt="Logo">
+                <span>DSA Enterprise</span>
+            </a>
+        </div>
+    </nav>
+
+    <h1>Meet Our Team</h1>
+    <p class="subtitle">The passionate minds behind DSA Enterprise.</p>
+
     <div class="home-container">
         <div class="profile-card">
             <div class="img">
-                <img src="img/Govind.webp">
+                <img src="img/Govind.webp" alt="Govind Choudhari">
             </div>
             <div class="caption">
                 <h3>Govind Choudhari</h3>
                 <p>Full Stack Web Developer</p>
                 <div class="social-links">
-                    <a href="https://github.com/Govind-553"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/govind-choudhari-967960285"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://github.com/Govind-553" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/govind-choudhari-967960285" target="_blank"><i
+                            class="fa-brands fa-linkedin"></i></a>
                 </div>
             </div>
         </div>
 
         <div class="profile-card">
             <div class="img">
-                <img src="img/Abhiruchi.png">
+                <img src="img/Abhiruchi.png" alt="Abhiruchi Kunte">
             </div>
             <div class="caption">
                 <h3>Abhiruchi Kunte</h3>
                 <p>Full Stack Web Developer</p>
                 <div class="social-links">
-                    <a href="https://github.com/AbhiruchiKunte"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/abhiruchi-kunte-00602b28b/"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://github.com/AbhiruchiKunte" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/abhiruchi-kunte-00602b28b/" target="_blank"><i
+                            class="fa-brands fa-linkedin"></i></a>
                 </div>
             </div>
         </div>
 
         <div class="profile-card">
             <div class="img">
-                <img style="position: relative; top:px;" src="img/sahil.png">
+                <img src="img/sahil.png" alt="Sahil Kale">
             </div>
             <div class="caption">
                 <h3>Sahil Kale</h3>
                 <p>Full Stack Web Developer</p>
                 <div class="social-links">
-                    <a href="https://github.com/sahilkale2004"><i class="fa-brands fa-github"></i></a>
-                    <a href="www.linkedin.com/in/sahil-kale-235066345"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://github.com/sahilkale2004" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="www.linkedin.com/in/sahil-kale-235066345" target="_blank"><i
+                            class="fa-brands fa-linkedin"></i></a>
                 </div>
             </div>
         </div>
 
         <div class="profile-card">
             <div class="img">
-                <img src="img/Nishank_Jain.jpg">
+                <img src="img/Nishank_Jain.jpg" alt="Nishank Jain">
             </div>
             <div class="caption">
                 <h3>Nishank Jain</h3>
                 <p>Full Stack Web Developer</p>
                 <div class="social-links">
-                    <a href="https://github.com/Nishank-C-Jain"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/nishank-jain-123456789/"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://github.com/Nishank-C-Jain" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/nishank-jain-123456789/" target="_blank"><i
+                            class="fa-brands fa-linkedin"></i></a>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>

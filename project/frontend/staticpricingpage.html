@@ -1,177 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pricing</title>
+  <title>Pricing - DSA Enterprise</title>
+  <link rel="icon" type="image/x-icon" href="img/DSA.png">
 
-  <!-- Font Awesome (for back icon) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <style>
+    /* --- Premium Design System --- */
     :root {
-      --primary-blue: #1e3a8a;
-      --secondary-blue: #3b82f6;
-      --bg-light: #f6f6f6;
+      /* Palette */
+      --primary: #0f172a;
+      /* Slate 900 */
+      --primary-light: #1e293b;
+      /* Slate 800 */
+      --accent: #3b82f6;
+      /* Blue 500 */
+      --accent-glow: rgba(59, 130, 246, 0.5);
+      --success: #10b981;
+      /* Emerald 500 */
+      --danger: #ef4444;
+      /* Red 500 */
+      --text-main: #f8fafc;
+      /* Slate 50 */
+      --text-muted: #94a3b8;
+      /* Slate 400 */
+
+      --glass-bg: rgba(15, 23, 42, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --input-bg: rgba(15, 23, 42, 0.6);
+
+      /* Typography */
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+
+      /* Spacing & Radius */
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 8px;
+      --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- Base & Reset --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: var(--bg-light);
-      margin: 0;
-      padding-top: 78px; /* space for navbar */
-      text-align: center;
+      font-family: var(--font-body);
+      background-color: var(--primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+      background-attachment: fixed;
+      padding-top: 80px;
     }
 
-    /* ================= NAVBAR ================= */
+    /* --- Navbar --- */
     .navbar {
-      background: var(--primary-blue);
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 72px;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 1000;
     }
 
-    .navbar .back-btn {
-      color: #fff;
-      font-size: 18px;
-      margin-right: 14px;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
       cursor: pointer;
     }
 
-    .navbar .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-weight: bold;
-      font-size: 20px;
-    }
-
-    .navbar .logo img {
-      width: 42px;
-      height: 42px;
+    .logo img {
+      width: 35px;
+      height: 35px;
       border-radius: 8px;
-      object-fit: cover;
-      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
     }
 
-    /* ================= PAGE ================= */
+    .back-btn {
+      color: var(--text-main);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-right: 1rem;
+    }
+
+    .back-btn:hover {
+      transform: translateX(-3px);
+      color: var(--accent);
+    }
+
+    /* --- Content --- */
     h1 {
-      margin: 32px 0;
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 3rem 0;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .plans-container {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 2rem;
       flex-wrap: wrap;
-      padding: 0 16px 40px;
+      padding: 0 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .plan-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      width: 280px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 350px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
       position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+      border-color: rgba(59, 130, 246, 0.3);
     }
 
     .badge {
       position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #ff9800;
-      color: #fff;
-      padding: 6px 10px;
-      font-size: 12px;
+      top: -15px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
       border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .plan-card h2 {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--text-main);
     }
 
     .plan-price {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 16px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1rem;
     }
 
-    .promo {
-      color: #047857;
-      font-size: 14px;
-      margin-bottom: 12px;
+    .promo-text {
+      color: var(--success);
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
     }
 
     .btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary-blue);
-      color: #fff;
+      margin-top: auto;
+      background: var(--accent);
+      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
       cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
     }
 
     .btn:hover {
-      background: var(--secondary-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--accent-glow);
+      filter: brightness(1.1);
     }
 
-    @media (max-width: 480px) {
-      .navbar .logo span {
-        display: none;
-      }
-    }
-
-    /* Popup alert styles */
+    /* Popup */
     .popup {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
       display: flex;
-      align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.45);
+      align-items: center;
+      z-index: 2000;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 220ms ease, visibility 220ms;
-      z-index: 2000;
-      pointer-events: none;
+      transition: all 0.3s;
     }
+
     .popup.show {
       opacity: 1;
       visibility: visible;
-      pointer-events: auto;
     }
+
     .popup-content {
-      background: #fff;
-      padding: 18px 20px;
-      border-radius: 10px;
-      min-width: 280px;
-      max-width: 90%;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-      text-align: left;
+      background: var(--primary-light);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--glass-border);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: var(--text-main);
       position: relative;
-      border-left: 6px solid #1e3a8a;
+      transform: scale(0.9);
+      transition: transform 0.3s;
     }
-    .popup.success .popup-content { border-left-color: #16a34a; }
-    .popup.error .popup-content { border-left-color: #dc2626; }
-    .popup .popup-message { font-size: 16px; margin: 4px 0; color: #111827; }
-    .popup .popup-actions { margin-top: 12px; text-align: right; }
-    .popup .popup-actions .btn { width: auto; padding: 8px 12px; font-size: 14px; }
-    .popup .close-btn {
+
+    .popup.show .popup-content {
+      transform: scale(1);
+    }
+
+    .close-popup-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 15px;
+      right: 15px;
+      background: none;
       border: none;
-      background: transparent;
-      font-size: 18px;
+      color: var(--text-muted);
+      font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+    }
+
+    .close-popup-btn:hover {
+      color: var(--text-main);
+    }
+
+    .popup-message {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+
+    .popup-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+        margin: 2rem 0;
+      }
+
+      .plans-container {
+        padding: 0 1rem 2rem;
+      }
+
+      .logo span {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -180,8 +316,8 @@
 
   <!-- ================= NAVBAR ================= -->
   <nav class="navbar">
-    <i class="fas fa-arrow-left back-btn" onclick="history.back()"></i>
     <div class="logo">
+      <i class="fas fa-arrow-left back-btn" onclick="history.back()"></i>
       <img src="img/DSA.png" alt="Logo">
       <span>DSA Enterprise</span>
     </div>
@@ -191,6 +327,15 @@
   <h1>Choose Your Plan</h1>
 
   <div id="plans" class="plans-container"></div>
+
+  <!-- Popup -->
+  <div id="alert-popup" class="popup">
+    <div class="popup-content">
+      <button class="close-popup-btn" onclick="hidePopup()">&times;</button>
+      <div class="popup-message"></div>
+      <button class="popup-btn" onclick="hidePopup()">Close</button>
+    </div>
+  </div>
 
   <!-- ================= JS ================= -->
   <script>
@@ -211,7 +356,7 @@
       {
         name: "Yearly Plan",
         price: 20000,
-        interval: "yr",
+        interval: "year",
         promo: "Save ₹3,988",
         popular: true
       }
@@ -227,71 +372,36 @@
 
       card.innerHTML += `
         <h2>${plan.name}</h2>
-        <div class="plan-price">₹${plan.price.toLocaleString()} / ${plan.interval}</div>
-        ${plan.promo ? `<div class="promo">${plan.promo}</div>` : ""}
-        <button class="btn" onclick="showPopup('Please log in to subscribe', {type: 'info'})">
-          Subscribe
+        <div class="plan-price">₹${plan.price.toLocaleString('en-IN')} <span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ ${plan.interval}</span></div>
+        ${plan.promo ? `<div class="promo-text">${plan.promo}</div>` : ""}
+        <button class="btn" onclick="showPopup('Please log in to subscribe')">
+          Subscribe Now
         </button>
       `;
 
       plansContainer.appendChild(card);
     });
-  </script>
 
-  <!-- Popup markup -->
-  <div id="alert-popup" class="popup hidden" aria-hidden="true" role="alert">
-    <div class="popup-content" role="document">
-      <button class="close-btn" aria-label="Close">&times;</button>
-      <div class="popup-message"></div>
-      <div class="popup-actions">
-        <button class="btn" onclick="hidePopup()">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function showPopup(message, {type = 'info', autoClose = true, duration = 3500} = {}) {
+    function showPopup(message) {
       const popup = document.getElementById('alert-popup');
-      if (!popup) return;
       const msg = popup.querySelector('.popup-message');
       msg.textContent = message;
-      popup.classList.remove('success','error','info','hidden');
-      popup.classList.add('show', type);
-      popup.setAttribute('aria-hidden', 'false');
-      if (autoClose) {
-        clearTimeout(popup._timeout);
-        popup._timeout = setTimeout(hidePopup, duration);
-      }
+      popup.classList.add('show');
     }
 
     function hidePopup() {
       const popup = document.getElementById('alert-popup');
-      if (!popup) return;
       popup.classList.remove('show');
-      popup.setAttribute('aria-hidden', 'true');
-      clearTimeout(popup._timeout);
-      setTimeout(() => popup.classList.add('hidden'), 220);
     }
 
-    // close when clicking overlay (but not content)
-    document.addEventListener('click', (e) => {
-      const popup = document.getElementById('alert-popup');
-      if (!popup) return;
-      if (popup.classList.contains('show') && e.target === popup) {
+    // close when clicking overlay
+    document.getElementById('alert-popup').addEventListener('click', (e) => {
+      if (e.target.id === 'alert-popup') {
         hidePopup();
       }
-    });
-
-    // close on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hidePopup();
-    });
-
-    // close on close button click
-    document.addEventListener('click', (e) => {
-      if (e.target.matches('.close-btn')) hidePopup();
     });
   </script>
 
 </body>
+
 </html>

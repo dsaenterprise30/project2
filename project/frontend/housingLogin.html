@@ -58,8 +58,8 @@
       padding: 0;
       min-height: 100vh;
       background-image:
-        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transpahousing 40%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transpahousing 40%);
       background-attachment: fixed;
     }
 
@@ -446,7 +446,7 @@
     }
 
     #popup-close-btn {
-      background: transparent;
+      background: transpahousing;
       border: 2px solid var(--glass-border);
       box-shadow: none;
     }
@@ -849,7 +849,7 @@
               localStorage.setItem("userToken", data.token);
               localStorage.setItem("userMobileNumber", phoneNumber);
               localStorage.setItem("user", JSON.stringify(data.data));
-              window.location.href = "rentProperties.html";
+              window.location.href = "housingProperties.html";
             } else if (response.status === 403 && data.subscriptionActive === false) {
               // Subscription expired / not active – ask user to subscribe now
               showCustomPopup(
@@ -1122,7 +1122,7 @@
                         localStorage.setItem("userToken", loginData.token);
                         localStorage.setItem("userMobileNumber", mobileNumber);
                         localStorage.setItem("user", JSON.stringify(loginData.data));
-                        window.location.href = "rentProperties.html";
+                        window.location.href = "housingProperties.html";
                       } else {
                         showCustomPopup("⚠️ " + (loginData.message || "Please try to login again manually."));
                       }
@@ -1195,3 +1195,4 @@
 </body>
 
 </html>
+

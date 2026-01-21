@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Real Estate Listings and Information">
-    <meta name="theme-color" content="#0f172a"> <!-- Updated to Premium Theme -->
+    <meta name="theme-color" content="#0f172a">
     <meta name="author" content="QuadCoders Team">
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
-    <title>DSA Enterprise - Rent Properties</title>
+    <title>DSA Enterprise - commercial Properties</title>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,6 +17,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+
 
     <style>
         /* --- Premium Design System --- */
@@ -469,13 +470,14 @@
 
         .panel-content {
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .panel-content input {
             width: 100%;
             padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
             background: var(--input-bg);
             border: 1px solid var(--glass-border);
             color: var(--text-main);
@@ -682,34 +684,19 @@
                 <span>DSA Enterprise</span>
             </a>
         </div>
+
         <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="sellProperties.html">Sell Properties</a></li>
-            <li><a id="profileIcon"><i class="fas fa-admin fa-user-circle fa-xl"></i> My Profile</a></li>
+            <li><a href="housingProperties.html">Rent Properties</a></li>
+            <li><a id="profileIcon"><i class="fas fa-user-circle fa-xl"></i> My Profile</a></li>
         </ul>
-        <div class="hamburger"><span></span><span></span><span></span></div>
+
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </nav>
 
-    <!-- Side Panel (Profile) -->
-    <div id="profilePanel" class="side-panel">
-        <div class="panel-header">
-            <span>My Profile</span>
-            <button class="close-btn" id="closeProfileBtn">&times;</button>
-        </div>
-        <div class="panel-content">
-            <label for="profileName">Name:</label>
-            <input type="text" id="profileName" readonly>
-
-            <label for="profileMobile">Mobile Number:</label>
-            <input type="text" id="profileMobile" readonly>
-
-            <button id="logoutBtn" class="btn" style="background: var(--danger); width: 100%;">Logout</button>
-        </div>
-    </div>
-
-    <div id="overlay" class="overlay"></div>
-
-    <!-- Popup -->
     <div id="custom-popup-overlay" class="popup-hidden">
         <div class="custom-popup-card">
             <div class="custom-popup-content">
@@ -719,16 +706,31 @@
             <div class="custom-popup-buttons">
                 <button id="popup-ok-btn" class="btn">OK</button>
                 <button id="popup-close-btn" class="btn"
-                    style="background: var(--danger); display: none;">Close</button>
+                    style="background: var(--danger); display: none;">Discard</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Side Panel -->
+    <div id="profilePanel" class="side-panel">
+        <div class="panel-header">
+            <span>My Profile</span>
+            <button class="close-btn" id="closeProfileBtn">&times;</button>
+        </div>
+        <div class="panel-content">
+            <label for="profileName">Name:</label>
+            <input type="text" id="profileName" readonly>
+            <label for="profileMobile">Mobile Number:</label>
+            <input type="text" id="profileMobile" readonly>
+            <button id="logoutBtn" class="btn" style="background: var(--danger);">Logout</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+
     <section class="search-section" id="home">
         <div class="search-container">
-            <h2 class="search-title">Find Your Perfect Property For Rent</h2>
-
+            <h2 class="search-title">Find Your Perfect Property For Sale</h2>
             <div class="search-form" id="searchForm">
                 <div class="search-group">
                     <label class="search-label">Select Your Location</label>
@@ -776,22 +778,7 @@
                     <label class="search-label">Enter Your Budget</label>
                     <div class="price-input-group">
                         <span class="input-icon">₹</span>
-                        <input type="text" class="search-input" id="priceInput" placeholder="e.g., 25000">
-                    </div>
-                </div>
-
-                <div class="search-group">
-                    <label class="search-label">Tenant</label>
-                    <div class="dropdown" id="tenantType">
-                        <div class="dropdown-btn">
-                            <span>Select Choice</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="family">Family</div>
-                            <div class="dropdown-option" data-value="bachelor">Bachelor</div>
-                            <div class="dropdown-option" data-value="any">Any</div>
-                        </div>
+                        <input type="text" class="search-input" id="priceInput" placeholder="e.g., 5000000">
                     </div>
                 </div>
 
@@ -811,7 +798,7 @@
 
                 <div class="search-group">
                     <label class="search-label">Contact Number</label>
-                    <input type="text" class="search-input" id="contactInput" placeholder="digits only">
+                    <input type="text" class="search-input" id="contactInput" placeholder="Digits only">
                 </div>
 
                 <div class="search-group" style="align-self: flex-end;">
@@ -833,24 +820,21 @@
     <section class="listings-section" id="listings">
         <div class="property-container">
             <h2 class="property-title">Available Properties</h2>
-
             <div id="tableContainer" class="property-table-container hidden">
-                <table class="property-table" id="propertiesTable">
+                <table class="property-table">
                     <thead>
                         <tr>
                             <th>Location</th>
                             <th>Area Name</th>
                             <th>Property Type</th>
-                            <th>Rent</th>
+                            <th>Price</th>
                             <th>Name</th>
                             <th>Contact</th>
-                            <th>Tenant Choice</th>
-                            <th>Ownership Type</th>
                             <th>Date</th>
+                            <th>Ownership Type</th>
                         </tr>
                     </thead>
                     <tbody id="propertiesBody">
-                        <!-- Dynamic -->
                     </tbody>
                 </table>
             </div>
@@ -869,33 +853,26 @@
                 <div class="footer-logo">
                     <img src="img/DSA.png" alt="Logo">
                     <span
-                        style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-heading); margin-left: 10px;">DSA
+                        style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-heading); margin-left:10px;">DSA
                         Enterprise</span>
                 </div>
-                <p>
-                    Your trusted partner in finding the perfect property. We combine years of experience with modern
-                    technology to help you buy, sell, or rent with confidence.
-                </p>
-                <div class="footer-copyright" style="margin-top: 1rem; color: var(--text-muted); font-size: 0.8rem;">
-                    © 2025 DSA Enterprise. All rights reserved.
-                </div>
+                <p> Your trusted partner in finding the perfect property. We combine years of experience with modern
+                    technology to help you buy, commercial, or rent with confidence. </p>
+                <div class="footer-copyright" style="margin-top:1rem; color:var(--text-muted); font-size:0.8rem;"> ©
+                    2025 DSA Enterprise. All rights reserved. </div>
             </div>
-
             <div class="footer-center">
                 <h3>Quick Links</h3>
                 <ul class="footer-nav">
                     <li><a href="#home"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="sellProperties.html">Sell Properties</a></li>
+                    <li><a href="housingProperties.html">Rent Properties</a></li>
                 </ul>
             </div>
-
             <div class="footer-right">
                 <h3>Get In Touch</h3>
                 <ul class="contact-info">
-                    <li class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>Mumbai, Maharashtra, India</span>
-                    </li>
+                    <li class="contact-item"><i class="fas fa-map-marker-alt"></i> <span>Mumbai, Maharashtra,
+                            India</span></li>
                     <li class="contact-item">
                         <i class="fas fa-envelope"></i>
                         <a href="mailto:dsaenterprise30@gmail.com">dsaenterprise30@gmail.com</a>
@@ -905,87 +882,22 @@
                         <span>+91 9004053133</span>
                     </li>
                 </ul>
-
                 <div class="social-links">
-                    <a href="https://wa.link/qykos7" class="social-link" title="Whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="https://www.facebook.com/share/14R1w7XsyMb/" class="social-link" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.instagram.com/dsa.enterprise" class="social-link" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                    <a href="https://wa.link/qykos7" class="social-link" title="Whatsapp"><i
+                            class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/share/14R1w7XsyMb/" class="social-link" title="Facebook"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/dsa.enterprise?igsh=N3pidmZ6YjY2MDc=&utm_source=ig_contact_invite"
+                        class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </div>
-
-        <div class="footer-bottom">
-            Privacy Policy | Terms of Service
-        </div>
+        <div class="footer-bottom"> Privacy Policy | Terms of Service </div>
     </footer>
 
     <script type="module">
         import { API_BASE_URL } from './config.js';
         window.API_BASE_URL = API_BASE_URL;
-
-        // Make function globally available for onclick events (copied logic)
-        window.handleContactClick = async function (btnElement, contactNumber, propertyId, propertyType) {
-
-            const cell = btnElement.parentElement;
-            const token = localStorage.getItem("userToken");
-            if (!token) {
-                showCustomPopup("⚠️ Please login to contact owners.", "Login Required");
-                return;
-            }
-
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "Sending...";
-            btnElement.disabled = true;
-
-            try {
-                const response = await fetch(`${window.API_BASE_URL}/api/rentflats/send-interest`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        propertyOwnerContact: contactNumber,
-                        propertyDetails: { id: propertyId, type: propertyType }
-                    })
-                });
-
-                if (response.ok) {
-                    btnElement.style.display = 'none';
-
-                    const link = document.createElement('a');
-                    link.href = `tel:${contactNumber}`;
-                    link.innerText = contactNumber;
-                    link.style.textDecoration = 'none';
-                    link.style.color = '#10b981'; // Success color
-                    link.style.fontWeight = 'bold';
-                    cell.appendChild(link);
-
-                    showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
-                } else {
-                    throw new Error("Failed to send interest.");
-                }
-
-            } catch (error) {
-                console.error("Error sending SMS:", error);
-                showCustomPopup("⚠️ Could not send SMS, but here is the contact.", "Notice", () => {
-                    btnElement.style.display = 'none';
-                    const link = document.createElement('a');
-                    link.href = `tel:${contactNumber}`;
-                    link.innerText = contactNumber;
-                    link.style.textDecoration = 'none';
-                    link.style.color = '#10b981';
-                    link.style.fontWeight = 'bold';
-                    cell.appendChild(link);
-                });
-            }
-        };
 
         // --- POPUP FUNCTIONS ---
         window.showCustomPopup = function (message, title = "Notification", onOk = null, showClose = false) {
@@ -1000,7 +912,6 @@
 
             closeBtn.style.display = showClose ? 'inline-block' : 'none';
             okBtn.textContent = (onOk && showClose) ? "Continue" : "OK";
-            closeBtn.textContent = "Discard";
 
             // Remove old listeners to avoid stacking
             const newOk = okBtn.cloneNode(true);
@@ -1039,14 +950,13 @@
             // --- LOGIN CHECK ---
             const token = localStorage.getItem("userToken");
             if (!token) {
-                // We need to wait a tiny bit to ensure showCustomPopup is defined if it was in module script
                 setTimeout(() => {
                     if (window.showCustomPopup) {
                         window.showCustomPopup("⚠️ You must be logged in to view properties. Redirecting to login...", "Access Denied");
-                        setTimeout(() => window.location.href = "rentLogin.html", 2000);
+                        setTimeout(() => window.location.href = "commercialLogin.html", 2000);
                     } else {
                         alert("You must be logged in.");
-                        window.location.href = "rentLogin.html";
+                        window.location.href = "commercialLogin.html";
                     }
                 }, 500);
                 return;
@@ -1084,60 +994,53 @@
                 profileMobile.value = userData.mobileNumber || '';
             }
 
+            // --- Panel Management ---
             function openPanel() {
                 profilePanel.classList.add('open');
                 overlay.classList.add('show');
-                // Adjust width handled by CSS .open class
                 if (window.innerWidth <= 768) {
                     profilePanel.style.width = '100%';
                 } else {
                     profilePanel.style.width = '400px';
                 }
             }
-
             function closeAllPanels() {
                 profilePanel.classList.remove('open');
                 profilePanel.style.width = '0';
                 overlay.classList.remove('show');
             }
-
             if (profileIcon) {
                 profileIcon.addEventListener('click', (e) => {
                     e.preventDefault();
                     openPanel();
                 });
             }
-
             if (closeProfileBtn) closeProfileBtn.addEventListener('click', closeAllPanels);
             if (overlay) overlay.addEventListener('click', closeAllPanels);
-
             if (logoutBtn) {
                 logoutBtn.addEventListener("click", () => {
                     localStorage.removeItem("userToken");
                     localStorage.removeItem("user");
-                    window.location.href = "rentLogin.html";
+                    window.location.href = "commercialLogin.html";
                 });
             }
 
             // --- CARD VIEW SETUP ---
             let cardView = document.getElementById('cardView');
-            // Already in HTML, no need to create
 
             // --- DATA FETCHING ---
             async function fetchProperties() {
-                // Ensure API_BASE_URL is ready
-                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/rentflats`;
-
+                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/commercialflats`;
                 try {
                     const response = await fetch(`${BASE_URL}/all-public`, {
                         headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token}` }
                     });
                     if (!response.ok) throw new Error('Failed to fetch properties');
                     const result = await response.json();
-                    propertiesData = result.rentFlatsList || [];
+                    propertiesData = result.data || result.commercialFlatsList || [];
                 } catch (error) {
                     console.error('Error fetching properties:', error);
-                    showTableMessage('❌ Error loading properties. Please try again later. ' + (error.message || ''));
+                    showTableMessage('❌ Error loading properties. Please try again later.');
                 }
             }
 
@@ -1145,27 +1048,17 @@
             function applyFilters() {
                 const filterLocation = filters.location ? filters.location.value.toLowerCase() : '';
                 const filterType = filters.propertyType ? filters.propertyType.value.toLowerCase() : '';
-                const filterTenant = filters.tenantType ? filters.tenantType.value.toLowerCase() : '';
-                const filterOwnership = filters.ownershipType ? filters.ownershipType.value.toLowerCase() : '';
                 const priceValue = filters.priceInput ? filters.priceInput.value : '';
+                const filterOwnershipType = filters.ownershipType ? filters.ownershipType.value.toLowerCase() : '';
                 const filterContact = filters.contactInput ? String(filters.contactInput.value).replace(/\D/g, '') : '';
 
                 filteredData = propertiesData.filter(property => {
                     const rowLocation = (property.location || '').toLowerCase();
                     const normalizedRowType = (property.propertyType || '').toLowerCase().replace(/\s+/g, '');
-                    const rowTenant = (property.tenantType || '').toLowerCase();
-                    const rowOwnership = (property.ownershipType || '').toLowerCase();
 
                     const matchLocation = !filterLocation || rowLocation.includes(filterLocation);
                     const matchType = !filterType || normalizedRowType === filterType;
-                    const matchTenant = !filterTenant || rowTenant === filterTenant;
-                    const matchOwnership = !filterOwnership || rowOwnership === filterOwnership;
-
-                    let matchContact = true;
-                    if (filterContact) {
-                        const propContact = String(property.contact || '').replace(/\D/g, '');
-                        matchContact = propContact.includes(filterContact);
-                    }
+                    const matchOwnershipType = !filterOwnershipType || (property.ownershipType || '').toLowerCase() === filterOwnershipType;
 
                     let matchPrice = true;
                     if (priceValue) {
@@ -1179,8 +1072,116 @@
                         }
                     }
 
-                    return matchLocation && matchType && matchTenant && matchPrice && matchOwnership && matchContact;
+                    let matchContact = true;
+                    if (filterContact) {
+                        const propContact = String(property.contact || '').replace(/\D/g, '');
+                        matchContact = propContact.includes(filterContact);
+                    }
+
+                    return matchLocation && matchType && matchPrice && matchOwnershipType && matchContact;
                 });
+            }
+
+            function renderProperties() {
+                if (!propertiesBody) return;
+                propertiesBody.innerHTML = "";
+                filteredData.forEach(property => {
+                    const row = document.createElement("tr");
+
+                    let displayPrice = '';
+                    if (property.price) {
+                        const numericPrice = String(property.price).replace(/\D/g, '');
+                        if (numericPrice) {
+                            displayPrice = `₹${Number(numericPrice).toLocaleString('en-IN')}`;
+                        }
+                    }
+
+                    let contact = property.contact || '';
+                    if (typeof contact === 'string' && contact.startsWith('91')) contact = contact.replace(/^91/, '+91 ');
+
+                    row.innerHTML = `
+                        <td data-label="Location">${property.location || ''}</td>
+                        <td data-label="Area">${property.area || ''}</td>
+                        <td data-label="Property Type">${property.propertyType || ''}</td>
+                        <td data-label="Price">${displayPrice}</td>
+                        <td data-label="Name">${property.userName || ''}</td>
+                        <td data-label="Contact">${contact}</td>
+                        <td data-label="Date">${property.date ? new Date(property.date).toLocaleDateString() : ''}</td>
+                        <td data-label="Ownership">${property.ownershipType || 'Agent'}</td>
+                    `;
+                    propertiesBody.appendChild(row);
+                });
+            }
+
+            function renderCards() {
+                if (!cardView) return;
+                cardView.innerHTML = '';
+                filteredData.forEach(property => {
+                    const card = document.createElement('div');
+                    card.className = 'card-item';
+                    let displayPrice = '';
+                    if (property.price) {
+                        const numericPrice = String(property.price).replace(/\D/g, '');
+                        if (numericPrice) displayPrice = `₹${Number(numericPrice).toLocaleString('en-IN')}`;
+                    }
+
+                    let contact = property.contact || '';
+                    if (typeof contact === 'string' && contact.startsWith('91')) contact = contact.replace(/^91/, '+91 ');
+
+                    card.innerHTML = `
+                        <div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${property.location || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
+                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div>
+                        <div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${property.date ? new Date(property.date).toLocaleDateString() : ''}</span></div>
+                        <div class="card-row"><span class="card-label">Ownership:</span> <span class="card-value">${property.ownershipType || 'Agent'}</span></div>
+                    `;
+                    cardView.appendChild(card);
+                });
+            }
+
+            function showTable() {
+                if (tableContainer) tableContainer.classList.remove('hidden');
+                if (tableMessage) tableMessage.style.display = 'none';
+                if (cardView) cardView.style.display = 'none';
+            }
+
+            function showCardView() {
+                if (tableContainer) tableContainer.classList.add('hidden');
+                if (tableMessage) tableMessage.style.display = 'none';
+                if (cardView) cardView.style.display = 'flex';
+            }
+
+            function hideTable() {
+                if (tableContainer) tableContainer.classList.add('hidden');
+                if (tableMessage) tableMessage.style.display = 'block';
+                if (cardView) cardView.style.display = 'none';
+            }
+
+            function showTableMessage(message) {
+                if (tableMessage) tableMessage.textContent = message;
+                hideTable();
+            }
+
+            function updateSelectedFilters() {
+                if (!selectedFiltersContainer) return;
+                selectedFiltersContainer.innerHTML = '';
+                const hasFilters = Object.values(filters).some(f => f && f.value);
+
+                if (hasFilters) {
+                    Object.values(filters).forEach(filter => {
+                        if (filter && filter.value) {
+                            const tag = document.createElement('div');
+                            tag.className = 'filter-tag';
+                            tag.innerHTML = `<span>${filter.text}</span>`;
+                            selectedFiltersContainer.appendChild(tag);
+                        }
+                    });
+                    if (clearAllBtn) clearAllBtn.style.display = 'block';
+                } else {
+                    if (clearAllBtn) clearAllBtn.style.display = 'none';
+                }
             }
 
             function shouldShowCards() {
@@ -1211,126 +1212,12 @@
                 }
             }
 
-            function renderProperties() {
-                propertiesBody.innerHTML = "";
-                filteredData.forEach(property => {
-                    const row = document.createElement("tr");
-
-                    let displayPrice = '';
-                    if (property.price) {
-                        const numericPrice = String(property.price).replace(/\D/g, '');
-                        if (numericPrice) {
-                            displayPrice = `₹${Number(numericPrice).toLocaleString('en-IN')}`;
-                        }
-                    }
-
-                    row.innerHTML = `
-                        <td data-label="Location">${property.location || ''}</td>
-                        <td data-label="Area">${property.area || ''}</td>
-                        <td data-label="Property Type">${property.propertyType || ''}</td>
-                        <td data-label="Rent">${displayPrice}</td>
-                        <td data-label="Name">${property.userName || ''}</td>
-                        <td data-label="Contact">
-                            <button class="action-btn" style="background: var(--success); margin:0;" 
-                                data-sender-mobile="${userData?.mobileNumber || ''}"
-                                onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
-                                Contact
-                            </button>
-                        </td>
-                        <td data-label="Tenant Type">${property.tenantType || ''}</td>
-                        <td data-label="Ownership Type">${property.ownershipType || 'Agent'}</td>
-                        <td data-label="Date">${property.date ? new Date(property.date).toLocaleDateString() : ''}</td>
-                    `;
-                    propertiesBody.appendChild(row);
-                });
-            }
-
-            function renderCards() {
-                cardView.innerHTML = '';
-                filteredData.forEach(property => {
-                    const card = document.createElement('div');
-                    card.className = 'card-item';
-
-                    let displayPrice = '';
-                    if (property.price) {
-                        const numericPrice = String(property.price).replace(/\D/g, '');
-                        if (numericPrice) displayPrice = `₹${Number(numericPrice).toLocaleString('en-IN')}`;
-                    }
-
-                    card.innerHTML = `
-                        <div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${property.location || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Area:</span> <span class="card-value">${property.area || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Rent:</span> <span class="card-value">${displayPrice}</span></div>
-                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Contact:</span> 
-                            <span class="card-value">
-                                <button class="action-btn" style="background: var(--success); margin:0; padding: 0.5rem 1rem; font-size: 0.9em;" 
-                                    data-sender-mobile="${userData?.mobileNumber || ''}"
-                                    onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
-                                    Contact
-                                </button>
-                            </span>
-                        </div>
-                        <div class="card-row"><span class="card-label">Tenant Type:</span> <span class="card-value">${property.tenantType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${property.ownershipType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${property.date ? new Date(property.date).toLocaleDateString() : ''}</span></div>
-                    `;
-                    cardView.appendChild(card);
-                });
-            }
-
-            function showTable() {
-                tableContainer.classList.remove('hidden');
-                tableMessage.style.display = 'none'; // Use style display instead of class to be sure
-                cardView.style.display = 'none';
-            }
-
-            function showCardView() {
-                tableContainer.classList.add('hidden');
-                tableMessage.style.display = 'none';
-                cardView.style.display = 'flex';
-            }
-
-            function hideTable() {
-                tableContainer.classList.add('hidden');
-                tableMessage.style.display = 'block';
-                cardView.style.display = 'none';
-            }
-
-            function showTableMessage(message) {
-                tableMessage.textContent = message;
-                hideTable();
-            }
-
-            function updateSelectedFilters() {
-                if (!selectedFiltersContainer) return;
-                selectedFiltersContainer.innerHTML = '';
-                const hasFilters = Object.values(filters).some(f => f && f.value);
-
-                if (hasFilters) {
-                    Object.values(filters).forEach(filter => {
-                        if (filter && filter.value) {
-                            const tag = document.createElement('div');
-                            tag.className = 'filter-tag';
-                            tag.innerHTML = `<span>${filter.text}</span>`;
-                            selectedFiltersContainer.appendChild(tag);
-                        }
-                    });
-                    clearAllBtn.style.display = 'block';
-                } else {
-                    clearAllBtn.style.display = 'none';
-                }
-            }
-
             // --- EVENT LISTENERS ---
             hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
-
             searchBtn.addEventListener('click', performSearch);
 
             dropdowns.forEach(dropdown => {
                 const btn = dropdown.querySelector('.dropdown-btn');
-                if (!btn) return;
                 const options = dropdown.querySelectorAll('.dropdown-option');
 
                 btn.addEventListener('click', (e) => {
@@ -1343,8 +1230,7 @@
                 options.forEach(option => {
                     option.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const span = btn.querySelector('span');
-                        if (span) span.textContent = option.textContent;
+                        btn.querySelector('span').textContent = option.textContent;
                         options.forEach(opt => opt.classList.remove('selected'));
                         option.classList.add('selected');
                         filters[dropdown.id] = { value: option.dataset.value, text: option.textContent };
@@ -1353,6 +1239,8 @@
                     });
                 });
             });
+
+            document.addEventListener('click', () => dropdowns.forEach(d => d.classList.remove('active')));
 
             priceInput.addEventListener('input', () => {
                 const priceValue = priceInput.value.trim();
@@ -1384,16 +1272,12 @@
                     if (!btnSpan) return;
                     if (dropdown.id === 'location') btnSpan.textContent = 'Select Location';
                     else if (dropdown.id === 'propertyType') btnSpan.textContent = 'Select Property Type';
-                    else if (dropdown.id === 'tenantType') btnSpan.textContent = 'Select Choice';
                     else if (dropdown.id === 'ownershipType') btnSpan.textContent = 'Select Ownership Type';
-                    else btnSpan.textContent = 'Select Choice';
                     dropdown.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
                 });
                 updateSelectedFilters();
                 showTableMessage('⚠️ Please use the search filters above to find properties.');
             });
-
-            document.addEventListener('click', () => dropdowns.forEach(d => d.classList.remove('active')));
 
             function reRenderForViewport() {
                 if (!filteredData || filteredData.length === 0) return;
@@ -1421,3 +1305,4 @@
 </body>
 
 </html>
+
