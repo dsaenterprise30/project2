@@ -2,32 +2,82 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA Enterprise - Sell Properties Admin Panel</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSA Enterprise - Sell Properties</title>
     <link rel="icon" type="image/x-icon" href="img/DSA.png">
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caprasimo&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+
     <style>
+        /* --- Premium Design System --- */
+        :root {
+            /* Palette */
+            --primary: #0f172a;
+            /* Slate 900 */
+            --primary-light: #1e293b;
+            /* Slate 800 */
+            --accent: #3b82f6;
+            /* Blue 500 */
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            /* Emerald 500 */
+            --danger: #ef4444;
+            /* Red 500 */
+            --text-main: #f8fafc;
+            /* Slate 50 */
+            --text-muted: #94a3b8;
+            /* Slate 400 */
+
+            --glass-bg: rgba(15, 23, 42, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --input-bg: rgba(15, 23, 42, 0.6);
+
+            /* Typography */
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Spacing & Radius */
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Base & Reset --- */
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fff
+            font-family: var(--font-body);
+            background-color: var(--primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
         }
 
-        html {
-            scroll-behavior: smooth
-        }
-
+        /* --- Navbar --- */
         .navbar {
-            background: #1e3a8a;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -35,970 +85,636 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1)
-        }
-
-        .logo a {
-            text-decoration: none;
-            color: inherit
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 1rem;
-            font-size: 25px;
-            color: #fff;
-            background: transparent;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
             cursor: pointer;
-            font-family: "Caprasimo", serif;
-            font-weight: 400;
-            font-style: normal
         }
 
-        .logo span {
-            background: transparent;
-            vertical-align: middle
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .logo img {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            vertical-align: middle
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
         }
 
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 2rem;
-            align-items: center
+            gap: 1.5rem;
+            align-items: center;
         }
 
         .nav-links a {
-            color: #fff;
+            color: var(--text-muted);
             text-decoration: none;
             font-weight: 500;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all .3s ease
+            border-radius: var(--radius-sm);
+            transition: all 0.3s ease;
         }
 
-        .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.1)
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .hamburger {
             display: none;
             flex-direction: column;
             cursor: pointer;
-            padding: 0.5rem
+            gap: 5px;
         }
 
         .hamburger span {
             width: 25px;
             height: 3px;
-            background: #fff;
-            margin: 2px 0;
-            transition: .3s;
-            border-radius: 2px
+            background: var(--text-main);
+            border-radius: 2px;
+            transition: all 0.3s;
         }
 
-        .search-section {
-            background: #fff;
+        /* --- Sections & Containers --- */
+        section {
             padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid #e2e8f0
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .search-container {
-            max-width: 1200px;
-            margin: 0 auto
+        .search-container,
+        .property-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
         }
 
-        .search-title {
-            font-size: 1.5rem;
+        h2.search-title,
+        h2.property-title {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
             font-weight: 600;
-            color: #1e3a8a;
-            margin-bottom: 1.5rem;
-            text-align: center
+            color: var(--text-main);
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
+        /* --- Search Form --- */
         .search-form {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             align-items: end;
-            flex-wrap: nowrap
         }
 
         .search-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            flex-grow: 1;
-            min-width: 150px;
-            transition: flex-grow .3s ease
-        }
-
-        .search-group:focus-within {
-            flex-grow: 1.5
         }
 
         .search-label {
+            font-size: 0.9rem;
             font-weight: 500;
-            color: #374151;
-            font-size: .875rem;
-            white-space: nowrap
-        }
-
-        .search-input,
-        .dropdown-btn,
-        .search-btn {
-            height: 50px
+            color: var(--text-muted);
         }
 
         .search-input {
-            padding: .75rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
             font-size: 1rem;
-            transition: all .3s ease;
-            outline: none;
-            width: 100%
+            font-family: var(--font-body);
+            transition: all 0.2s;
         }
 
         .search-input:focus {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1)
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
+        /* Input with Clear Button */
+        .input-with-clear {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-clear .clear-btn {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .input-with-clear input:not(:placeholder-shown)+.clear-btn {
+            display: block;
+        }
+
+        /* Dropdowns */
         .dropdown {
             position: relative;
-            cursor: pointer;
-            width: 100%
+            width: 100%;
         }
 
         .dropdown-btn {
-            width: 100%;
-            padding: .75rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            background: #fff;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 1rem;
-            color: #374151;
-            transition: all .3s ease
-        }
-
-        .dropdown-btn:hover,
-        .dropdown.active .dropdown-btn {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1)
+            color: var(--text-main);
         }
 
         .dropdown-content {
             position: absolute;
             top: 100%;
             left: 0;
-            right: 0;
-            background: #fff;
-            border: 2px solid #1e3a8a;
-            border-radius: 12px;
-            margin-top: .25rem;
+            width: 100%;
+            background: var(--primary-light);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            margin-top: 0.5rem;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all .3s ease;
+            transition: all 0.2s ease;
             z-index: 100;
+            box-shadow: var(--shadow-lg);
             max-height: 250px;
-            overflow-y: auto
+            overflow-y: auto;
         }
 
         .dropdown.active .dropdown-content {
             opacity: 1;
             visibility: visible;
-            transform: translateY(0)
+            transform: translateY(0);
         }
 
         .dropdown-option {
-            padding: .75rem 1rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
-            transition: background .2s ease;
-            border-bottom: 1px solid #f3f4f6
+            transition: background 0.2s;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .dropdown-option:last-child {
-            border-bottom: none
+            border-bottom: none;
         }
 
         .dropdown-option:hover {
-            background: #f8fafc
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
         }
 
-        .dropdown-option.selected {
-            background: #1e3a8a;
-            color: #fff
+        /* Buttons */
+        .btn,
+        .search-btn,
+        .add-property-btn,
+        button[type="submit"] {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover,
+        .search-btn:hover,
+        .add-property-btn:hover,
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+            filter: brightness(1.1);
         }
 
         .search-btn {
-            padding: .75rem 2rem;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            flex-shrink: 0;
-            min-width: 120px
+            width: 100%;
+            /* Match grid width */
         }
 
-        .search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3)
-        }
-
+        /* Filters Tags */
         .selected-filters {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             display: flex;
             flex-wrap: wrap;
-            gap: .5rem
+            gap: 0.8rem;
         }
 
         .filter-tag {
-            background: #eff6ff;
-            color: #1e3a8a;
-            padding: .5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.4rem 1rem;
             border-radius: 20px;
-            font-size: .875rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: .5rem;
-            border: 1px solid #bae6fd
+            gap: 0.5rem;
         }
 
         .filter-tag .remove {
             cursor: pointer;
-            width: 16px;
-            height: 16px;
-            background: #1e3a8a;
-            color: #fff;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: .75rem
+            font-size: 0.8rem;
         }
 
-        .listings-section {
-            margin: 20px auto;
-            font-family: Arial, sans-serif;
-            max-width: 1200px
-        }
-
-        .property-container {
-            margin-bottom: 40px;
-            width: 100%
-        }
-
+        /* --- Property Stats --- */
         .property-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .property-title {
-            font-size: 24px;
-            color: #333;
-            text-align: left
+            margin: 0 !important;
         }
 
         .property-counters {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .counter-card {
-            flex: 1;
-            min-width: 250px;
-            padding: 20px;
-            background: #f8f8f8;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1.5rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid var(--glass-border);
         }
 
         .counter-card h4 {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 8px
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
         }
 
         .counter-card .count {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #1e3a8a
+            color: var(--text-main);
         }
 
-        .add-property-btn {
-            background: #28a745;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all .3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px
-        }
-
-        .add-property-btn:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1)
-        }
-
+        /* --- Tables --- */
         .property-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px auto;
-            table-layout: fixed;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-            display: table;
-            overflow: hidden
-        }
-
-        .property-table th,
-        .property-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-            word-wrap: break-word
+            margin-top: 1rem;
         }
 
         .property-table th {
-            background: #f2f2f2;
-            color: #333;
-            font-weight: bold
-        }
-
-        .property-table tr:nth-child(even) {
-            background: #f9f9f9
-        }
-
-        .property-table tr:hover {
-            background: #f1f1f1
+            text-align: left;
+            padding: 1.2rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .property-table td {
-            color: #555
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-main);
+            font-size: 0.95rem;
         }
 
+        .property-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Actions */
         .actions-cell {
-            white-space: nowrap
+            display: flex;
+            gap: 0.5rem;
         }
 
         .action-btn {
-            border: none;
-            padding: 10px 15px;
+            width: 35px;
+            height: 35px;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 8px;
-            color: #fff;
-            transition: all .3s ease;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 5px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)
-        }
-
-        .action-btn:last-child {
-            margin-right: 0
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
         }
 
         .edit-btn {
-            background: linear-gradient(135deg, #3b82f6, #2563eb)
+            background: var(--accent);
+        }
+
+        .edit-btn:hover {
+            background: #2563eb;
         }
 
         .delete-btn {
-            background: linear-gradient(135deg, #ef4444, #dc2626)
+            background: var(--danger);
         }
 
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2)
+        .delete-btn:hover {
+            background: #dc2626;
         }
 
+        /* --- Side Panel --- */
         .side-panel {
             height: 100%;
             width: 0;
             position: fixed;
             right: 0;
             top: 0;
-            background: #fff;
-            overflow-x: hidden;
-            transition: .4s;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+            background: var(--primary-light);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
             z-index: 2000;
-            padding: 0
+            overflow-x: hidden;
+            transition: 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--glass-border);
         }
 
         .panel-header {
-            padding: 15px;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            color: #fff;
-            font-size: 18px;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--glass-border);
             display: flex;
             justify-content: space-between;
-            align-items: center
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        .panel-header span {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 600;
         }
 
         .close-btn {
             background: none;
             border: none;
-            color: #fff;
-            font-size: 26px;
-            cursor: pointer
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-main);
         }
 
         .panel-content {
-            padding: 20px;
+            padding: 2rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .panel-content form {
             display: flex;
             flex-direction: column;
-            gap: 10px
+            gap: 1.2rem;
         }
 
         .panel-content label {
-            margin: 8px 0 0;
-            font-weight: 500;
-            color: #555;
-            font-size: .9rem
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
         }
 
         .panel-content input,
         .panel-content select {
-            padding: 8px;
-            font-size: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            width: 100%
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
         }
 
         .button-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px
+            margin-top: 1rem;
         }
 
         .button-row button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
+            width: 100%;
+        }
+
+        /* --- Card View (Mobile) --- */
+        .card-view {
+            display: none;
+            /* Hidden by default */
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 0.5rem;
+        }
+
+        .card-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .card-value {
+            color: var(--text-main);
             font-weight: 500;
-            cursor: pointer;
-            transition: background-color .3s
+            text-align: right;
         }
 
-        #addPropertyForm .button-row button {
-            background: #1e3a8a;
-            color: #fff
+        .card-actions {
+            margin-top: 1rem;
+            justify-content: flex-end;
+            border-top: none;
         }
 
-        #addPropertyForm .button-row button:hover {
-            background: #1a3274
-        }
-
+        /* --- Modals --- */
         .overlay {
             position: fixed;
-            display: none;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1500
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1500;
+            display: none;
         }
 
-        .input-with-clear {
-            position: relative;
-            width: 100%;
-            display: flex;
-            align-items: center
-        }
-
-        .input-with-clear input {
-            width: 100%;
-            padding-right: 35px
-        }
-
-        .input-with-clear .clear-btn {
-            position: absolute;
-            right: 10px;
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            font-size: 1.25rem;
-            cursor: pointer;
-            display: none
-        }
-
-        .input-with-clear input:not(:placeholder-shown)+.clear-btn {
-            display: block
-        }
-
-        .custom-modal {
+        .custom-modal,
+        #custom-popup-overlay {
             position: fixed;
             z-index: 3000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             display: none;
+            /* Flex when active */
             justify-content: center;
-            align-items: center
+            align-items: center;
         }
 
-        .modal-content {
-            background: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 400px;
+        .modal-content,
+        .custom-popup-card {
+            background-color: var(--primary-light);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--glass-border);
             width: 90%;
+            max-width: 400px;
             text-align: center;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            position: relative
+            color: var(--text-main);
         }
 
         .modal-message {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
             font-size: 1.1rem;
-            color: #333
         }
 
-        /* Responsive Design & Card View */
-        .card-view {
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px;
-        }
-
-        .card-item {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
-        }
-
-        .card-row {
+        .modal-actions,
+        .custom-popup-buttons {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        .card-label {
-            font-weight: 600;
-            color: #4b5563;
-        }
-
-        .card-value {
-            color: #1f2937;
-            text-align: right;
-        }
-
-        .card-actions {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 10px 15px;
-            }
-
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                gap: 10px;
-                margin-top: 10px;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .hamburger {
-                display: block;
-            }
-
-            /* Hide Table, Show Cards on Mobile */
-            .table-container {
-                display: none;
-            }
-
-            .card-view {
-                display: flex;
-            }
-
-            .search-section {
-                flex-direction: column;
-            }
-
-            .search-group {
-                width: 100%;
-            }
-
-            .dropdown {
-                width: 100%;
-            }
-
-            .side-panel {
-                width: 100% !important;
-                /* Full width on mobile */
-            }
-        }
-
-        .modal-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0 5px;
-            transition: transform .2s
-        }
-
-        .modal-actions button:hover {
-            transform: translateY(-2px)
+            justify-content: center;
+            gap: 1rem;
         }
 
         #okBtn {
-            background: #1e3a8a;
-            color: #fff
+            background: var(--accent);
         }
 
         #confirmYesBtn {
-            background: #28a745;
-            color: #fff
+            background: var(--success);
         }
 
         #confirmNoBtn {
-            background: #ef4444;
-            color: #fff
+            background: var(--danger);
         }
 
-        .card-view {
-            display: flex;
-            flex-direction: column;
-            gap: 15px
-        }
-
-        .card-item {
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e2e8f0
-        }
-
-        .card-item .card-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px dashed #e2e8f0;
-            flex-wrap: wrap
-        }
-
-        .card-item .card-row:last-child {
-            border-bottom: none
-        }
-
-        .card-item .card-label {
+        .modal-actions button {
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            color: white;
+            cursor: pointer;
             font-weight: 600;
-            font-size: .875rem;
-            color: #374151
         }
 
-        .card-item .card-value {
-            text-align: right;
-            font-size: 1rem;
-            color: #555
-        }
-
-        .card-item .actions-cell {
-            justify-content: flex-end;
-            width: 100%;
-            margin-top: 10px
-        }
-
-        #custom-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            transition: opacity .3s ease, visibility .3s ease
-        }
-
-        .custom-popup-card {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            transform: scale(.9);
-            transition: transform .3s ease
-        }
-
-        .popup-hidden {
-            visibility: hidden;
-            opacity: 0
-        }
-
-        .popup-visible {
-            visibility: visible;
-            opacity: 1
-        }
-
-        .custom-popup-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 1.5rem
-        }
-
-        .custom-popup-buttons .btn {
-            width: 45%
-        }
-
-        #tableView {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch
-        }
-
-        @media (max-width:768px) {
-            .navbar {
-                padding: 1rem
-            }
-
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
             .nav-links {
                 display: none;
                 position: absolute;
                 top: 100%;
                 left: 0;
                 width: 100%;
-                background: #1e3a8a;
+                background: var(--primary-light);
                 flex-direction: column;
-                padding: 1rem 0;
-                gap: 20px
+                padding: 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--glass-border);
             }
 
             .nav-links.active {
-                display: flex
+                display: flex;
             }
 
             .hamburger {
-                display: flex
+                display: flex;
             }
 
-            .search-form {
-                flex-wrap: wrap;
-                align-items: stretch
+            .side-panel {
+                width: 100% !important;
             }
 
-            .search-group {
-                min-width: unset;
-                flex-grow: 1
-            }
-
-            .search-btn {
-                width: 100%
-            }
-
-            .search-section {
-                padding: 1.5rem 1rem
-            }
-
-            .listings-section {
-                margin: 10px;
-                max-width: none;
-                padding: 0 1rem
-            }
+            /* When open */
 
             .property-header {
+                padding: 1rem;
                 flex-direction: column;
-                align-items: stretch;
-                gap: 15px
             }
 
             .add-property-btn {
-                width: 100%
-            }
-
-            .card-view {
-                gap: 12px
-            }
-
-            .card-item {
-                padding: 12px
-            }
-
-            .card-item .card-row {
-                padding: 6px 0
-            }
-
-            .card-item .card-label {
-                font-size: .85rem
-            }
-
-            .card-item .card-value {
-                font-size: .95rem
-            }
-        }
-
-        @media (max-width:900px) and (orientation:landscape) {
-
-            .listings-section,
-            .property-container {
-                font-size: 14px
-            }
-
-            .property-table {
-                table-layout: auto;
-                min-width: 100%
-            }
-
-            .property-table th,
-            .property-table td {
-                padding: 8px 8px;
-                font-size: .88rem;
-                line-height: 1.15;
-                white-space: normal;
-                word-break: break-word;
-                hyphens: auto;
-                vertical-align: middle
-            }
-
-            .property-table th {
-                font-size: .9rem;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                max-width: 120px
-            }
-
-            .action-btn {
-                padding: 6px 8px;
-                font-size: .78rem;
-                min-width: 36px;
-                margin-right: 6px
-            }
-
-            .actions-cell {
-                display: flex;
-                gap: 6px;
-                flex-wrap: wrap;
-                align-items: center
-            }
-
-            .card-item {
-                padding: 10px
-            }
-
-            .card-item .card-row {
-                padding: 6px 0
-            }
-
-            .card-item .card-label {
-                font-size: .85rem
-            }
-
-            .card-item .card-value {
-                font-size: .92rem
-            }
-
-            #tableView::-webkit-scrollbar {
-                height: 8px
-            }
-
-            #tableView::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.12);
-                border-radius: 8px
-            }
-
-            .property-header {
-                gap: 10px
-            }
-
-            .property-counters {
-                gap: 10px
-            }
-        }
-
-        @media (max-width:420px) and (orientation:landscape) {
-            .property-table th {
-                max-width: 90px
-            }
-
-            .property-table td {
-                font-size: .82rem;
-                padding: 6px 6px
-            }
-
-            .search-btn {
-                min-width: 100px;
-                font-size: .9rem;
-                padding: 8px 10px
+                width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
+
     <nav class="navbar">
         <div class="logo">
-            <a onclick="history.back()">
+            <a onclick="history.back()" style="cursor: pointer; margin-right: 0.5rem;">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <a>
@@ -1013,31 +729,31 @@
         <div class="hamburger"><span></span><span></span><span></span></div>
     </nav>
 
-    <div id="custom-popup-overlay" class="popup-hidden">
-        <div class="custom-popup-card">
-            <div class="custom-popup-content">
-                <h3 id="popup-title"></h3>
-                <p id="popup-message"></p>
-            </div>
-            <div class="custom-popup-buttons">
-                <button id="popup-ok-btn" class="btn">OK</button>
-                <button id="popup-close-btn" class="btn">Close</button>
+    <!-- Custom Popup (replaces default alerts) -->
+    <div id="customModal" class="custom-modal">
+        <div class="modal-content">
+            <p id="modalMessage" class="modal-message"></p>
+            <div id="modalActions" class="modal-actions">
+                <button id="okBtn">OK</button>
+                <button id="confirmYesBtn">Yes</button>
+                <button id="confirmNoBtn">No</button>
             </div>
         </div>
     </div>
 
+    <!-- Side Panel for Adding Property -->
     <div id="propertyPanel" class="side-panel">
         <div class="panel-header">
-            <span id="propertyPanelTitle">Add New Property for Sell</span>
+            <span id="propertyPanelTitle">Add New Property for Sale</span>
             <button class="close-btn" id="closePropertyPanel">&times;</button>
         </div>
         <div class="panel-content">
             <form id="addPropertyForm" novalidate>
                 <input type="hidden" id="propertyId" value="">
+
                 <label for="propertyLocation">Location:</label>
                 <select id="propertyLocation" name="location" required>
                     <option value="">Select a Location</option>
-                    <option></option>
                     <option value="Mira Road East">Mira Road East</option>
                     <option value="Mira Road West">Mira Road West</option>
                     <option value="Dahisar West">Dahisar West</option>
@@ -1049,6 +765,10 @@
                     <option value="Andheri West">Andheri West</option>
                     <option value="Vile Parle West">Vile Parle West</option>
                 </select>
+
+                <label for="area">Area Name:</label>
+                <input type="text" id="area" name="area" placeholder="e.g., Kandivali West">
+
                 <label for="propertyType">Property Type:</label>
                 <select id="propertyType" name="propertyType" required>
                     <option value="">Select a Property Type</option>
@@ -1061,44 +781,42 @@
                     <option value="3.5 BHK">3.5 BHK</option>
                     <option value="4 BHK">4 BHK</option>
                 </select>
-                <label for="area">Area Name:</label>
-                <input type="text" id="area" name="area" placeholder="e.g., Kandivali West">
+
                 <label for="propertyPrice">Price:</label>
                 <input type="text" id="propertyPrice" name="price" placeholder="e.g., ₹50,00,000" required>
+
                 <label for="propertyName">Name:</label>
                 <input type="text" id="propertyName" name="userName" placeholder="e.g., John Doe" required>
+
                 <label for="propertyContact">Contact:</label>
                 <input type="text" id="propertyContact" name="contact" placeholder="e.g., 9876543210" required>
+
                 <label for="propertyDate">Listed on Date:</label>
                 <input type="date" id="propertyDate" name="date" required>
+
                 <label for="ownershipType">Ownership Type:</label>
                 <select id="ownershipType" name="ownershipType" required>
                     <option value="">Select Ownership</option>
                     <option value="Owner">Owner</option>
                     <option value="Agent">Agent</option>
                 </select>
-                <div class="button-row"><button type="submit" id="submitPropertyBtn">Add Property</button></div>
+
+                <div class="button-row">
+                    <button type="submit" id="submitPropertyBtn">Add Property</button>
+                </div>
             </form>
         </div>
     </div>
 
     <div id="overlay" class="overlay"></div>
 
-    <div id="customModal" class="custom-modal">
-        <div class="modal-content">
-            <p id="modalMessage" class="modal-message"></p>
-            <div id="modalActions" class="modal-actions"><button id="okBtn">OK</button><button
-                    id="confirmYesBtn">Yes</button><button id="confirmNoBtn">No</button></div>
-        </div>
-    </div>
-
     <section class="search-section" id="home">
         <div class="search-container">
             <h2 class="search-title">Sell Properties</h2>
             <form class="search-form" onsubmit="return false;">
+                <!-- Search Groups -->
                 <div class="search-group">
                     <label class="search-label">Select Location</label>
-                    <!-- data-filter-key maps this dropdown to filters.location -->
                     <div class="dropdown" id="location" data-filter-key="location">
                         <div class="dropdown-btn"><span>Select Location</span><i class="fas fa-chevron-down"></i></div>
                         <div class="dropdown-content">
@@ -1136,25 +854,24 @@
 
                 <div class="search-group">
                     <label class="search-label">Enter Budget</label>
-                    <div class="input-with-clear"><input type="text" class="search-input" id="price"
-                            placeholder="e.g., ₹50,00,000"><button type="button" class="clear-btn"
-                            data-target="price">&times;</button></div>
+                    <div class="input-with-clear">
+                        <input type="text" class="search-input" id="price" placeholder="e.g., 5000000">
+                        <button type="button" class="clear-btn" data-target="price">&times;</button>
+                    </div>
                 </div>
 
                 <div class="search-group">
                     <label class="search-label">Enter Mobile No.</label>
-                    <div class="input-with-clear"><input type="text" class="search-input" id="mobile"
-                            placeholder="e.g., 9876543210"><button type="button" class="clear-btn"
-                            data-target="mobile">&times;</button></div>
+                    <div class="input-with-clear">
+                        <input type="text" class="search-input" id="mobile" placeholder="e.g., 9876543210">
+                        <button type="button" class="clear-btn" data-target="mobile">&times;</button>
+                    </div>
                 </div>
 
-                <!-- NEW: Ownership Type filter (search) -->
                 <div class="search-group">
                     <label class="search-label">Ownership Type</label>
-                    <!-- data-filter-key maps to filters.ownershipType; id is unique to this dropdown -->
                     <div class="dropdown" id="ownershipTypeFilter" data-filter-key="ownershipType">
-                        <div class="dropdown-btn"><span>Select Ownership Type</span><i class="fas fa-chevron-down"></i>
-                        </div>
+                        <div class="dropdown-btn"><span>Select Ownership</span><i class="fas fa-chevron-down"></i></div>
                         <div class="dropdown-content">
                             <div class="dropdown-option" data-value="Agent">Agent</div>
                             <div class="dropdown-option" data-value="Owner">Owner</div>
@@ -1162,8 +879,10 @@
                     </div>
                 </div>
 
-                <button type="button" class="search-btn" id="searchBtn"><i class="fas fa-search"></i>
-                    Search</button><button></button>
+                <div class="search-group" style="align-self: flex-end;">
+                    <button type="button" class="search-btn" id="searchBtn"><i class="fas fa-search"></i>
+                        Search</button>
+                </div>
             </form>
             <div class="selected-filters" id="selectedFilters"></div>
         </div>
@@ -1172,9 +891,10 @@
     <section class="listings-section">
         <div class="property-container">
             <div class="property-header">
-                <h2 class="property-title">Listed Properties for Sell</h2>
-                <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i> Add New</button>
+                <h2 class="property-title">Listed Properties for Sale</h2>
+                <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i>Add New</button>
             </div>
+
             <div class="property-counters">
                 <div class="counter-card">
                     <h4>Total Properties</h4>
@@ -1189,7 +909,9 @@
                     <div class="count" id="agentProperties">0</div>
                 </div>
             </div>
-            <div id="tableView" style="display: none;">
+
+            <!-- Table View (Desktop) -->
+            <div id="tableView" style="display: none; overflow-x:auto;">
                 <table class="property-table">
                     <thead id="propertiesHeader">
                         <tr>
@@ -1199,7 +921,7 @@
                             <th>Price</th>
                             <th>Name</th>
                             <th>Contact</th>
-                            <th>Date(MM/DD/YYYY)</th>
+                            <th>Date</th>
                             <th>Ownership</th>
                             <th>Actions</th>
                         </tr>
@@ -1207,387 +929,381 @@
                     <tbody id="propertiesBody"></tbody>
                 </table>
             </div>
+
+            <!-- Card View (Mobile) -->
             <div id="cardView" class="card-view" style="display: none;"></div>
         </div>
     </section>
 
+    <!-- Import & Config -->
     <script type="module">
         import { API_BASE_URL } from './config.js';
         window.API_BASE_URL = API_BASE_URL;
     </script>
+
+    <!-- Original Logic Preserved -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const BASE_URL = `${window.API_BASE_URL}/api/sellflats`;
-            let properties = [];
+            const init = () => {
+                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/sellflats`;
+                let properties = [];
 
-            // --- Custom Modal Functionality (Unified) ---
-            const customModal = document.getElementById('customModal');
-            const modalMessage = document.getElementById('modalMessage');
-            const okBtn = document.getElementById('okBtn');
-            const confirmYesBtn = document.getElementById('confirmYesBtn');
-            const confirmNoBtn = document.getElementById('confirmNoBtn');
+                // --- Custom Modal Functionality ---
+                const customModal = document.getElementById('customModal');
+                const modalMessage = document.getElementById('modalMessage');
+                const okBtn = document.getElementById('okBtn');
+                const confirmYesBtn = document.getElementById('confirmYesBtn');
+                const confirmNoBtn = document.getElementById('confirmNoBtn');
 
-            function showCustomPopup(message, isConfirm = false, callback = null, duration = 3000) {
-                modalMessage.textContent = message;
+                // Unified function to handle both alerts and confirmations
+                function showCustomPopup(message, isConfirm = false, callback = null, duration = 3000) {
+                    modalMessage.textContent = message;
 
-                if (isConfirm) {
-                    okBtn.style.display = 'none';
-                    confirmYesBtn.style.display = 'inline-block';
-                    confirmNoBtn.style.display = 'inline-block';
-                } else {
-                    okBtn.style.display = 'inline-block';
-                    confirmYesBtn.style.display = 'none';
-                    confirmNoBtn.style.display = 'none';
+                    if (isConfirm) {
+                        okBtn.style.display = 'none';
+                        confirmYesBtn.style.display = 'inline-block';
+                        confirmNoBtn.style.display = 'inline-block';
+                    } else {
+                        okBtn.style.display = 'inline-block';
+                        confirmYesBtn.style.display = 'none';
+                        confirmNoBtn.style.display = 'none';
 
-                    setTimeout(() => {
+                        // Auto close for alert after specific duration
+                        setTimeout(() => {
+                            customModal.style.display = 'none';
+                            if (callback) callback(true);
+                        }, duration);
+                    }
+
+                    customModal.style.display = 'flex';
+
+                    okBtn.onclick = () => {
                         customModal.style.display = 'none';
                         if (callback) callback(true);
-                    }, duration);
+                    };
+
+                    confirmYesBtn.onclick = () => {
+                        customModal.style.display = 'none';
+                        if (callback) callback(true);
+                    };
+
+                    confirmNoBtn.onclick = () => {
+                        customModal.style.display = 'none';
+                        if (callback) callback(false);
+                    };
                 }
 
-                customModal.style.display = 'flex';
 
-                okBtn.onclick = () => {
-                    customModal.style.display = 'none';
-                    if (callback) callback(true);
-                };
+                // --- UI Element References ---
+                const hamburger = document.querySelector('.hamburger');
+                const navLinks = document.querySelector('.nav-links');
+                const propertyPanel = document.getElementById('propertyPanel');
+                const addNewBtn = document.getElementById('addNewBtn');
+                const closePropertyPanelBtn = document.getElementById('closePropertyPanel');
+                const propertyForm = document.getElementById('addPropertyForm');
+                const propertyIdInput = document.getElementById('propertyId');
+                const overlay = document.getElementById('overlay');
+                const propertiesBody = document.getElementById('propertiesBody');
+                const tableView = document.getElementById('tableView');
+                const cardView = document.getElementById('cardView');
+                const dropdowns = document.querySelectorAll('.dropdown');
+                const selectedFiltersContainer = document.getElementById('selectedFilters');
+                const searchInputs = document.querySelectorAll('.search-input');
+                const clearButtons = document.querySelectorAll('.clear-btn');
+                const contactInput = propertyForm.elements['contact'];
+                const userNameInput = propertyForm.elements['userName'];
 
-                confirmYesBtn.onclick = () => {
-                    customModal.style.display = 'none';
-                    if (callback) callback(true);
-                };
+                let filters = { location: null, flatType: null, price: null, mobile: null, ownershipType: null };
 
-                confirmNoBtn.onclick = () => {
-                    customModal.style.display = 'none';
-                    if (callback) callback(false);
-                };
-            }
+                // === JAVASCRIPT FOR UI AND FILTERS ===
 
-            // --- UI Element References ---
-            const hamburger = document.querySelector('.hamburger');
-            const navLinks = document.querySelector('.nav-links');
-            const propertyPanel = document.getElementById('propertyPanel');
-            const addNewBtn = document.getElementById('addNewBtn');
-            const closePropertyPanelBtn = document.getElementById('closePropertyPanel');
-            const propertyForm = document.getElementById('addPropertyForm');
-            const propertyIdInput = document.getElementById('propertyId');
-            const overlay = document.getElementById('overlay');
-            const propertiesBody = document.getElementById('propertiesBody');
-            const tableView = document.getElementById('tableView');
-            const cardView = document.getElementById('cardView');
-            const dropdowns = document.querySelectorAll('.dropdown');
-            const selectedFiltersContainer = document.getElementById('selectedFilters');
-            const searchInputs = document.querySelectorAll('.search-input');
-            const clearButtons = document.querySelectorAll('.clear-btn');
-            const searchBtn = document.getElementById('searchBtn');
-            const contactInput = propertyForm.elements['contact'];
-            const userNameInput = propertyForm.elements['userName'];
+                // API for User Fetching by Contact Number
+                contactInput.addEventListener('blur', async () => {
+                    const contactVal = contactInput.value.trim();
+                    if (contactVal.length === 10) {
+                        try {
+                            const res = await fetch(`${window.API_BASE_URL}/api/users/findByContact/${contactVal}`);
+                            const data = await res.json();
 
-            // NOTE: include ownershipType in filters
-            let filters = { location: null, flatType: null, price: null, mobile: null, ownershipType: null };
-
-            // API for User Fetching by Contact Number
-            contactInput.addEventListener('blur', async () => {
-                const contactVal = contactInput.value.trim();
-                if (contactVal.length === 10) {
-                    try {
-                        const res = await fetch(`${window.API_BASE_URL}/api/users/findByContact/${contactVal}`);
-                        const data = await res.json();
-
-                        if (res.ok && data.fullName) {
-                            userNameInput.value = data.fullName;
-                            showCustomPopup(`✅ Data is fetched successfully: ${data.message}`);
-                        } else if (res.status === 403) {
-                            userNameInput.value = "";
-                            showCustomPopup("⚠️ " + data.message);
-                            closePanel();
-                        } else {
-                            userNameInput.value = "";
-                            showCustomPopup("⚠️ " + data.message);
-                        }
-                    } catch (err) {
-                        console.error("Error checking user:", err);
-                        showCustomPopup("❌ Error fetching user details: " + err.message);
-                    }
-                }
-            });
-
-            async function fetchAndRenderProperties() {
-                try {
-                    const accessToken = localStorage.getItem('token');
-                    if (!accessToken) { showCustomPopup("Please log in as admin."); return; }
-                    const response = await fetch(`${BASE_URL}/all`, { headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${accessToken}` } });
-                    if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
-                    const data = await response.json();
-                    properties = data.data || [];
-                    filterAndRender();
-                } catch (error) {
-                    console.error("Error fetching sell properties:", error);
-                    showCustomPopup("❌ Could not fetch listings. Please log in again." + error.message);
-                }
-            }
-
-            propertyForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                for (const element of propertyForm.elements) {
-                    if (element.required && !element.value) {
-                        showCustomPopup(`⚠️ Please fill out the "${element.labels[0].textContent.replace(':', '')}" field.`);
-                        return;
-                    }
-                }
-                const accessToken = localStorage.getItem('token');
-                if (!accessToken) { showCustomPopup('❌ Authentication failed. Please log in again.'); return; }
-                const formData = {
-                    location: propertyForm.elements['location'].value,
-                    area: propertyForm.elements['area'].value,
-                    propertyType: propertyForm.elements['propertyType'].value,
-                    price: propertyForm.elements['price'].value,
-                    name: propertyForm.elements['userName'].value,
-                    contact: propertyForm.elements['contact'].value,
-                    date: propertyForm.elements['date'].value,
-                    ownershipType: propertyForm.elements['ownershipType'].value
-                };
-                const propertyId = propertyIdInput.value;
-                const isCreating = propertyId === '';
-                const url = isCreating ? `${BASE_URL}/create` : `${BASE_URL}/update/${propertyId}`;
-                const method = isCreating ? 'POST' : 'PUT';
-                try {
-                    const response = await fetch(url, {
-                        method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'authorization': `Bearer ${accessToken}`
-                        },
-                        body: JSON.stringify(formData)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ message: 'Failed to save data.' }));
-                        throw new Error(errorData.message);
-                    }
-
-                    showCustomPopup(isCreating ? '✅ New property for sale added!' : '✅ Property for sale updated!');
-                    await fetchAndRenderProperties();
-                    closePanel();
-
-                } catch (error) {
-                    console.error("Error submitting form:", error);
-                    showCustomPopup(`❌ An error occurred: ${error.message}`);
-                }
-            });
-
-            document.querySelector('.listings-section').addEventListener('click', async (e) => {
-                const editBtn = e.target.closest('.edit-btn');
-                if (editBtn) {
-                    const property = properties.find(p => p.id === editBtn.dataset.id);
-                    if (property) {
-                        propertyIdInput.value = property.id;
-                        propertyForm.elements['location'].value = property.location;
-                        propertyForm.elements['area'].value = property.area || '';
-                        propertyForm.elements['propertyType'].value = property.propertyType;
-                        propertyForm.elements['price'].value = property.price.replace(/[₹,]/g, '');
-                        propertyForm.elements['userName'].value = property.userName;
-                        propertyForm.elements['contact'].value = property.contact;
-                        propertyForm.elements['date'].value = new Date(property.date).toISOString().substring(0, 10);
-                        propertyForm.elements['ownershipType'].value = property.ownershipType;
-                        document.getElementById('propertyPanelTitle').textContent = 'Edit Sale Property';
-                        document.getElementById('submitPropertyBtn').textContent = 'Save Changes';
-                        openPanel();
-                    }
-                }
-                const deleteBtn = e.target.closest('.delete-btn');
-                if (deleteBtn) {
-                    showCustomPopup('⚠️ Are you sure you want to delete this property for sale?', true, async (confirmed) => {
-                        if (confirmed) {
-                            try {
-                                const accessToken = localStorage.getItem('token');
-                                if (!accessToken) { showCustomPopup('Authentication error.'); return; }
-                                const response = await fetch(`${BASE_URL}/delete/${deleteBtn.dataset.id}`, { method: 'DELETE', headers: { 'authorization': `Bearer ${accessToken}` } });
-                                if (!response.ok) throw new Error('Failed to delete property.');
-                                showCustomPopup('✅ Property for sale deleted successfully!');
-                                await fetchAndRenderProperties();
-                            } catch (error) {
-                                console.error("Error deleting property:", error);
-                                showCustomPopup("❌ Failed to delete property for sale.");
+                            if (res.ok && data.fullName) {
+                                userNameInput.value = data.fullName;
+                                showCustomPopup(`✅ Data is fetched successfully: ${data.message}`);
+                            } else if (res.status === 403) {
+                                userNameInput.value = "";
+                                showCustomPopup("⚠️ " + data.message);
+                                closePanel();
+                            } else {
+                                userNameInput.value = "";
+                                showCustomPopup("⚠️ " + data.message);
                             }
+                        } catch (err) {
+                            console.error("Error checking user:", err);
+                            showCustomPopup("❌ Error fetching user details: " + err.message);
                         }
+                    }
+                });
+
+
+                async function fetchAndRenderProperties() {
+                    try {
+                        const accessToken = localStorage.getItem('token');
+                        if (!accessToken) { showCustomPopup("⚠️ Please log in as admin."); return; }
+                        const response = await fetch(`${BASE_URL}/all`, { headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${accessToken}` } });
+                        if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                        const data = await response.json();
+                        properties = data.data || []; // Note: sellFlats typically returns data in 'data' field or 'sellFlatsList', checking previous file it was 'data'
+                        filterAndRender();
+                    } catch (error) {
+                        console.error("Error fetching rental properties:", error);
+                        showCustomPopup("❌ Could not fetch listings. Please log in again.");
+                    }
+                }
+
+                propertyForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    for (const element of propertyForm.elements) {
+                        if (element.required && !element.value) {
+                            showCustomPopup(`⚠️ Please fill out the "${element.labels[0].textContent.replace(':', '')}" field.`);
+                            return;
+                        }
+                    }
+                    const accessToken = localStorage.getItem('token');
+                    if (!accessToken) { showCustomPopup('❌ Authentication failed. Please log in again.'); return; }
+
+                    const formData = {
+                        location: propertyForm.elements['location'].value,
+                        area: propertyForm.elements['area'].value,
+                        propertyType: propertyForm.elements['propertyType'].value,
+                        price: propertyForm.elements['price'].value,
+                        name: propertyForm.elements['userName'].value,
+                        contact: propertyForm.elements['contact'].value,
+                        date: propertyForm.elements['date'].value,
+                        ownershipType: propertyForm.elements['ownershipType'].value
+                    };
+                    const propertyId = propertyIdInput.value;
+                    const isCreating = propertyId === '';
+                    const url = isCreating ? `${BASE_URL}/create` : `${BASE_URL}/update/${propertyId}`;
+                    const method = isCreating ? 'POST' : 'PUT';
+                    try {
+                        const response = await fetch(url, {
+                            method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'authorization': `Bearer ${accessToken}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({ message: 'Failed to save data.' }));
+                            throw new Error(errorData.message);
+                        }
+
+                        showCustomPopup(isCreating ? '✅ New sale property added!' : '✅ Sale property updated!');
+                        await fetchAndRenderProperties();
+                        closePanel();
+
+                    } catch (error) {
+                        console.error("Error submitting form:", error);
+                        showCustomPopup(`❌ An error occurred: ${error.message}`);
+                    }
+                });
+
+                document.querySelector('.listings-section').addEventListener('click', async (e) => {
+                    const editBtn = e.target.closest('.edit-btn');
+                    if (editBtn) {
+                        const property = properties.find(p => p.id === editBtn.dataset.id);
+                        if (property) {
+                            propertyIdInput.value = property.id;
+                            propertyForm.elements['location'].value = property.location;
+                            propertyForm.elements['area'].value = property.area || '';
+                            propertyForm.elements['propertyType'].value = property.propertyType;
+                            propertyForm.elements['price'].value = property.price.replace(/[₹,]/g, '');
+                            propertyForm.elements['userName'].value = property.userName;
+                            propertyForm.elements['contact'].value = property.contact;
+                            propertyForm.elements['date'].value = new Date(property.date).toISOString().substring(0, 10);
+                            propertyForm.elements['ownershipType'].value = property.ownershipType;
+                            document.getElementById('propertyPanelTitle').textContent = 'Edit Sale Property';
+                            document.getElementById('submitPropertyBtn').textContent = 'Save Changes';
+                            openPanel();
+                        }
+                    }
+                    const deleteBtn = e.target.closest('.delete-btn');
+                    if (deleteBtn) {
+                        showCustomPopup('⚠️ Are you sure you want to delete this sale property?', true, async (confirmed) => {
+                            if (confirmed) {
+                                try {
+                                    const accessToken = localStorage.getItem('token');
+                                    if (!accessToken) { showCustomPopup('❌ Authentication error.'); return; }
+                                    const response = await fetch(`${BASE_URL}/delete/${deleteBtn.dataset.id}`, { method: 'DELETE', headers: { 'authorization': `Bearer ${accessToken}` } });
+                                    if (!response.ok) throw new Error('Failed to delete property.');
+                                    showCustomPopup('✅ Sale property deleted successfully!');
+                                    await fetchAndRenderProperties();
+                                } catch (error) {
+                                    console.error("Error deleting property:", error);
+                                    showCustomPopup("❌ Failed to delete sale property.");
+                                }
+                            }
+                        });
+                    }
+                });
+
+                function getFilteredData() {
+                    return properties.filter(p => {
+                        if (filters.location && filters.location.value && p.location !== filters.location.value) return false;
+                        if (filters.flatType && filters.flatType.value && p.propertyType !== filters.flatType.value) return false;
+                        if (filters.ownershipType && filters.ownershipType.value) {
+                            const ownershipValue = p.ownershipType || 'Agent';
+                            if (ownershipValue !== filters.ownershipType.value) return false;
+                        }
+                        if (filters.price && filters.price.value) {
+                            const propertyPrice = parseInt(String(p.price || '').replace(/[^0-9]/g, ''), 10);
+                            const filterBudget = parseInt(filters.price.value.replace(/[^0-9]/g, ''), 10);
+                            if (!isNaN(propertyPrice) && !isNaN(filterBudget) && propertyPrice > filterBudget) return false;
+                        }
+                        if (filters.mobile && filters.mobile.value && !String(p.contact).includes(filters.mobile.value)) return false;
+                        return true;
                     });
                 }
-            });
 
-            function getFilteredData() {
-                return properties.filter(p => {
-                    if (filters.location && filters.location.value && p.location !== filters.location.value) return false;
-                    if (filters.flatType && filters.flatType.value && p.propertyType !== filters.flatType.value) return false;
-                    if (filters.ownershipType && filters.ownershipType.value) {
-                        const ownershipValue = p.ownershipType || 'Agent';
-                        if (ownershipValue !== filters.ownershipType.value) return false;
-                    }
-                    if (filters.price && filters.price.value) {
-                        const propertyPrice = parseInt(String(p.price || '').replace(/[^0-9]/g, ''), 10);
-                        const filterBudget = parseInt(filters.price.value.replace(/[^0-9]/g, ''), 10);
-                        if (!isNaN(propertyPrice) && !isNaN(filterBudget) && propertyPrice > filterBudget) return false;
-                    }
-                    if (filters.mobile && filters.mobile.value && !String(p.contact).includes(filters.mobile.value)) return false;
-                    return true;
-                });
-            }
+                function filterAndRender() {
+                    const filteredData = getFilteredData();
+                    const isMobile = window.innerWidth < 769;
+                    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+                    const showCards = isMobile && isPortrait;
 
-            // rotation logic uses width + orientation (portrait => cards on mobile) ---
-            function filterAndRender() {
-                const filteredData = getFilteredData();
+                    tableView.style.display = showCards ? 'none' : 'block';
+                    cardView.style.display = showCards ? 'flex' : 'none';
 
-                // Use both width and orientation:
-                const isMobile = window.innerWidth < 769;
-                const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+                    if (showCards) renderCards(filteredData); else renderTable(filteredData);
+                    updateCounters(filteredData);
+                }
 
-                // Show cards only on mobile + portrait. Table otherwise (desktop or landscape).
-                const showCards = isMobile && isPortrait;
-
-                tableView.style.display = showCards ? 'none' : 'block';
-                cardView.style.display = showCards ? 'flex' : 'none';
-
-                if (showCards) renderCards(filteredData); else renderTable(filteredData);
-                updateCounters(filteredData);
-            }
-            // --- end updated rotation logic ---
-
-            function renderTable(data) {
-                propertiesBody.innerHTML = '';
-                data.forEach(prop => {
-                    const row = propertiesBody.insertRow();
-                    row.innerHTML = `<td>${prop.location || ''}</td>
-            <td>${prop.area || ''}</td>
-            <td>${prop.propertyType || ''}</td>
-            <td>${prop.price || ''}</td><td>${prop.userName || ''}</td>
-            <td>${"+91 " + (prop.contact || '')}</td>
-            <td>${new Date(prop.date).toLocaleDateString()}</td>
-            <td>${prop.ownershipType || ''}</td>
-            <td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button>
-                <button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
-                });
-            }
-
-            function renderCards(data) {
-                cardView.innerHTML = '';
-                data.forEach(prop => {
-                    const card = document.createElement('div');
-                    card.className = 'card-item';
-                    card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${prop.userName}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${prop.contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-row"><span class="card-label">Ownership:</span> <span class="card-value">${prop.ownershipType}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
-                    cardView.appendChild(card);
-                });
-            }
-
-            function updateCounters(data) {
-                document.getElementById('totalProperties').textContent = data.length;
-                document.getElementById('ownerProperties').textContent = data.filter(p => p.ownershipType === 'Owner').length;
-                document.getElementById('agentProperties').textContent = data.filter(p => p.ownershipType === 'Agent').length;
-            }
-
-            function openPanel() { propertyPanel.style.width = '320px'; overlay.style.display = 'block'; }
-            function closePanel() { propertyPanel.style.width = '0'; overlay.style.display = 'none'; }
-            addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New Sale Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
-            closePropertyPanelBtn.addEventListener('click', closePanel);
-            overlay.addEventListener('click', closePanel);
-            hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
-            window.addEventListener('resize', filterAndRender);
-            window.matchMedia("(orientation: portrait)").addEventListener('change', filterAndRender);
-
-            // Initialize dropdown UI (uses data-filter-key to map dropdown -> logical filter key)
-            dropdowns.forEach(dropdown => {
-                const btn = dropdown.querySelector('.dropdown-btn');
-                const options = dropdown.querySelectorAll('.dropdown-option');
-                const logicalKey = dropdown.dataset.filterKey; // e.g. 'location', 'flatType', 'ownershipType'
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dropdowns.forEach(d => { if (d !== dropdown) d.classList.remove('active'); });
-                    dropdown.classList.toggle('active');
-                });
-                options.forEach(option => {
-                    option.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        btn.querySelector('span').textContent = option.textContent;
-                        options.forEach(opt => opt.classList.remove('selected'));
-                        option.classList.add('selected');
-                        if (logicalKey) {
-                            filters[logicalKey] = { value: option.dataset.value, text: option.textContent };
-                        } else {
-                            // fallback: use dropdown.id as key
-                            filters[dropdown.id] = { value: option.dataset.value, text: option.textContent };
+                function renderTable(data) {
+                    propertiesBody.innerHTML = '';
+                    data.forEach(prop => {
+                        const row = propertiesBody.insertRow();
+                        let contact = String(prop.contact || '');
+                        if (contact && !contact.includes('+') && contact.length === 10) {
+                            contact = '+91 ' + contact;
+                        } else if (contact && contact.startsWith('91') && contact.length === 12) {
+                            contact = '+91 ' + contact.substring(2);
                         }
-                        dropdown.classList.remove('active');
-                        updateSelectedFilters();
-                        filterAndRender();
+
+                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.price || ''}</td><td>${prop.userName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td>${prop.ownershipType || 'Agent'}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                    });
+                }
+
+                function renderCards(data) {
+                    cardView.innerHTML = '';
+                    data.forEach(prop => {
+                        const card = document.createElement('div');
+                        card.className = 'card-item';
+                        let contact = String(prop.contact || '');
+                        if (contact && !contact.includes('+') && contact.length === 10) {
+                            contact = '+91 ' + contact;
+                        }
+                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${prop.userName}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${prop.ownershipType || 'Agent'}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                        cardView.appendChild(card);
+                    });
+                }
+
+                function updateCounters(data) {
+                    document.getElementById('totalProperties').textContent = data.length;
+                    document.getElementById('agentProperties').textContent = data.filter(p => p.ownershipType === 'Agent' || !p.ownershipType).length;
+                    document.getElementById('ownerProperties').textContent = data.filter(p => p.ownershipType === 'Owner').length;
+                }
+
+                function openPanel() { propertyPanel.style.width = window.innerWidth <= 768 ? '100%' : '400px'; propertyPanel.classList.add('open'); overlay.style.display = 'block'; }
+                function closePanel() { propertyPanel.style.width = '0'; propertyPanel.classList.remove('open'); overlay.style.display = 'none'; }
+
+                addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New Sale Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
+                closePropertyPanelBtn.addEventListener('click', closePanel);
+                overlay.addEventListener('click', closePanel);
+                hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
+                window.addEventListener('resize', filterAndRender);
+                window.matchMedia("(orientation: portrait)").addEventListener('change', filterAndRender);
+
+                dropdowns.forEach(dropdown => {
+                    const btn = dropdown.querySelector('.dropdown-btn');
+                    const options = dropdown.querySelectorAll('.dropdown-option');
+                    const logicalKey = dropdown.dataset.filterKey; // e.g. 'location', 'flatType', 'ownershipType'
+
+                    btn.addEventListener('click', (e) => { e.stopPropagation(); dropdowns.forEach(d => { if (d !== dropdown) d.classList.remove('active'); }); dropdown.classList.toggle('active'); });
+                    options.forEach(option => {
+                        option.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            btn.querySelector('span').textContent = option.textContent;
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                            if (logicalKey) {
+                                filters[logicalKey] = { value: option.dataset.value, text: option.textContent };
+                            } else {
+                                filters[dropdown.id] = { value: option.dataset.value, text: option.textContent };
+                            }
+                            dropdown.classList.remove('active');
+                            updateSelectedFilters();
+                            filterAndRender();
+                        });
                     });
                 });
-            });
 
-            document.addEventListener('click', () => dropdowns.forEach(d => d.classList.remove('active')));
+                document.addEventListener('click', () => dropdowns.forEach(d => d.classList.remove('active')));
 
-            searchInputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    filters[input.id] = { value: input.value, text: input.value };
-                    updateSelectedFilters();
-                    filterAndRender();
-                });
-            });
-
-            clearButtons.forEach(button => {
-                button.addEventListener('click', () => { const targetId = button.dataset.target; document.getElementById(targetId).value = ''; filters[targetId] = null; updateSelectedFilters(); filterAndRender(); });
-            });
-
-            searchBtn.addEventListener('click', filterAndRender);
-
-            function updateSelectedFilters() {
-                selectedFiltersContainer.innerHTML = '';
-
-                // default labels for resetting dropdowns / inputs
-                const defaultLabels = {
-                    location: 'Select Location',
-                    flatType: 'Select Property Type',
-                    ownershipType: 'Select Ownership Type',
-                    price: 'Enter Budget',
-                    mobile: 'Enter Mobile No.'
-                };
-
-                Object.keys(filters).forEach(key => {
-                    if (filters[key] && filters[key].value) {
-                        const tag = document.createElement('div');
-                        tag.className = 'filter-tag';
-                        tag.innerHTML = `<span>${filters[key].text}</span><div class="remove" data-filter="${key}">×</div>`;
-                        selectedFiltersContainer.appendChild(tag);
-                    }
+                searchInputs.forEach(input => {
+                    input.addEventListener('input', () => { filters[input.id] = { value: input.value, text: input.value }; updateSelectedFilters(); filterAndRender(); });
                 });
 
-                selectedFiltersContainer.querySelectorAll('.remove').forEach(remove => {
-                    remove.addEventListener('click', (e) => {
-                        const filterKey = e.target.dataset.filter;
-                        filters[filterKey] = null;
+                clearButtons.forEach(button => {
+                    button.addEventListener('click', () => { const targetId = button.dataset.target; document.getElementById(targetId).value = ''; filters[targetId] = null; updateSelectedFilters(); filterAndRender(); });
+                });
 
-                        // Find the search dropdown that maps to this logical key (data-filter-key)
-                        const dropdownDiv = document.querySelector(`.dropdown[data-filter-key="${filterKey}"]`);
-                        if (dropdownDiv) {
-                            const labelSpan = dropdownDiv.querySelector('.dropdown-btn span');
-                            if (labelSpan) labelSpan.textContent = defaultLabels[filterKey] || 'Select';
-                            dropdownDiv.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+                function updateSelectedFilters() {
+                    selectedFiltersContainer.innerHTML = '';
+                    const defaultLabels = {
+                        location: 'Select Location',
+                        flatType: 'Select Property Type',
+                        ownershipType: 'Select Ownership Type',
+                        price: 'Enter Budget',
+                        mobile: 'Enter Mobile No.'
+                    };
+
+                    Object.keys(filters).forEach(key => {
+                        if (filters[key] && filters[key].value) {
+                            const tag = document.createElement('div');
+                            tag.className = 'filter-tag';
+                            tag.innerHTML = `<span>${filters[key].text}</span><div class="remove" data-filter="${key}">×</div>`;
+                            selectedFiltersContainer.appendChild(tag);
                         }
-
-                        // If there's also an input or element with the same id (form fields), reset its value safely
-                        const inputElem = document.getElementById(filterKey);
-                        if (inputElem && (inputElem.tagName === 'INPUT' || inputElem.tagName === 'TEXTAREA' || inputElem.tagName === 'SELECT')) {
-                            inputElem.value = '';
-                        }
-
-                        updateSelectedFilters();
-                        filterAndRender();
                     });
-                });
-            }
 
-            fetchAndRenderProperties();
+                    selectedFiltersContainer.querySelectorAll('.remove').forEach(remove => {
+                        remove.addEventListener('click', (e) => {
+                            const filterKey = e.target.dataset.filter;
+                            filters[filterKey] = null;
+                            const dropdownDiv = document.querySelector(`.dropdown[data-filter-key="${filterKey}"]`);
+                            if (dropdownDiv) {
+                                const labelSpan = dropdownDiv.querySelector('.dropdown-btn span');
+                                if (labelSpan) labelSpan.textContent = defaultLabels[filterKey] || 'Select';
+                                dropdownDiv.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+                            }
+                            const inputElem = document.getElementById(filterKey);
+                            if (inputElem && (inputElem.tagName === 'INPUT' || inputElem.tagName === 'TEXTAREA' || inputElem.tagName === 'SELECT')) {
+                                inputElem.value = '';
+                            }
+                            updateSelectedFilters();
+                            filterAndRender();
+                        });
+                    });
+                }
+
+                fetchAndRenderProperties();
+            };
+
+            // Give a small delay to ensure window.API_BASE_URL is populated
+            setTimeout(init, 100);
         });
     </script>
-
 </body>
 
 </html>
