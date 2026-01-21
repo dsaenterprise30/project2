@@ -1,4 +1,4 @@
-//import User from '../models/User.js';
+import User from '../models/User.js';
 //import RentFlat from '../models/rentflats.js';
 //import SellFlat from '../models/sellflats.js';
 import bcrypt from "bcrypt";
