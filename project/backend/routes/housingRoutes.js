@@ -14,16 +14,16 @@ const router = express.Router();
 router.post("/create", verifyAccessToken, checkAdminNumber, createHousingListing);
 // route 1: create Housing listing
 
-router.get("/all", verifyAccessToken, checkAdminNumber, getAllHousingListings);
-// route 2: get all Housing listings
+router.get("/all", verifyAccessToken, getAllHousingListings);
+// route 2: get all Housing listings (Admin)
 
 router.put("/update/:id", verifyAccessToken, checkAdminNumber, updateHousingListingById);
-// route 3: update a single Housing listing by ID
+// route 3: update a single Housing listing by ID (Admin)
 
 router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteHousingListingById);
-// route 4: delete a single Housing listing by ID
+// route 4: delete a single Housing listing by ID (Admin)
 
-// Route 5: fetch all rent listings for public access
+// Route 5: fetch all rent listings for public access (Brokers)
 router.get("/all-public", verifyAccessToken, getAllHousingListings);
 
 // Route 6: Send Interest SMS (Mock)
