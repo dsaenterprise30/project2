@@ -527,7 +527,8 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <script type="module">
-    import { firebaseConfig, RAZORPAY_KEY_ID } from "./create-config.js";
+    import { firebaseConfig } from "./firebaseConfig.js";
+    import { RAZORPAY_KEY_ID } from "./razorpayConfig.js";
     import { API_BASE_URL } from "./config.js";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -1194,4 +1195,3 @@
 </body>
 
 </html>
-
