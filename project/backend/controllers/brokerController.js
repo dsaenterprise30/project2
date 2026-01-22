@@ -1,13 +1,6 @@
 import express from "express";
-import {
-    registerBroker,
-    loginBroker,
-    getAllBrokers,
-} from "../controllers/brokerController.js";
 import bcrypt from "bcryptjs";
 import Brokers from "../models/Brokers.js";
-import { verifyAccessToken } from "../middleware/userAuth.js";
-import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
 
 const router = express.Router();
 
@@ -20,7 +13,7 @@ export const registerBroker = async (req, res) => {
           return res.status(400).json({ message: 'Please enter all fields.' });
         }
     
-        const existingUser = await User.findOne({ mobileNumber });
+        const existingUser = await Brokers.findOne({ mobileNumber });
         if (existingUser) {
           return res.status(400).json({ message: 'A user with this mobile number already exists.' });
         }

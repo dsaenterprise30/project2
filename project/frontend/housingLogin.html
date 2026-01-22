@@ -58,8 +58,8 @@
       padding: 0;
       min-height: 100vh;
       background-image:
-        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transpahousing 40%),
-        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transpahousing 40%);
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
       background-attachment: fixed;
     }
 
@@ -446,7 +446,7 @@
     }
 
     #popup-close-btn {
-      background: transpahousing;
+      background: transparent;
       border: 2px solid var(--glass-border);
       box-shadow: none;
     }
@@ -527,8 +527,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <script type="module">
-    import { firebaseConfig } from "./firebaseConfig.js";
-    import { RAZORPAY_KEY_ID } from "./razorpayConfig.js";
+    import { firebaseConfig, RAZORPAY_KEY_ID } from "./create-config.js";
     import { API_BASE_URL } from "./config.js";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -833,7 +832,7 @@
           const phoneNumber = "+91" + mobileInput;
 
           try {
-            const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+            const response = await fetch(`${API_BASE_URL}/api/broker/login`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -1046,7 +1045,7 @@
                 }
 
                 try {
-                  const response = await fetch(`${API_BASE_URL}/api/users/create`, {
+                  const response = await fetch(`${API_BASE_URL}/api/broker/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1062,7 +1061,7 @@
                     localStorage.setItem("userMobileNumber", mobileNumber);
                     window.location.href = `pricing.html?mode=registration&mobile=${encodeURIComponent(mobileNumber)}`;
                   } else {
-                    showCustomPopup("❌ " + (data.msg || "Registration failed."));
+                    showCustomPopup("❌ " + (data.message || "Registration failed."));
                   }
                 } catch (error) {
                   console.error("API error:", error);
@@ -1109,7 +1108,7 @@
                   async () => {
                     try {
                       // Re-login after renewal
-                      const loginRes = await fetch(`${API_BASE_URL}/api/users/login`, {
+                      const loginRes = await fetch(`${API_BASE_URL}/api/broker/login`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
