@@ -1,9 +1,10 @@
 import {
     registerBuilder,
     loginBuilder,
+    getAllBuilders,
     updateBuilderById,
     deleteBuilderById,
-    getAllBuilders
+    validateBuilderByContact
 } from "../controllers/builderController.js";
 import { verifyAccessToken } from "../middleware/userAuth.js";
 import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
@@ -16,6 +17,9 @@ router.post("/register", registerBuilder);
 
 router.post("/create", registerBuilder);
 //Route 1b: Builder Registration (alias for /register to match frontend)
+
+// Route 6: Validate builder by contact number (admin-only)
+router.post("/validate", verifyAccessToken, checkAdminNumber, validateBuilderByContact);
 
 router.post("/login", loginBuilder);
 //Route 2: Builder Login

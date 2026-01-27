@@ -1,5 +1,5 @@
-//import RentFlat from "../models/rentflats.js";
-import Brokers from "../models/Brokers.js";
+import housingProperty from "../models/housingProperty.js";
+import User from "../models/User.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 
@@ -18,33 +18,40 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new housing listing
 export const createHousingListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, name, date, tenantType, ownershipType } = req.body || {};
+    const { contact, area, location, propertyType, price, builderName, date, allocationStatus, projectName, address, carpetArea } = req.body || {};
 
     try {
-        if (!contact || !location || !propertyType || !price || !name || !date || !tenantType || !ownershipType) {
+        if (!contact || !location || !propertyType || !price || !projectName || !address) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
-        // Always normalize to 10 digits
-        const sanitizedContact = '91' + contact.trim();
+        // Clean the mobile number
+        const sanitizedContact = contact.replace(/\D/g, '');
 
-        // Lookup user with prefixed 91
-        const matchedUser = await User.findOne({ mobileNumber: sanitizedContact });
-        let finalUserName = name;
+        // ✅ BUILDER VALIDATION: Check if builder exists with this contact
+        const builder = await Builder.findOne({
+            $or: [
+                { mobileNumber: sanitizedContact },
+                { mobileNumber: '91' + sanitizedContact },
+                { mobileNumber: sanitizedContact.replace(/^91/, '') }
+            ]
+        });
 
-        if (matchedUser) {
-            finalUserName = matchedUser.fullName;
+        if (!builder) {
+            return res.status(403).json({
+                success: false,
+                message: "❌ Builder not found with this contact number. Only registered builders can add properties. Please register as a builder first."
+            });
         }
 
-
-        // 🔹 ADD DUPLICATE CHECK HERE
-        const duplicateListing = await RentFlat.findOne({
-            contact: sanitizedContact,
+        // Check for duplicate listing
+        const duplicateListing = await housingProperty.findOne({
+            contact: '91' + sanitizedContact,
             location,
             area,
             propertyType,
             price: parsePrice(price),
-            tenantType
+            projectName
         });
 
         if (duplicateListing) {
@@ -52,26 +59,26 @@ export const createHousingListing = async (req, res) => {
                 message: "A listing with the same details already exists. Please modify at least one attribute."
             });
         }
-        // 🔹 END DUPLICATE CHECK
 
-        const newListing = new RentFlat({
+        const newListing = new housingProperty({
             location,
             area,
             propertyType,
             price: parsePrice(price),
-            contact: sanitizedContact, // always store only 10 digits
-            userName: finalUserName,
-            date,
-            tenantType,
-            ownershipType
+            contact: '91' + sanitizedContact,
+            builderName: builderName || builder.fullName,
+            allocationStatus,
+            projectName,
+            address,
+            carpetArea
         });
 
         const savedListing = await newListing.save();
 
         res.status(201).json({
-            message: "New flat for rent is listed successfully.",
+            message: "✅ New housing property listed successfully.",
             listing: savedListing,
-            autoFilledFromUser: !!matchedUser
+            builder: builder.fullName
         });
 
     } catch (error) {
@@ -80,8 +87,8 @@ export const createHousingListing = async (req, res) => {
                 message: "This contact number is already associated with an existing listing. Please use a different number."
             });
         }
-        console.error("Error creating rent listing:", error.message);
-        res.status(500).json({ message: "Server error while creating rent listing." });
+        console.error("Error creating housing listing:", error.message);
+        res.status(500).json({ message: "Server error while creating housing listing." });
     }
 };
 
@@ -155,7 +162,7 @@ export const updateHousingListingById = async (req, res) => {
             ownershipType // ✅ CORRECTED: Update ownershipType
         };
 
-        const result = await RentFlat.findByIdAndUpdate(id, { $set: update }, { new: true });
+        const result = await housingProperty.findByIdAndUpdate(id, { $set: update }, { new: true });
 
         if (result) {
             res.status(200).json({
@@ -176,7 +183,7 @@ export const deleteHousingListingById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const result = await RentFlat.findByIdAndDelete(id);
+        const result = await housingProperty.findByIdAndDelete(id);
 
         if (result) {
             return res.status(200).json({

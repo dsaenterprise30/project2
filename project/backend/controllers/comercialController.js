@@ -18,26 +18,34 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new comercial listing
 export const createComercialListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, date, ownershipType, name } = req.body || {};
+    const { contact, area, location, propertyType, price, date, ownershipType, name, carpetArea, projectName } = req.body || {};
 
     try {
-        if (!contact || !area || !location || !propertyType || !price || !date || !ownershipType || !name) {
+        if (!contact || !area || !location || !propertyType || !price || !date || !ownershipType || !name || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
-        // ✅ Always normalize contact to 10 digits
-        const sanitizedContact = cleanMobileNumber(contact);
+        // Clean the mobile number (remove non-digits)
+        const sanitizedContact = contact.replace(/\D/g, '');
 
-        // ✅ Lookup user with "91" prefix
-        const matchedUser = await User.findOne({ mobileNumber: "91" + sanitizedContact });
+        // ✅ BUILDER VALIDATION: Check if builder exists with this contact
+        const builder = await Builder.findOne({
+            $or: [
+                { mobileNumber: sanitizedContact },
+                { mobileNumber: '91' + sanitizedContact },
+                { mobileNumber: sanitizedContact.replace(/^91/, '') }
+            ]
+        });
 
-        let finalUserName = name;
-        if (matchedUser) {
-            finalUserName = matchedUser.fullName; // auto-fill user name
+        if (!builder) {
+            return res.status(403).json({
+                success: false,
+                message: "❌ Builder not found with this contact number. Only registered builders can add properties. Please register as a builder first."
+            });
         }
 
-        // 🔹 ADD DUPLICATE CHECK HERE
-        const duplicateListing = await SellFlat.findOne({
+        // Check for duplicate listing
+        const duplicateListing = await comercialProperty.findOne({
             contact: sanitizedContact,
             location,
             area,
@@ -51,64 +59,63 @@ export const createComercialListing = async (req, res) => {
                 message: "A listing with the same details already exists. Please modify at least one attribute."
             });
         }
-        // 🔹 END DUPLICATE CHECK
 
-        const newListing = new SellFlat({
+        const newListing = new comercialProperty({
             location,
             area,
+            carpetArea,
             propertyType,
             price: parsePrice(price),
             date,
             ownershipType,
-            contact: sanitizedContact, // store clean contact
-            userName: finalUserName,   // either form name or user fullName
+            contact: sanitizedContact,
+            projectName: projectName || '',
         });
 
         const savedListing = await newListing.save();
 
         res.status(201).json({
-            message: "✅ New flat for sale is listed successfully.",
+            message: "✅ New commercial property listed successfully.",
             listing: savedListing,
-            autoFilledFromUser: !!matchedUser
+            builder: builder.fullName
         });
 
     } catch (error) {
-        console.error("Error creating sell listing:", error.message);
+        console.error("Error creating commercial listing:", error.message);
 
-        // ✅ Handle duplicate contact gracefully
         if (error.code === 11000 && error.keyPattern?.contact) {
-            return res.status(409).json({ message: "❌ This contact number is already used in another sale listing." });
+            return res.status(409).json({ message: "❌ This contact number is already used in another commercial listing." });
         }
 
-        res.status(500).json({ message: "Server error while creating sell listing. " + error.message });
+        res.status(500).json({ message: "Server error while creating commercial listing. " + error.message });
     }
 };
 
 // Route 2: Get all comercial listings
 export const getAllComercialListings = async (req, res) => {
     try {
-        const listings = await SellFlat.find().lean();
+        const listings = await comercialProperty.find().lean();
 
         const formattedListings = listings.map(listing => {
-            // ✅ Defensive check for price
             const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
                 ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
-                : "Price on request"; // Provide a default value for invalid prices
+                : "Price on request";
 
             return {
                 ...listing,
                 id: listing._id.toString(),
-                price: formattedPrice // Use the safely formatted price
+                price: formattedPrice
             };
         });
 
         res.status(200).json({
-            message: "All the flats for sale are listed below.",
+            message: "All commercial properties listed below.",
             count: formattedListings.length,
             data: formattedListings,
+            commercialFlatsList: formattedListings
         });
     } catch (error) {
-        console.error("Error fetching sell listings:", error.message);
+        console.error("Error fetching commercial listings:", error.message);
         res.status(500).json({ message: "Server error while fetching listings." });
     }
 };
@@ -130,7 +137,7 @@ export const updateComercialListingById = async (req, res) => {
             ownershipType
         };
 
-        const result = await SellFlat.findByIdAndUpdate(id, { $set: update }, { new: true });
+        const result = await comercialProperty.findByIdAndUpdate(id, { $set: update }, { new: true });
 
         if (result) {
             res.status(200).json({
@@ -151,7 +158,7 @@ export const deleteComercialListingById = async (req, res) => {
     const { id } = req.params; // Get ID from URL parameter
 
     try {
-        const result = await SellFlat.findByIdAndDelete(id);
+        const result = await comercialProperty.findByIdAndDelete(id);
 
         if (result) {
             return res.status(200).json({

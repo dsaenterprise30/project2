@@ -1255,7 +1255,7 @@
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
                                 data-sender-mobile="${userData?.mobileNumber || ''}"
-                                onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
+                                onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}', '${property.location || ''}', '${displayPrice}')">
                                 Contact
                             </button>
                         </td>
@@ -1287,7 +1287,7 @@
                             <span class="card-value">
                                 <button class="action-btn" style="background: var(--success); margin:0; padding: 0.5rem 1rem; font-size: 0.9em;" 
                                     data-sender-mobile="${userData?.mobileNumber || ''}"
-                                    onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}')">
+                                    onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}', '${property.location || ''}', '${displayPrice}')">
                                     Contact
                                 </button>
                             </span>
@@ -1435,23 +1435,40 @@
             }
 
             // --- CONTACT HANDLER ---
-            window.handleContactClick = function (button, contactNumber, propertyId, propertyType) {
+            window.handleContactClick = function (button, contactNumber, propertyId, propertyType, location, price) {
+                // Get user data for WhatsApp message
+                const userMobile = userData?.mobileNumber || 'Not provided';
+
                 // Format the contact number for display
                 let formattedContact = contactNumber;
+                let whatsappNumber = contactNumber;
+
                 if (contactNumber && contactNumber.length >= 10) {
                     // Remove any non-digit characters
                     const digits = contactNumber.replace(/\D/g, '');
-                    // Format as +91 XXXXX XXXXX
+                    whatsappNumber = digits;
+
+                    // Format as +91 XXXXX XXXXX for display
                     if (digits.length === 12 && digits.startsWith('91')) {
                         formattedContact = `+91 ${digits.substring(2, 7)} ${digits.substring(7)}`;
+                        whatsappNumber = digits; // Already has country code
                     } else if (digits.length === 10) {
                         formattedContact = `+91 ${digits.substring(0, 5)} ${digits.substring(5)}`;
+                        whatsappNumber = '91' + digits; // Add country code for WhatsApp
                     } else if (digits.length >= 10) {
                         // Handle any 10+ digit number
                         const last10 = digits.slice(-10);
                         formattedContact = `+91 ${last10.substring(0, 5)} ${last10.substring(5)}`;
+                        whatsappNumber = '91' + last10;
                     }
                 }
+
+                // Generate WhatsApp message
+                const message = `Hi, I am interested in your property. My contact number is ${userMobile}. Property Details: Location: ${location || 'N/A'}, Type: ${propertyType || 'N/A'}, Price: ${price || 'N/A'}`;
+                const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+                // Open WhatsApp in new tab
+                window.open(whatsappURL, '_blank');
 
                 // Replace button with clickable contact link
                 const td = button.parentElement;
@@ -1460,7 +1477,7 @@
                 // Also show in popup for confirmation
                 if (window.showCustomPopup) {
                     showCustomPopup(
-                        `Contact: ${formattedContact}\n\nClick to call or tap the number in the table.`,
+                        `Contact: ${formattedContact}\n\nWhatsApp opened with pre-filled message!\nYou can also click to call directly.`,
                         'Property Contact'
                     );
                 }

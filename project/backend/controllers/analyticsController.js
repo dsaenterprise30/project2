@@ -102,3 +102,62 @@ export const getUserInterests = async (req, res) => {
         res.status(500).json({ message: "Server error fetching user interests." });
     }
 };
+
+// Get all leads for a specific builder by contact number
+export const getLeadsByBuilder = async (req, res) => {
+    try {
+        const { builderContact } = req.params;
+
+        if (!builderContact) {
+            return res.status(400).json({ message: "Builder contact number is required." });
+        }
+
+        // Clean the contact number
+        const cleanContact = builderContact.replace(/\D/g, '');
+
+        // Find all contact clicks where the owner contact matches the builder's contact
+        // Try multiple formats: with/without 91 prefix
+        const leads = await ContactClick.find({
+            $or: [
+                { ownerContact: cleanContact },
+                { ownerContact: '91' + cleanContact },
+                { ownerContact: cleanContact.replace(/^91/, '') }
+            ]
+        })
+            .sort({ clickedAt: -1 })
+            .populate("userId", "fullName mobileNumber")
+            .lean();
+
+        // Format the leads for display
+        const formattedLeads = leads.map(lead => ({
+            id: lead._id,
+            interestedUser: {
+                name: lead.userId?.fullName || lead.userName || 'Unknown',
+                contact: lead.userId?.mobileNumber || 'N/A'
+            },
+            propertyId: lead.propertyId,
+            propertyType: lead.propertyType,
+            ownerContact: lead.ownerContact,
+            clickedAt: lead.clickedAt,
+            formattedDate: new Date(lead.clickedAt).toLocaleString('en-IN', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            })
+        }));
+
+        res.status(200).json({
+            success: true,
+            message: `Found ${formattedLeads.length} leads for builder contact ${builderContact}`,
+            count: formattedLeads.length,
+            builderContact: builderContact,
+            leads: formattedLeads
+        });
+
+    } catch (error) {
+        console.error("Error fetching leads by builder:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching leads."
+        });
+    }
+};

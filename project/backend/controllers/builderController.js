@@ -142,3 +142,52 @@ export const deleteBuilderById = async (req, res) => {
         res.status(500).json({ message: 'Server error. Please try again later.' });
     }
 };
+
+// Route 6: Validate builder by contact number (used before creating properties)
+export const validateBuilderByContact = async (req, res) => {
+    try {
+        const { mobileNumber } = req.body;
+
+        if (!mobileNumber) {
+            return res.status(400).json({
+                success: false,
+                message: "Mobile number is required"
+            });
+        }
+
+        // Clean the mobile number (remove non-digits)
+        const cleanNumber = mobileNumber.replace(/\D/g, '');
+
+        // Try both with and without 91 prefix
+        const builder = await Builder.findOne({
+            $or: [
+                { mobileNumber: cleanNumber },
+                { mobileNumber: '91' + cleanNumber },
+                { mobileNumber: cleanNumber.replace(/^91/, '') }
+            ]
+        });
+
+        if (!builder) {
+            return res.status(404).json({
+                success: false,
+                message: "Builder not found with this contact number. Please register as a builder first."
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Builder validated successfully",
+            builder: {
+                fullName: builder.fullName,
+                mobileNumber: builder.mobileNumber,
+                companyName: builder.companyName
+            }
+        });
+    } catch (error) {
+        console.error("Error validating builder:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while validating builder"
+        });
+    }
+};

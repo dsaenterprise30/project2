@@ -785,6 +785,9 @@
                 <label for="propertyPrice">Price:</label>
                 <input type="text" id="propertyPrice" name="price" placeholder="e.g., ₹50,00,000" required>
 
+                <label for="propertyCarpetArea">Carpet Area (sq. ft.):</label>
+                <input type="text" id="propertyCarpetArea" name="carpetArea" placeholder="e.g., 1200" required>
+
                 <label for="propertyName">Name:</label>
                 <input type="text" id="propertyName" name="userName" placeholder="e.g., John Doe" required>
 
@@ -1075,6 +1078,7 @@
                         area: propertyForm.elements['area'].value,
                         propertyType: propertyForm.elements['propertyType'].value,
                         price: propertyForm.elements['price'].value,
+                        carpetArea: propertyForm.elements['carpetArea'].value,
                         name: propertyForm.elements['userName'].value,
                         contact: propertyForm.elements['contact'].value,
                         date: propertyForm.elements['date'].value,
@@ -1119,6 +1123,7 @@
                             propertyForm.elements['area'].value = property.area || '';
                             propertyForm.elements['propertyType'].value = property.propertyType;
                             propertyForm.elements['price'].value = property.price.replace(/[₹,]/g, '');
+                            propertyForm.elements['carpetArea'].value = property.carpetArea || '';
                             propertyForm.elements['userName'].value = property.userName;
                             propertyForm.elements['contact'].value = property.contact;
                             propertyForm.elements['date'].value = new Date(property.date).toISOString().substring(0, 10);
