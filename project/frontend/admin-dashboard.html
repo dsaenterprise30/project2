@@ -665,6 +665,7 @@
         </div>
         <ul class="nav-links">
             <li><a href="#" id="addUserBtn"><i class="fas fa-user-plus"></i> Add User</a></li>
+            <li><a href="#" id="viewRegisteredUsersBtn"><i class="fas fa-users"></i> Registered Users</a></li>
             <li><a href="commercialFlats.html">Commercial Flats</a></li>
             <li><a href="housingFlats.html">Housing Flats</a></li>
             <li><a href="#home">Home</a></li>
@@ -761,10 +762,38 @@
                 </div>
             </div>
 
-            <!-- User Management Card -->
+            <!-- Registered Users Card (Initially Hidden) -->
+            <div class="dashboard-card" id="registeredUsersCard" style="display: none;">
+                <div class="card-header">
+                    <h3>All Registered Users</h3>
+                    <button class="btn btn-sm" id="exportRegisteredUsersBtn"><i class="fas fa-download"></i> Export
+                        PDF</button>
+                </div>
+                <div class="card-body">
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="registeredUsersTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Mobile Number</th>
+                                    <th>Registration Date</th>
+                                    <th>Subscription Status</th>
+                                    <th>Subscription Expiry</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registeredUsersBody">
+                                <!-- Dynamic Data -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Card (Now shows Builders) -->
             <div class="dashboard-card" id="userHelper">
                 <div class="card-header">
-                    <h3>User Management</h3>
+                    <h3>Builder Management</h3>
                 </div>
                 <div class="card-body">
                     <div class="data-table-wrapper">
@@ -1010,8 +1039,9 @@
             let currentDisplayData = [];
             let allAnalyticsData = [];
 
-            // API Base
-            const API_BASE = `${window.API_BASE_URL || 'http://localhost:3000'}/api/users`;
+            // API Base for Builder Management
+            const API_BASE = `${window.API_BASE_URL || 'http://localhost:3000'}/api/builder`;
+            const USERS_API = `${window.API_BASE_URL || 'http://localhost:3000'}/api/users`;
 
             // --- Profile Panel Logic ---
             if (profileIcon) {
@@ -1093,6 +1123,142 @@
                 });
             }
 
+            // --- Registered Users Button Handler ---
+            const viewRegisteredUsersBtn = document.getElementById('viewRegisteredUsersBtn');
+            const registeredUsersCard = document.getElementById('registeredUsersCard');
+
+            if (viewRegisteredUsersBtn) {
+                viewRegisteredUsersBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    // Toggle visibility
+                    if (registeredUsersCard.style.display === 'none') {
+                        registeredUsersCard.style.display = 'block';
+                        await fetchRegisteredUsers();
+                    } else {
+                        registeredUsersCard.style.display = 'none';
+                    }
+                });
+            }
+
+            // --- Fetch Registered Users from Users Collection ---
+            async function fetchRegisteredUsers() {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const response = await fetch(`${USERS_API}/all`, {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) throw new Error("Failed to fetch registered users");
+
+                    const users = await response.json();
+                    renderRegisteredUsersTable(users);
+
+                } catch (error) {
+                    console.error("Error fetching registered users:", error);
+                    showCustomPopup("Error loading registered users: " + error.message);
+                }
+            }
+
+            // --- Render Registered Users Table ---
+            function renderRegisteredUsersTable(users) {
+                const tbody = document.getElementById('registeredUsersBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = '';
+
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">No registered users found.</td></tr>`;
+                    return;
+                }
+
+                users.forEach((user) => {
+                    let formattedMobile = String(user.mobileNumber || "N/A");
+                    if (formattedMobile.startsWith('91')) formattedMobile = '+' + formattedMobile;
+                    else if (!formattedMobile.startsWith('+')) formattedMobile = '+91' + formattedMobile;
+
+                    const registrationDate = user.createdAt || user.registrationDate;
+                    const regDateText = registrationDate ? new Date(registrationDate).toLocaleDateString() : "N/A";
+
+                    const subscriptionStatus = user.subscriptionStatus || user.subscriptionActive ? 'Active' : 'Inactive';
+                    const statusClass = subscriptionStatus === 'Active' ? 'status-active' : 'status-inactive';
+
+                    const expiryRaw = user.planExpiryDate || user.subscriptionExpiry || null;
+                    const expiryText = expiryRaw ? new Date(expiryRaw).toLocaleDateString() : "N/A";
+
+                    const userType = user.type || user.userType || "User";
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td data-label="Name">${user.fullName || user.name || "N/A"}</td>
+                        <td data-label="Mobile Number">${formattedMobile}</td>
+                        <td data-label="Registration Date">${regDateText}</td>
+                        <td data-label="Subscription Status"><span class="${statusClass}">${subscriptionStatus}</span></td>
+                        <td data-label="Subscription Expiry">${expiryText}</td>
+                        <td data-label="Type">${userType}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // --- Export Registered Users to PDF ---
+            const exportRegisteredUsersBtn = document.getElementById('exportRegisteredUsersBtn');
+            if (exportRegisteredUsersBtn) {
+                exportRegisteredUsersBtn.addEventListener('click', async () => {
+                    try {
+                        const token = localStorage.getItem("token");
+                        const response = await fetch(`${USERS_API}/all`, {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) throw new Error("Failed to fetch users");
+                        const users = await response.json();
+
+                        // Generate PDF using jsPDF
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+
+                        doc.setFontSize(18);
+                        doc.text('DSA Enterprise - Registered Users', 14, 22);
+                        doc.setFontSize(11);
+                        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+                        const tableData = users.map(user => [
+                            user.fullName || "N/A",
+                            user.mobileNumber || "N/A",
+                            user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A",
+                            user.subscriptionActive ? 'Active' : 'Inactive',
+                            user.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString() : "N/A",
+                            user.type || "User"
+                        ]);
+
+                        doc.autoTable({
+                            head: [['Name', 'Mobile', 'Reg. Date', 'Status', 'Expiry', 'Type']],
+                            body: tableData,
+                            startY: 35,
+                            styles: { fontSize: 8 }
+                        });
+
+                        doc.save(`registered-users-${new Date().toISOString().split('T')[0]}.pdf`);
+                        showCustomPopup("✅ PDF exported successfully!");
+
+                    } catch (error) {
+                        console.error("Error exporting PDF:", error);
+                        showCustomPopup("❌ Error exporting PDF: " + error.message);
+                    }
+                });
+            }
+
             if (closeAddUserBtn) {
                 closeAddUserBtn.addEventListener('click', () => {
                     if (addUserModal) addUserModal.classList.remove('open');
@@ -1116,7 +1282,7 @@
                         });
 
                         const result = await response.json();
-                        if (!response.ok) throw new Error(result.msg || "Failed");
+                        if (!response.ok) throw new Error(result.message || result.msg || "Failed");
 
                         showCustomPopup("✅ User created successfully!");
                         addUserModal.classList.remove('open');
@@ -1222,7 +1388,7 @@
                         return;
                     }
 
-                    const response = await fetch(`${API_BASE}/all-users`, {
+                    const response = await fetch(`${API_BASE}/all`, {
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
@@ -1274,6 +1440,9 @@
                         <td data-label="Plan Expiry">${expiryText}</td>
                         <td data-label="Status"><span class="${statusClass}">${statusText}</span></td>
                         <td data-label="Actions"> 
+                            <button class="btn btn-sm" onclick="openEditUserModal('${user._id}', '${user.fullName || "N/A"}', '${expiryRaw}')" title="Edit User" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button class="btn btn-sm" onclick="openUserAnalytics('${user._id}')" title="View Leads" style="margin-right: 5px;">
                                 <i class="fas fa-chart-line"></i>
                             </button>

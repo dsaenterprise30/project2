@@ -840,12 +840,12 @@
                         <tr>
                             <th>Location</th>
                             <th>Area Name</th>
-                            <th>Property Type</th>
-                            <th>housing</th>
-                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Builder Name</th>
+                            <th>Project Name</th>
+                            <th>Rera Date</th>
                             <th>Contact</th>
-                            <th>Tenant Choice</th>
-                            <th>Ownership Type</th>
                             <th>Date</th>
                         </tr>
                     </thead>
@@ -1126,7 +1126,7 @@
             // --- DATA FETCHING ---
             async function fetchProperties() {
                 // Ensure API_BASE_URL is ready
-                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/housingflats`;
+                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/housing`;
 
                 try {
                     const response = await fetch(`${BASE_URL}/all-public`, {
@@ -1224,12 +1224,34 @@
                         }
                     }
 
+                    // Format date as MM/DD/YYYY
+                    let formattedDate = '';
+                    if (property.date || property.createdAt) {
+                        const dateObj = new Date(property.date || property.createdAt);
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const year = dateObj.getFullYear();
+                        formattedDate = `${month}/${day}/${year}`;
+                    }
+
+                    // Format RERA date as MM/DD/YYYY
+                    let formattedReraDate = '';
+                    if (property.reraDate) {
+                        const reraDateObj = new Date(property.reraDate);
+                        const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
+                        const day = String(reraDateObj.getDate()).padStart(2, '0');
+                        const year = reraDateObj.getFullYear();
+                        formattedReraDate = `${month}/${day}/${year}`;
+                    }
+
                     row.innerHTML = `
                         <td data-label="Location">${property.location || ''}</td>
-                        <td data-label="Area">${property.area || ''}</td>
-                        <td data-label="Property Type">${property.propertyType || ''}</td>
-                        <td data-label="housing">${displayPrice}</td>
-                        <td data-label="Name">${property.userName || ''}</td>
+                        <td data-label="Area Name">${property.area || ''}</td>
+                        <td data-label="Type">${property.propertyType || ''}</td>
+                        <td data-label="Price">${displayPrice}</td>
+                        <td data-label="Builder Name">${property.builderName || ''}</td>
+                        <td data-label="Project Name">${property.projectName || ''}</td>
+                        <td data-label="Rera Date">${formattedReraDate}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
                                 data-sender-mobile="${userData?.mobileNumber || ''}"
@@ -1237,9 +1259,7 @@
                                 Contact
                             </button>
                         </td>
-                        <td data-label="Tenant Type">${property.tenantType || ''}</td>
-                        <td data-label="Ownership Type">${property.ownershipType || 'Agent'}</td>
-                        <td data-label="Date">${property.date ? new Date(property.date).toLocaleDateString() : ''}</td>
+                        <td data-label="Date">${formattedDate}</td>
                     `;
                     propertiesBody.appendChild(row);
                 });
@@ -1414,6 +1434,38 @@
                 window.addEventListener('orientationchange', reRenderForViewport);
             }
 
+            // --- CONTACT HANDLER ---
+            window.handleContactClick = function (button, contactNumber, propertyId, propertyType) {
+                // Format the contact number for display
+                let formattedContact = contactNumber;
+                if (contactNumber && contactNumber.length >= 10) {
+                    // Remove any non-digit characters
+                    const digits = contactNumber.replace(/\D/g, '');
+                    // Format as +91 XXXXX XXXXX
+                    if (digits.length === 12 && digits.startsWith('91')) {
+                        formattedContact = `+91 ${digits.substring(2, 7)} ${digits.substring(7)}`;
+                    } else if (digits.length === 10) {
+                        formattedContact = `+91 ${digits.substring(0, 5)} ${digits.substring(5)}`;
+                    } else if (digits.length >= 10) {
+                        // Handle any 10+ digit number
+                        const last10 = digits.slice(-10);
+                        formattedContact = `+91 ${last10.substring(0, 5)} ${last10.substring(5)}`;
+                    }
+                }
+
+                // Replace button with clickable contact link
+                const td = button.parentElement;
+                td.innerHTML = `<a href="tel:${contactNumber}" style="color: var(--success); font-weight: 600; text-decoration: none;">${formattedContact}</a>`;
+
+                // Also show in popup for confirmation
+                if (window.showCustomPopup) {
+                    showCustomPopup(
+                        `Contact: ${formattedContact}\n\nClick to call or tap the number in the table.`,
+                        'Property Contact'
+                    );
+                }
+            };
+
             showTableMessage('⚠️ Please use the search filters above to find properties.');
             fetchProperties();
         });
@@ -1421,4 +1473,3 @@
 </body>
 
 </html>
-

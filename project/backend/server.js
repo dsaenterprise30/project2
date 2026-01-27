@@ -17,6 +17,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
 import planRoutes from "./routes/planRoutes.js";
 import brokerRoutes from "./routes/brokerRoutes.js";
+import builderRoutes from "./routes/builderRoutes.js";
 
 
 
@@ -44,6 +45,7 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/broker", brokerRoutes)
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/builder", builderRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)

@@ -9,7 +9,10 @@ const housingPropertySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    location:{
+    location: {
+        type: String,
+    },
+    area: {
         type: String,
     },
     carpetArea: {
@@ -26,6 +29,9 @@ const housingPropertySchema = new mongoose.Schema({
     builderName: {
         type: String,
     },
+    reraDate: {
+        type: Date,
+    },
     contact: {
         type: String,
         required: [true, 'Mobile number is required.'],
@@ -37,11 +43,11 @@ const housingPropertySchema = new mongoose.Schema({
         type: String,
         enum: ['Rora', 'Possesion']
     }
-}, { 
-    timestamps: true 
+}, {
+    timestamps: true
 });
 
-const housingProperty = mongoose.model('housingProperty', housingPropertySchema);
+const housingProperty = mongoose.model('housingProperty', housingPropertySchema, 'housingproperties');
 
 // ✅ Ensure indexes are built when model loads
 housingProperty.init()

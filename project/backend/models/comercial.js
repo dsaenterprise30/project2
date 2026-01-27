@@ -43,7 +43,7 @@ const comercialPropertySchema = new mongoose.Schema({
 // Note: explicit index for `contact` removed to avoid collisions with existing DB indexes.
 // If you need a new index, add it after cleaning up existing indexes in the DB.
 
-const comercialProperty = mongoose.model('comercialProperty', comercialPropertySchema);
+const comercialProperty = mongoose.model('comercialProperty', comercialPropertySchema, 'comercialproperties');
 
 // ✅ Ensure indexes build at startup
 comercialProperty.init()

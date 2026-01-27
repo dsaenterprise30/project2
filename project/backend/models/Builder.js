@@ -1,21 +1,36 @@
 import mongoose from "mongoose";
 
 const BuilderSchema = new mongoose.Schema({
-  name: {
+  fullName: {
     type: String,
     required: true,
     trim: true
   },
-  companyName: String,
-  email: {
+  mobileNumber: {
     type: String,
+    required: true,
     unique: true
   },
-  mobile: {
+  password: {
     type: String,
     required: true
   },
+  companyName: String,
+  email: {
+    type: String
+  },
   city: String,
+  subscriptionStatus: String,
+  planExpiryDate: Date,
+  subscriptionExpiry: Date,
+  registrationDate: {
+    type: Date,
+    default: Date.now
+  },
+  type: {
+    type: String,
+    default: 'Builder'
+  },
   isActive: {
     type: Boolean,
     default: true

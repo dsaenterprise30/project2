@@ -89,32 +89,50 @@ export const createHousingListing = async (req, res) => {
 // Route 2: Get all housing listings
 export const getAllHousingListings = async (req, res) => {
     try {
-        const listings = await RentFlat.find().lean();
+        const HousingProperty = (await import('../models/housingProperty.js')).default;
+        const listings = await HousingProperty.find().lean();
 
         const formattedListings = listings.map(listing => {
             const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
                 ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
                 : "N/A";
 
+            // Format dates to MM/DD/YYYY
+            let formattedDate = '';
+            if (listing.date || listing.createdAt) {
+                const dateObj = new Date(listing.date || listing.createdAt);
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                formattedDate = `${month}/${day}/${year}`;
+            }
+
+            let formattedReraDate = '';
+            if (listing.reraDate) {
+                const reraDateObj = new Date(listing.reraDate);
+                const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(reraDateObj.getDate()).padStart(2, '0');
+                const year = reraDateObj.getFullYear();
+                formattedReraDate = `${month}/${day}/${year}`;
+            }
+
             return {
                 ...listing,
                 id: listing._id.toString(),
-                price: formattedPrice
+                price: formattedPrice,
+                date: formattedDate,
+                reraDate: formattedReraDate
             };
         });
 
         res.status(200).json({
-            message: "All the flats for rent are listed below.",
+            message: "All housing properties listed below.",
             count: formattedListings.length,
-            rentFlatsList: formattedListings,
-            ownershipTypeCounts: {
-                Agent: formattedListings.filter(listing => listing.ownershipType === "Agent").length,
-                Owner: formattedListings.filter(listing => listing.ownershipType === "Owner").length
-            }
+            housingFlatsList: formattedListings
         });
     } catch (error) {
-        console.error("Error fetching listings:", error.message);
-        res.status(500).json({ message: "Server error while fetching listings." });
+        console.error("Error fetching housing listings:", error.message);
+        res.status(500).json({ message: "Server error while fetching housing listings." });
     }
 };
 

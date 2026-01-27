@@ -48,6 +48,9 @@ router.post("/logout", logout);
 // Route to get user by contact number
 router.get("/findByContact/:contact", getUserByContact);
 
+// Route to get all users (Admin only)
+router.get("/all", verifyAccessToken, checkAdminNumber, getAllUsers);
+
 // Admin routes
 
 // Route 7 - Get all users (Admin only)
