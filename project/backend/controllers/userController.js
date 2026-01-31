@@ -49,27 +49,20 @@ export const registerUser = async (req, res) => {
       password: hashpassword
     };
 
-    // ❗️User is created only as "not yet subscribed" – payment must happen
     const newUser = new User({
       fullName,
       mobileNumber,
-      password: hashpassword,
-      subscriptionActive: false,
-      subscriptionStatus: "Inactive",
-      subscriptionExpiry: null,
-      hasUsedTrial: false, // first subscription will apply 7 days free + 1 month
+      password: hashpassword
     });
 
     await newUser.save();
 
     res.status(201).json({
       status: 'success',
-      message: '✅ User registered successfully (OTP & payment pending). Please complete payment to activate your 7 days free + 1 month subscription.',
+      message: '✅ User registered successfully.',
       data: {
         fullName: newUser.fullName,
         contact: newUser.mobileNumber,
-        subscriptionStatus: newUser.subscriptionStatus,
-        subscriptionExpiry: newUser.subscriptionExpiry
       }
     });
   } catch (error) {
@@ -106,24 +99,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ Check subscription validity
-    let subscriptionActive = existingUser.subscriptionActive;
-
-    if (existingUser.subscriptionExpiry && existingUser.subscriptionExpiry < new Date()) {
-      subscriptionActive = false;
-      existingUser.subscriptionActive = false;
-      existingUser.subscriptionStatus = "Inactive";
-      await existingUser.save();
-    }
-
-    if (!subscriptionActive) {
-      return res.status(403).json({
-        message: "⚠️ Your subscription is not active or has expired. Please subscribe to continue.",
-        subscriptionActive: false,
-        subscriptionStatus: existingUser.subscriptionStatus || "Inactive"
-      });
-    }
-
     // ✅ Login successful (subscription is active)
     res.status(200).json({
       status: 'success',
@@ -133,9 +108,7 @@ export const loginUser = async (req, res) => {
         userId: existingUser._id,
         fullName: existingUser.fullName,
         mobileNumber: existingUser.mobileNumber,
-        subscriptionActive: existingUser.subscriptionActive,
-        subscriptionStatus: existingUser.subscriptionStatus,
-        subscriptionExpiry: existingUser.subscriptionExpiry,
+        
       }
     });
   } catch (error) {

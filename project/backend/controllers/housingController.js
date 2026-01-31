@@ -19,7 +19,7 @@ const cleanMobileNumber = (mobileString) => {
 // Route 1: Create a new housing listing
 export const createHousingListing = async (req, res) => {
     const { contact, area, location, propertyType, price, builderName, date, allocationStatus, projectName, address, carpetArea } = req.body || {};
-
+    
     try {
         if (!contact || !location || !propertyType || !price || !projectName || !address) {
             return res.status(400).json({ message: "All required fields must be provided." });

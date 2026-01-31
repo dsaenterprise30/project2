@@ -13,10 +13,6 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     match: [/^91[0-9]{10}$/, 'Please fill a valid 10-digit mobile number.'],
   },
-  email: {
-    type: String,
-    trim: true,
-  },
   password: {
     type: String,
     required: [true, 'Password is required.'],
@@ -28,37 +24,8 @@ const UserSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['Agent', 'Admin'],
+    enum: ['Agent', 'Admnin'],
     default: 'Agent',
-  },
-
-  // Subscription state
-  subscriptionActive: {
-    type: Boolean,
-    default: false,     // ❗️Default false – becomes true only after successful payment/webhook
-  },
-  subscriptionStatus: {
-    type: String,
-    enum: ["Active", "Inactive"],
-    default: "Inactive",
-  },
-  subscriptionId: {
-    type: String,
-    default: null,
-  },
-  subscriptionExpiry: {
-    type: Date,
-    default: null,      // Will be calculated based on 7 days trial + 1 month for first time
-  },
-  paymentId: {
-    type: String,
-    default: null,
-  },
-
-  // Whether 7 days free trial benefit has already been used
-  hasUsedTrial: {
-    type: Boolean,
-    default: false,
   },
 });
 

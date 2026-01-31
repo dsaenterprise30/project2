@@ -684,7 +684,7 @@
         </div>
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
-            <li><a href="commercialProperties.html">Sell Properties</a></li>
+            <li><a href="commercialProperties.html">Commercial Properties</a></li>
             <li><a id="profileIcon"><i class="fas fa-admin fa-user-circle fa-xl"></i> My Profile</a></li>
         </ul>
         <div class="hamburger"><span></span><span></span><span></span></div>
@@ -944,7 +944,7 @@
             btnElement.disabled = true;
 
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/housingflats/send-interest`, {
+                const response = await fetch(`${window.API_BASE_URL}/api/housing/send-interest`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
