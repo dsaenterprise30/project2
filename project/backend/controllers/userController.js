@@ -1,10 +1,11 @@
 import User from '../models/User.js';
-//import RentFlat from '../models/rentflats.js';
-//import SellFlat from '../models/sellflats.js';
 import bcrypt from "bcrypt";
 import express from 'express';
 import jwt from "jsonwebtoken";
 import { generateRefreshToken, generateAccessToken, sendTokenResponse } from './jwtController.js';
+import Housing from '../models/Housing.js';
+import Commercial from '../models/Commercial.js';
+import Builder from '../models/Builder.js';
 
 // ---- Global in-memory pending user store ----
 const pendingUsers = {};
@@ -127,37 +128,37 @@ export const getUserByContact = async (req, res) => {
       contact = "91" + contact;
     }
 
-    // 1️⃣ Check in User collection
-    const user = await User.findOne({ mobileNumber: contact });
-    if (user) {
-      if (user.subscriptionStatus === "Active") {
+    // 1️⃣ Check in Builder collection
+    const builders = await Builder.findOne({ mobileNumber: contact });
+    if (builders) {
+      if (builders.subscriptionStatus === "Active") {
         return res.json({
-          message: "user",
-          fullName: user.fullName,
-          mobileNumber: user.mobileNumber.toString().slice(-10),
+          message: "Builder",
+          fullName: builders.fullName,
+          mobileNumber: builders.mobileNumber.toString().slice(-10),
         });
       } else {
         return res.status(403).json({ message: "User is not active." });
       }
     }
 
-    // 2️⃣ Check in RentFlat
-    const rentUserDetails = await RentFlat.findOne({ contact: contact });
-    if (rentUserDetails) {
+    // 2️⃣ Check in housing
+    const housingUserDetails = await Housing.findOne({ contact: contact });
+    if (housingUserDetails) {
       return res.json({
-        message: "rent",
-        fullName: rentUserDetails.userName,
-        mobileNumber: rentUserDetails.contact.toString().slice(-10),
+        message: "housing",
+        fullName: housingUserDetails.userName,
+        mobileNumber: housingUserDetails.contact.toString().slice(-10),
       });
     }
 
-    // 3️⃣ Check in SellFlat
-    const sellUserDetails = await SellFlat.findOne({ contact: contact });
-    if (sellUserDetails) {
+    // 3️⃣ Check in commercial
+    const commercialUserDetails = await Commercial.findOne({ contact: contact });
+    if (commercialUserDetails) {
       return res.json({
         message: "sell",
-        fullName: sellUserDetails.userName,
-        mobileNumber: sellUserDetails.contact.toString().slice(-10),
+        fullName: commercialUserDetails.userName,
+        mobileNumber: commercialUserDetails.contact.toString().slice(-10),
       });
     }
 
@@ -247,7 +248,7 @@ export const adminLogin = async (req, res) => {
       return res.status(400).json({ message: "Admin not found" });
     }
 
-    const adminNumber = process.env.ADMIN_NUMBER || "8591325875";
+    const adminNumber = process.env.ADMIN_NUMBER;
     const phoneNumber = user.mobileNumber;
     if (String(phoneNumber) !== String(adminNumber)) {
       return res.status(403).json({

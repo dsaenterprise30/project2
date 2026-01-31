@@ -39,7 +39,7 @@ app.use(cookieParser());
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/housing', housingRoutes);
-app.use('/api/comercial', comercialRoutes);
+app.use('/api/commercial', comercialRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/analytics", analyticsRoutes);
