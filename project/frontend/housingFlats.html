@@ -782,11 +782,11 @@
                     <option value="4 BHK">4 BHK</option>
                 </select>
 
-                <label for="propertyPrice">housing:</label>
-                <input type="text" id="propertyPrice" name="price" placeholder="e.g., ₹25,000" required>
+                <label for="propertyPrice">housing price:</label>
+                <input type="number" id="propertyPrice" name="price" placeholder="e.g., ₹25,000" required>
 
-                <label for="propertyName">Name:</label>
-                <input type="text" id="propertyName" name="userName" placeholder="e.g., John Doe" required>
+                <label for="propertyName">Project Name:</label>
+                <input type="text" id="propertyName" name="projectName" placeholder="e.g., John Doe" required>
 
                 <label for="propertyContact">Contact:</label>
                 <input type="text" id="propertyContact" name="contact" placeholder="e.g., 9876543210" required>
@@ -794,20 +794,11 @@
                 <label for="propertyDate">Listed on Date:</label>
                 <input type="date" id="propertyDate" name="date" required>
 
-                <label for="tenantType">Tenant Preference:</label>
-                <select id="tenantType" name="tenantType" required>
-                    <option value="">Select a Preference</option>
-                    <option value="Any">Any</option>
-                    <option value="Family">Family</option>
-                    <option value="Bachelors">Bachelors</option>
-                </select>
+                <label for="carpetArea">Carpet Area</label>
+                <input type="number" id="carpetArea" name="carpetArea" placeholder="300 sq. ft" required>
 
-                <label for="ownershipType">Ownership Type:</label>
-                <select id="ownershipType" name="ownershipType" required>
-                    <option value="">Select an Ownership Type</option>
-                    <option value="Owner">Owner</option>
-                    <option value="Agent">Agent</option>
-                </select>
+                <label for="builderName">Builder Name</label>
+                <input type="text" id="builderName" name="builderName" placeholder="e.g., ABC Builders" required>
 
                 <div class="button-row">
                     <button type="submit" id="submitPropertyBtn">Add Property</button>
@@ -1117,12 +1108,11 @@
                         area: propertyForm.elements['area'].value,
                         propertyType: propertyForm.elements['propertyType'].value,
                         price: propertyForm.elements['price'].value,
-                        name: propertyForm.elements['userName'].value,
+                        projectName: propertyForm.elements['projectName'].value,
                         contact: propertyForm.elements['contact'].value,
                         date: propertyForm.elements['date'].value,
-                        tenantType: propertyForm.elements['tenantType'].value,
-                        ownershipType: propertyForm.elements['ownershipType'].value
-                    };
+                        carpetArea: propertyForm.elements['carpetArea'].value,
+                        builderName: propertyForm.elements['builderName'].value};
                     const propertyId = propertyIdInput.value;
                     const isCreating = propertyId === '';
                     const url = isCreating ? `${BASE_URL}/create` : `${BASE_URL}/update/${propertyId}`;
@@ -1168,11 +1158,11 @@
                             propertyForm.elements['area'].value = property.area || '';
                             propertyForm.elements['propertyType'].value = property.propertyType;
                             propertyForm.elements['price'].value = property.price.replace(/[₹,]/g, '');
-                            propertyForm.elements['userName'].value = property.userName;
+                            propertyForm.elements['projectName'].value = property.projectName;
                             propertyForm.elements['contact'].value = property.contact;
                             propertyForm.elements['date'].value = new Date(property.date).toISOString().substring(0, 10);
-                            propertyForm.elements['tenantType'].value = property.tenantType;
-                            propertyForm.elements['ownershipType'].value = property.ownershipType;
+                            propertyForm.elements['carpetArea'].value = property.carpetArea || '';
+                            propertyForm.elements['builderName'].value = property.builderName || '';
                             document.getElementById('propertyPanelTitle').textContent = 'Edit housingal Property';
                             document.getElementById('submitPropertyBtn').textContent = 'Save Changes';
                             openPanel();

@@ -1,4 +1,4 @@
-import housingProperty from "../models/housingProperty.js";
+import housingProperty from "../models/Housing.js";
 import User from "../models/User.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
@@ -18,10 +18,10 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new housing listing
 export const createHousingListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, builderName, date, allocationStatus, projectName, address, carpetArea } = req.body || {};
+    const { contact, area, location, propertyType, price, builderName, date, projectName, carpetArea } = req.body || {};
     
     try {
-        if (!contact || !location || !propertyType || !price || !projectName || !address) {
+        if (!contact || !location || !propertyType || !price || !projectName || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
@@ -67,9 +67,8 @@ export const createHousingListing = async (req, res) => {
             price: parsePrice(price),
             contact: '91' + sanitizedContact,
             builderName: builderName || builder.fullName,
-            allocationStatus,
             projectName,
-            address,
+            date,
             carpetArea
         });
 
@@ -96,7 +95,7 @@ export const createHousingListing = async (req, res) => {
 // Route 2: Get all housing listings
 export const getAllHousingListings = async (req, res) => {
     try {
-        const HousingProperty = (await import('../models/housingProperty.js')).default;
+        const HousingProperty = housingProperty; // Assuming housingProperty is already imported and exported correctly
         const listings = await HousingProperty.find().lean();
 
         const formattedListings = listings.map(listing => {

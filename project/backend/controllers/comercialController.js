@@ -1,4 +1,4 @@
-import comercialProperty from "../models/comercial.js";
+import comercialProperty from "../models/Comercial.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 

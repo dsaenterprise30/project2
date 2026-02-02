@@ -4,7 +4,7 @@ import express from 'express';
 import jwt from "jsonwebtoken";
 import { generateRefreshToken, generateAccessToken, sendTokenResponse } from './jwtController.js';
 import Housing from '../models/Housing.js';
-import Commercial from '../models/Commercial.js';
+import Commercial from '../models/Comercial.js';
 import Builder from '../models/Builder.js';
 
 // ---- Global in-memory pending user store ----

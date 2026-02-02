@@ -5,10 +5,6 @@ const housingPropertySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    address: {
-        type: String,
-        required: true
-    },
     location: {
         type: String,
     },
@@ -39,10 +35,6 @@ const housingPropertySchema = new mongoose.Schema({
         match: [/^91+[0-9]{10}$/, 'Please fill a valid 10-digit mobile number.'],
         index: true // ✅ Index for faster lookups
     },
-    allocationStatus: {
-        type: String,
-        enum: ['Rora', 'Possesion']
-    }
 }, {
     timestamps: true
 });
