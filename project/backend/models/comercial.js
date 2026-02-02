@@ -10,6 +10,9 @@ const comercialPropertySchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    builderName: {
+        type: String,
+    },
     location: {
         type: String,
         required: true

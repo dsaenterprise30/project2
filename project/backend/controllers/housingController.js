@@ -19,7 +19,7 @@ const cleanMobileNumber = (mobileString) => {
 // Route 1: Create a new housing listing
 export const createHousingListing = async (req, res) => {
     const { contact, area, location, propertyType, price, builderName, date, projectName, carpetArea } = req.body || {};
-    
+
     try {
         if (!contact || !location || !propertyType || !price || !projectName || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
@@ -146,7 +146,7 @@ export const getAllHousingListings = async (req, res) => {
 export const updateHousingListingById = async (req, res) => {
     const { id } = req.params;
     // ✅ CORRECTED: Destructure tenantType
-    const { location, area, propertyType, price, name, contact, date, tenantType, ownershipType } = req.body || {};
+    const { location, area, propertyType, price, name, contact, date, projectName, builderName, carpetArea } = req.body || {};
 
     try {
         const update = {
@@ -154,11 +154,11 @@ export const updateHousingListingById = async (req, res) => {
             area,
             propertyType,
             price: parsePrice(price),
-            userName: name,
+            projectName, // ✅ Added projectName
+            builderName, // ✅ Added builderName
+            carpetArea, // ✅ Added carpetArea
             contact: cleanMobileNumber(contact),
             date,
-            tenantType, // ✅ CORRECTED: Update tenantType
-            ownershipType // ✅ CORRECTED: Update ownershipType
         };
 
         const result = await housingProperty.findByIdAndUpdate(id, { $set: update }, { new: true });

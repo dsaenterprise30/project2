@@ -17,10 +17,11 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new comercial listing
 export const createComercialListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, date, ownershipType, name, carpetArea, projectName } = req.body || {};
+    const { contact, area, location, propertyType, price, date, ownershipType, name, carpetArea, projectName, builderName } = req.body || {};
 
     try {
-        if (!contact || !area || !location || !propertyType || !price || !date || !ownershipType || !name || !carpetArea) {
+        // Relax 'name' requirement if 'projectName' is provided.
+        if (!contact || !area || !location || !propertyType || !price || !date || !ownershipType || !(name || projectName) || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
@@ -68,7 +69,8 @@ export const createComercialListing = async (req, res) => {
             date,
             ownershipType,
             contact: sanitizedContact,
-            projectName: projectName || '',
+            projectName: projectName || name || '', // Use projectName or generic name
+            builderName: builderName || builder.fullName, // ✅ Added builderName using builder info
         });
 
         const savedListing = await newListing.save();
@@ -122,7 +124,7 @@ export const getAllComercialListings = async (req, res) => {
 // Route 3: Update a comercial listing by its ID
 export const updateComercialListingById = async (req, res) => {
     const { id } = req.params;
-    const { location, area, propertyType, price, name, contact, date, ownershipType } = req.body || {};
+    const { location, area, propertyType, price, name, contact, date, ownershipType, projectName, builderName, carpetArea } = req.body || {};
 
     try {
         const update = {
@@ -130,10 +132,13 @@ export const updateComercialListingById = async (req, res) => {
             area,
             propertyType,
             price: parsePrice(price),
-            userName: name,
+            projectName: projectName || name, // Update projectName
+            userName: name, // Keep simplified name ref if needed
             contact: cleanMobileNumber(contact),
             date,
-            ownershipType
+            ownershipType,
+            builderName, // ✅ Allow updating builderName
+            carpetArea // ✅ Allow updating carpetArea
         };
 
         const result = await comercialProperty.findByIdAndUpdate(id, { $set: update }, { new: true });

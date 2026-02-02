@@ -725,6 +725,7 @@
         <ul class="nav-links">
             <li><a href="commercialFlats.html">Commercial Flats</a></li>
             <li><a href="admin-dashboard.html">Dashboard</a></li>
+
         </ul>
         <div class="hamburger"><span></span><span></span><span></span></div>
     </nav>
@@ -782,7 +783,7 @@
                     <option value="4 BHK">4 BHK</option>
                 </select>
 
-                <label for="propertyPrice">housing price:</label>
+                <label for="propertyPrice">Price:</label>
                 <input type="number" id="propertyPrice" name="price" placeholder="e.g., ₹25,000" required>
 
                 <label for="propertyName">Project Name:</label>
@@ -852,7 +853,7 @@
                 </div>
 
                 <div class="search-group">
-                    <label class="search-label">Enter housing</label>
+                    <label class="search-label">Enter Budget</label>
                     <div class="input-with-clear">
                         <input type="text" class="search-input" id="price" placeholder="e.g., 25000">
                         <button type="button" class="clear-btn" data-target="price">&times;</button>
@@ -867,29 +868,6 @@
                     </div>
                 </div>
 
-                <div class="search-group">
-                    <label class="search-label">Tenant Preference</label>
-                    <div class="dropdown" id="tenantType">
-                        <div class="dropdown-btn"><span>Select Preference</span><i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="Any">Any</div>
-                            <div class="dropdown-option" data-value="Family">Family</div>
-                            <div class="dropdown-option" data-value="Bachelors">Bachelors</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="search-group">
-                    <label class="search-label">Ownership Type</label>
-                    <div class="dropdown" id="ownershipType">
-                        <div class="dropdown-btn"><span>Select Ownership</span><i class="fas fa-chevron-down"></i></div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="Agent">Agent</div>
-                            <div class="dropdown-option" data-value="Owner">Owner</div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="search-group" style="align-self: flex-end;">
                     <button type="button" class="search-btn" id="searchBtn"><i class="fas fa-search"></i>
@@ -912,19 +890,19 @@
                     <h4>Total Properties</h4>
                     <div class="count" id="totalProperties">0</div>
                 </div>
-                <div class="counter-card">
+                <div class="counter-card" style="display: none;">
                     <h4>Family Preferred</h4>
                     <div class="count" id="familyProperties">0</div>
                 </div>
-                <div class="counter-card">
+                <div class="counter-card" style="display: none;">
                     <h4>Bachelors Preferred</h4>
                     <div class="count" id="bachelorProperties">0</div>
                 </div>
-                <div class="counter-card">
+                <div class="counter-card" style="display: none;">
                     <h4>Agent Properties</h4>
                     <div class="count" id="agentProperties">0</div>
                 </div>
-                <div class="counter-card">
+                <div class="counter-card" style="display: none;">
                     <h4>Owner Properties</h4>
                     <div class="count" id="ownerProperties">0</div>
                 </div>
@@ -937,13 +915,13 @@
                         <tr>
                             <th>Location</th>
                             <th>Area Name</th>
-                            <th>Type</th>
-                            <th>housing</th>
-                            <th>Name</th>
+                            <th>Property Type</th>
+                            <th>Carpet Area</th>
+                            <th>Price</th>
+                            <th>Project Name</th>
+                            <th>Builder Name</th>
                             <th>Contact</th>
                             <th>Date</th>
-                            <th>Preference</th>
-                            <th>Ownership</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -1112,7 +1090,8 @@
                         contact: propertyForm.elements['contact'].value,
                         date: propertyForm.elements['date'].value,
                         carpetArea: propertyForm.elements['carpetArea'].value,
-                        builderName: propertyForm.elements['builderName'].value};
+                        builderName: propertyForm.elements['builderName'].value
+                    };
                     const propertyId = propertyIdInput.value;
                     const isCreating = propertyId === '';
                     const url = isCreating ? `${BASE_URL}/create` : `${BASE_URL}/update/${propertyId}`;
@@ -1192,14 +1171,6 @@
                     return properties.filter(p => {
                         if (filters.location && p.location !== filters.location.value) return false;
                         if (filters.flatType && p.propertyType !== filters.flatType.value) return false;
-                        if (filters.ownershipType) {
-                            const ownershipValue = p.ownershipType || 'Agent';
-                            if (ownershipValue !== filters.ownershipType.value) return false;
-                        }
-                        if (filters.tenantType) {
-                            const tenantValue = p.tenantType || 'Any';
-                            if (tenantValue !== filters.tenantType.value) return false;
-                        }
                         if (filters.price && filters.price.value) {
                             const filterPrice = parseInt(filters.price.value.replace(/[^0-9]/g, ''), 10);
                             const propertyPrice = parseInt(p.price.replace(/[^0-9]/g, ''), 10);
@@ -1233,7 +1204,7 @@
                         if (contact && contact.startsWith('91')) {
                             contact = contact.replace('91', '+91 ');
                         }
-                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.price || ''}</td><td>${prop.userName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td>${prop.tenantType || ''}</td><td>${prop.ownershipType || 'Agent'}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.carpetArea || ''}</td><td>${prop.price || ''}</td><td>${prop.projectName || prop.userName || ''}</td><td>${prop.builderName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
                     });
                 }
 
@@ -1246,17 +1217,13 @@
                         if (contact && contact.startsWith('91')) {
                             contact = contact.replace('91', '+91 ');
                         }
-                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">housing:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${prop.userName}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-row"><span class="card-label">Preference:</span> <span class="card-value">${prop.tenantType}</span></div><div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${prop.ownershipType || 'Agent'}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${prop.carpetArea || ''}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${prop.projectName || prop.userName || ''}</span></div><div class="card-row"><span class="card-label">Builder Name:</span> <span class="card-value">${prop.builderName || ''}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
                         cardView.appendChild(card);
                     });
                 }
 
                 function updateCounters(data) {
                     document.getElementById('totalProperties').textContent = data.length;
-                    document.getElementById('familyProperties').textContent = data.filter(p => p.tenantType === 'Family').length;
-                    document.getElementById('bachelorProperties').textContent = data.filter(p => p.tenantType === 'Bachelors').length;
-                    document.getElementById('agentProperties').textContent = data.filter(p => p.ownershipType === 'Agent' || !p.ownershipType).length;
-                    document.getElementById('ownerProperties').textContent = data.filter(p => p.ownershipType === 'Owner').length;
                 }
 
                 function openPanel() { propertyPanel.style.width = window.innerWidth <= 768 ? '100%' : '400px'; propertyPanel.classList.add('open'); overlay.style.display = 'block'; }
@@ -1293,8 +1260,7 @@
                     const defaultLabels = {
                         location: 'Select Location',
                         flatType: 'Select Property Type',
-                        ownershipType: 'Select Ownership Type',
-                        price: 'Enter housing',
+                        price: 'Enter Budget',
                         mobile: 'Enter Mobile No.'
                     };
 
@@ -1337,4 +1303,3 @@
 </body>
 
 </html>
-
