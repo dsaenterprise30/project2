@@ -16,8 +16,11 @@ export const checkAdminNumber = (req, res, next) => {
     const ADMIN_NUMBER = String(ADMIN_NUMBER_RAW).trim();
 
     // direct string compare (you can adapt normalization if your ADMIN_NUMBER has country code)
+    console.log(`[DEBUG] checkAdminNumber: Token Mobile: ${mobileNumber}, Env Admin: ${ADMIN_NUMBER}`);
+
     if (mobileNumber !== ADMIN_NUMBER && mobileNumber !== `91${ADMIN_NUMBER}` && (`91${mobileNumber}` !== ADMIN_NUMBER)) {
       // basic normalization: admin stored with/without 91
+      console.log("[DEBUG] Admin check FAILED");
       return res.status(403).json({ message: "Access denied: Admin only" });
     }
 

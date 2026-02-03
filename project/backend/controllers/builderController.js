@@ -78,9 +78,10 @@ export const loginBuilder = async (req, res) => {
 
 // Route 3: Get All Builders (Admin Only)
 export const getAllBuilders = async (req, res) => {
-
+    console.log("[DEBUG] getAllBuilders called");
     try {
         const builders = await Builder.find().select('-password');
+        console.log(`[DEBUG] Found ${builders.length} builders`);
         res.status(200).json(builders);
     } catch (error) {
         console.error('Error fetching builders:', error);

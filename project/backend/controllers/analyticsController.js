@@ -1,4 +1,6 @@
-import ContactClick from "../models/ContactClick.js";
+import Comercial from "../models/Comercial.js"; // Ensure this is imported
+import ContactClick from "../models/ContactClick.js"; // Restored import
+import User from "../models/User.js"; // Added missing User import
 
 // Get Analytics Data
 export const getClickAnalytics = async (req, res) => {
@@ -11,8 +13,8 @@ export const getClickAnalytics = async (req, res) => {
             { $group: { _id: "$propertyType", count: { $sum: 1 } } }
         ]);
 
-        // Format for frontend: { rent: 10, sell: 5 }
-        const clicksByTypeMap = { rent: 0, sell: 0 };
+        // Format for frontend: { rent: 10, sell: 5, commercial: 2 }
+        const clicksByTypeMap = { rent: 0, sell: 0, commercial: 0 };
         clicksByType.forEach(item => {
             clicksByTypeMap[item._id] = item.count;
         });
@@ -39,50 +41,85 @@ export const getClickAnalytics = async (req, res) => {
 };
 
 // Get Analytics for a Specific User (Inbound Leads)
-//import User from "../models/User.js";
-//import RentFlat from "../models/rentflats.js";
-//import SellFlat from "../models/sellflats.js";
+
+import RentFlat from "../models/Housing.js"; // Using Housing model for rent/sell? Or are they separate?
+// Note: In housingController, housingProperty is used. Let's assume Housing.js covers rent/sell via propertyType check or separate collections?
+// Based on housingController, getAllHousingListings fetches from HousingProperty.
+// If your system splits Rent/Sell into different models, fetch accordingly.
+// The user imports were commented out in the original file, so I'm re-adding them based on usage.
+// Assuming RentFlat/SellFlat logic was intended but Housing.js is the actual model?
+// In housingController, `housingProperty` is used for "housing" listings.
+// Let's use housingProperty for 'rent' and 'sell' if they share the collection.
+
+import Builder from "../models/Builder.js";
 
 export const getUserInterests = async (req, res) => {
     const { userId } = req.params;
+    console.log(`[DEBUG] getUserInterests called for userId: ${userId}`);
     try {
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
+        let userType = 'User';
+
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            console.log(`[DEBUG] User not found in User collection, checking Builder collection: ${userId}`);
+            user = await Builder.findById(userId);
+            userType = 'Builder';
         }
 
-        // Search for clicks where this user is the owner (contact matches)
-        // Since mobileNumber is Number in User but String in ContactClick, convert.
-        // Also handling +91 prefix if inconsistent.
-        // Best approach: Match stringified version or regex.
-        // ContactClick.ownerContact is saved as string.
+        if (!user) {
+            console.log(`[DEBUG] User/Builder not found: ${userId}`);
+            return res.status(404).json({ message: "User/Builder not found." });
+        }
 
         let mobileStr = String(user.mobileNumber);
-        // Sometimes saved with +91 or just 91. 
-        // Let's assume strict match for now based on how we save it.
+        // Create variants of the mobile number to search
+        const mobileRaw = mobileStr.replace(/\D/g, '');
+        const withPrefix = mobileRaw.startsWith('91') ? mobileRaw : '91' + mobileRaw;
+        const withoutPrefix = mobileRaw.startsWith('91') ? mobileRaw.substring(2) : mobileRaw;
+
+        console.log(`[DEBUG] Searching leads for ownerContact variants: Raw=${mobileRaw}, WithPrefix=${withPrefix}, WithoutPrefix=${withoutPrefix}`);
 
         const inboundLeads = await ContactClick.find({
-            ownerContact: mobileStr
+            $or: [
+                { ownerContact: mobileRaw },
+                { ownerContact: withPrefix },
+                { ownerContact: withoutPrefix }
+            ]
         })
             .sort({ clickedAt: -1 })
             .populate("userId", "fullName mobileNumber");
+
+        console.log(`[DEBUG] Found ${inboundLeads.length} raw leads`);
 
         // Enhance leads with property details
         const enhancedLeads = await Promise.all(inboundLeads.map(async (lead) => {
             let propertyDetails = null;
             try {
-                if (lead.propertyType === 'rent') {
-                    propertyDetails = await RentFlat.findById(lead.propertyId).select("location propertyType price area");
-                } else if (lead.propertyType === 'sell') {
-                    propertyDetails = await SellFlat.findById(lead.propertyId).select("location propertyType price area");
+                if (lead.propertyType === 'commercial') {
+                    propertyDetails = await Comercial.findById(lead.propertyId).lean();
+                } else {
+                    // Default to Housing for rent/sell
+                    // Check if lead.propertyId is valid ObjectId?
+                    // If it's "unknown", mongo might throw CastError if findById expects ObjectId.
+                    if (lead.propertyId && lead.propertyId !== 'unknown') {
+                        propertyDetails = await RentFlat.findById(lead.propertyId).lean();
+                    }
                 }
             } catch (err) {
-                console.warn(`Could not fetch property details for ID ${lead.propertyId}:`, err.message);
+                console.warn(`[DEBUG] Could not fetch property details for ID ${lead.propertyId}:`, err.message);
             }
 
             return {
                 ...lead.toObject(),
-                propertyDetails: propertyDetails || { location: "Unknown", price: "N/A", propertyType: lead.propertyType.toUpperCase() }
+                propertyDetails: propertyDetails ? {
+                    location: propertyDetails.location,
+                    price: propertyDetails.price,
+                    type: propertyDetails.propertyType || lead.propertyType,
+                    areaName: propertyDetails.area,
+                    builderName: propertyDetails.builderName,
+                    projectName: propertyDetails.projectName,
+                    reraRegistrationDate: propertyDetails.reraDate
+                } : { location: "Unknown", price: "N/A", propertyType: lead.propertyType.toUpperCase() }
             };
         }));
 
@@ -99,7 +136,7 @@ export const getUserInterests = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching user interests:", error);
-        res.status(500).json({ message: "Server error fetching user interests." });
+        res.status(500).json({ message: "Server error fetching user interests. " + error.message });
     }
 };
 

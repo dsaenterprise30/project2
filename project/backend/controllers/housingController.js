@@ -216,16 +216,34 @@ export const sendInterestSMS = async (req, res) => {
 
         // --- 3. Save Click Data for Analytics ---
         try {
+            let interactionType = (propertyDetails.type || propertyDetails.propertyType || 'rent').toLowerCase();
+            const validTypes = ['rent', 'sell', 'commercial'];
+
+            // If the type is like "4 bhk", it's not a valid interaction type, so default to 'rent' for Housing
+            if (!validTypes.includes(interactionType)) {
+                interactionType = 'rent';
+            }
+
             await ContactClick.create({
                 userId: req.userId,
                 propertyId: propertyDetails.id || 'unknown',
-                propertyType: 'rent',
+                propertyType: interactionType,
                 ownerContact: propertyOwnerContact,
                 userName: senderMobile // Using mobile as proxy for name if unavailable
             });
             console.log("Analytics: Click recorded.");
         } catch (analyticsError) {
             console.error("Analytics Error: Failed to record click.", analyticsError);
+        }
+
+        // Format property details for the message
+        let propertyInfo = "property";
+        if (propertyDetails && typeof propertyDetails === 'object') {
+            const { type, location, price, id } = propertyDetails;
+            const priceText = price ? ` listed at ${price}` : '';
+            const locationText = location ? ` in ${location}` : '';
+            const typeText = type ? `${type}` : 'Property';
+            propertyInfo = `${typeText}${locationText}${priceText}`;
         }
 
         // MOCK SIMULATION
@@ -235,7 +253,7 @@ export const sendInterestSMS = async (req, res) => {
         console.log(`STATUS   : SIMULATED SEND SUCCESS`);
         console.log(`FROM     : SYSTEM (on behalf of ${senderMobile})`);
         console.log(`TO       : ${propertyOwnerContact}`);
-        console.log(`CONTENT  : "User with mobile ${senderMobile} is interested in your property: ${propertyDetails}. Please contact them."`);
+        console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your ${propertyInfo}. Please contact them."`);
         console.log("===================================================\n");
 
         res.status(200).json({ message: "Interest expressed successfully. SMS sent." });

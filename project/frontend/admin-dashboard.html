@@ -919,9 +919,7 @@
                 <div>
                     <span style="font-size: 0.9rem; margin-right: 10px;">Total: <strong
                             id="analyticsTotalLeads">0</strong></span>
-                    <button id="downloadPdfBtn" class="btn btn-sm btn-danger">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
+
                 </div>
             </div>
 
@@ -1039,9 +1037,15 @@
             let currentDisplayData = [];
             let allAnalyticsData = [];
 
-            // API Base for Builder Management
-            const API_BASE = `${window.API_BASE_URL || 'http://localhost:3000'}/api/builder`;
-            const USERS_API = `${window.API_BASE_URL || 'http://localhost:3000'}/api/users`;
+            // API Base for Builder Management - Robust fallback
+            const getApiBase = () => {
+                return `${window.API_BASE_URL || 'http://localhost:3000'}/api/builder`;
+            };
+            const getUsersApi = () => {
+                return `${window.API_BASE_URL || 'http://localhost:3000'}/api/users`;
+            };
+
+            console.log("Admin Dashboard Script Loaded");
 
             // --- Profile Panel Logic ---
             if (profileIcon) {
@@ -1110,17 +1114,25 @@
 
             // --- Populate Profile ---
             if (userData) {
-                document.getElementById("profileName").value = userData.fullName || "";
-                document.getElementById("profileMobile").value = userData.mobileNumber || "";
+                if (document.getElementById("profileName")) document.getElementById("profileName").value = userData.fullName || "";
+                if (document.getElementById("profileMobile")) document.getElementById("profileMobile").value = userData.mobileNumber || "";
             }
 
             // --- Logic for Add/Edit User ---
             if (addUserBtn) {
+                console.log("Add User Button found, attaching listener");
                 addUserBtn.addEventListener('click', (e) => {
+                    console.log("Add User Clicked");
                     e.preventDefault();
-                    if (addUserModal) addUserModal.classList.add('open');
-                    overlay.classList.add('show');
+                    if (addUserModal) {
+                        addUserModal.classList.add('open');
+                        overlay.classList.add('show');
+                    } else {
+                        console.error("Add User Modal not found");
+                    }
                 });
+            } else {
+                console.error("Add User Button not found");
             }
 
             // --- Registered Users Button Handler ---
@@ -1128,7 +1140,9 @@
             const registeredUsersCard = document.getElementById('registeredUsersCard');
 
             if (viewRegisteredUsersBtn) {
+                console.log("Users Button found, attaching listener");
                 viewRegisteredUsersBtn.addEventListener('click', async (e) => {
+                    console.log("Users Button Clicked");
                     e.preventDefault();
                     // Toggle visibility
                     if (registeredUsersCard.style.display === 'none') {
@@ -1138,6 +1152,8 @@
                         registeredUsersCard.style.display = 'none';
                     }
                 });
+            } else {
+                console.error("Users Button not found");
             }
 
             // --- Fetch Registered Users from Users Collection ---
@@ -1149,7 +1165,8 @@
                         return;
                     }
 
-                    const response = await fetch(`${USERS_API}/all`, {
+                    console.log("Fetching registered users...");
+                    const response = await fetch(`${getUsersApi()}/all`, {
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
@@ -1214,7 +1231,7 @@
                 exportRegisteredUsersBtn.addEventListener('click', async () => {
                     try {
                         const token = localStorage.getItem("token");
-                        const response = await fetch(`${USERS_API}/all`, {
+                        const response = await fetch(`${getUsersApi()}/all`, {
                             headers: {
                                 "Content-Type": "application/json",
                                 "Authorization": `Bearer ${token}`
@@ -1275,7 +1292,7 @@
                     const password = document.getElementById('newUserPassword').value;
 
                     try {
-                        const response = await fetch(`${API_BASE}/create`, {
+                        const response = await fetch(`${getApiBase()}/create`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ fullName, mobileNumber: "+91" + mobileNumber, password })
@@ -1329,7 +1346,7 @@
 
                     try {
                         const token = localStorage.getItem("token");
-                        const response = await fetch(`${API_BASE}/update/${userId}`, {
+                        const response = await fetch(`${getApiBase()}/update/${userId}`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json",
@@ -1357,7 +1374,7 @@
                     if (confirmed) {
                         try {
                             const token = localStorage.getItem("token");
-                            const response = await fetch(`${API_BASE}/delete/${id}`, {
+                            const response = await fetch(`${getApiBase()}/delete/${id}`, {
                                 method: 'DELETE',
                                 headers: { "Authorization": `Bearer ${token}` }
                             });
@@ -1388,7 +1405,8 @@
                         return;
                     }
 
-                    const response = await fetch(`${API_BASE}/all`, {
+                    console.log("Fetching builders/users list...");
+                    const response = await fetch(`${getApiBase()}/all`, {
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
@@ -1398,6 +1416,8 @@
                     if (!response.ok) throw new Error("Failed to fetch users");
 
                     allUsersData = await response.json();
+                    console.log(`Fetched ${allUsersData.length} records`);
+
                     currentDisplayData = allUsersData;
                     currentUsersPage = 1;
                     renderTable(currentDisplayData, currentUsersPage);
@@ -1443,7 +1463,7 @@
                             <button class="btn btn-sm" onclick="openEditUserModal('${user._id}', '${user.fullName || "N/A"}', '${expiryRaw}')" title="Edit User" style="margin-right: 5px;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm" onclick="openUserAnalytics('${user._id}')" title="View Leads" style="margin-right: 5px;">
+                            <button class="btn btn-sm" onclick="openUserAnalytics('${user._id}', '${user.fullName || "N/A"}')" title="View Leads" style="margin-right: 5px;">
                                 <i class="fas fa-chart-line"></i>
                             </button>
                             <button class="btn btn-danger btn-sm" onclick="deleteUser('${user._id}')" title="Delete User">
@@ -1506,39 +1526,7 @@
                 });
             }
 
-            window.openUserAnalytics = function (userId) {
-                const user = allUsersData.find(u => u._id === userId);
-                const userName = user ? user.fullName : "Unknown User";
-                document.getElementById('analyticsUserName').textContent = userName;
 
-                const userClicks = allAnalyticsData.filter(click => {
-                    const clickUserId = click.userId && click.userId._id ? click.userId._id : click.userId;
-                    return clickUserId === userId;
-                });
-
-                document.getElementById('analyticsTotalLeads').textContent = userClicks.length;
-                const tbody = document.getElementById('userAnalyticsBody');
-                tbody.innerHTML = '';
-
-                if (userClicks.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No leads found for this user.</td></tr>';
-                } else {
-                    userClicks.forEach(click => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td data-label="Lead Name">${click.userName || userName}</td>
-                            <td data-label="Contact">${click.userId ? click.userId.mobileNumber : 'N/A'}</td>
-                            <td data-label="Type">${click.propertyType.toUpperCase()}</td>
-                            <td data-label="Location/Price">${click.propertyDetails || 'N/A'}</td>
-                            <td data-label="Time">${new Date(click.clickedAt).toLocaleString()}</td>
-                         `;
-                        tbody.appendChild(row);
-                    });
-                }
-
-                userAnalyticsPanel.classList.add('open');
-                overlay.classList.add('show');
-            };
 
             if (closeUserAnalyticsBtn) {
                 closeUserAnalyticsBtn.addEventListener('click', () => {
@@ -1651,6 +1639,166 @@
             document.addEventListener('click', () => {
                 dropdowns.forEach(d => d.classList.remove('active'));
             });
+
+            // ===== Interest Analytics Functions =====
+            // Variables userAnalyticsPanel and closeUserAnalyticsBtn are already declared at top scope.
+            const analyticsUserName = document.getElementById('analyticsUserName');
+            const analyticsTotalLeads = document.getElementById('analyticsTotalLeads');
+            const userAnalyticsBody = document.getElementById('userAnalyticsBody');
+
+            // Open Interest Analytics Panel
+            window.openUserAnalytics = async function (userId, userName) {
+                try {
+                    analyticsUserName.textContent = userName;
+                    userAnalyticsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem;">Loading...</td></tr>';
+
+                    // Open panel
+                    userAnalyticsPanel.classList.add('open');
+                    overlay.classList.add('show');
+
+                    // Check if download button exists, if not create it
+                    const header = userAnalyticsPanel.querySelector('.panel-header');
+                    if (!header.querySelector('#downloadAnalyticsPdfBtn')) {
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.id = 'downloadAnalyticsPdfBtn';
+                        downloadBtn.className = 'btn btn-primary';
+                        downloadBtn.style.marginLeft = 'auto';
+                        downloadBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF';
+                        downloadBtn.onclick = () => downloadAnalyticsPDF(userName);
+                        header.appendChild(downloadBtn);
+                    } else {
+                        // Update onclick to use current userName
+                        const downloadBtn = header.querySelector('#downloadAnalyticsPdfBtn');
+                        downloadBtn.onclick = () => downloadAnalyticsPDF(userName);
+                    }
+
+                    // Fetch user interests
+                    const token = localStorage.getItem('token');
+                    // Use dynamic API base if possible, or keep hardcoded for now if backend is fixed
+                    const base = window.API_BASE_URL || 'http://localhost:3000';
+                    const response = await fetch(`${base}/api/analytics/user/${userId}`, {
+                        headers: { 'authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'success' && data.data.leads) {
+                        const leads = data.data.leads;
+                        analyticsTotalLeads.textContent = leads.length;
+
+                        // Store leads for PDF generation
+                        window.currentLeadsData = leads;
+
+                        if (leads.length === 0) {
+                            userAnalyticsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">No leads found for this user</td></tr>';
+                            return;
+                        }
+
+                        // Render leads table
+                        userAnalyticsBody.innerHTML = '';
+                        leads.forEach(lead => {
+                            const row = userAnalyticsBody.insertRow();
+                            const prop = lead.propertyDetails || {};
+
+                            // Lead Name
+                            row.insertCell().textContent = lead.userId?.fullName || 'Unknown';
+
+                            // Contact
+                            row.insertCell().textContent = lead.userId?.mobileNumber || 'N/A';
+
+                            // Location
+                            row.insertCell().textContent = prop.location || 'N/A';
+
+                            // Area Name
+                            row.insertCell().textContent = prop.areaName || 'N/A';
+
+                            // Type
+                            row.insertCell().textContent = prop.type || lead.propertyType || 'N/A';
+
+                            // Price
+                            const priceCell = row.insertCell();
+                            priceCell.textContent = prop.price ? `₹${prop.price.toLocaleString('en-IN')}` : 'N/A';
+
+                            // Builder
+                            row.insertCell().textContent = prop.builderName || 'N/A';
+
+                            // Project
+                            row.insertCell().textContent = prop.projectName || 'N/A';
+
+                            // RERA Date
+                            const reraDate = prop.reraRegistrationDate ? new Date(prop.reraRegistrationDate).toLocaleDateString('en-IN') : 'N/A';
+                            row.insertCell().textContent = reraDate;
+
+                            // Time
+                            const time = lead.clickedAt ? new Date(lead.clickedAt).toLocaleString('en-IN') : 'N/A';
+                            row.insertCell().textContent = time;
+                        });
+                    } else {
+                        const errorMsg = data.message || data.msg || JSON.stringify(data);
+                        userAnalyticsBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--danger);">Error: ${errorMsg}</td></tr>`;
+                    }
+                } catch (error) {
+                    console.error('Error fetching user interests:', error);
+                    userAnalyticsBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading data: ${error.message}</td></tr>`;
+                }
+            };
+
+            // PDF Download Function
+            window.downloadAnalyticsPDF = function (userName) {
+                const leads = window.currentLeadsData || [];
+                if (leads.length === 0) {
+                    showCustomPopup("No data to download.");
+                    return;
+                }
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more columns
+
+                    doc.setFontSize(18);
+                    doc.text(`Interest Report for ${userName}`, 14, 22);
+                    doc.setFontSize(11);
+                    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+                    doc.text(`Total Leads: ${leads.length}`, 14, 36);
+
+                    const tableData = leads.map(lead => {
+                        const prop = lead.propertyDetails || {};
+                        return [
+                            lead.userId?.fullName || 'Unknown',
+                            lead.userId?.mobileNumber || 'N/A',
+                            prop.location || 'N/A',
+                            prop.type || lead.propertyType || 'N/A',
+                            prop.price ? `₹${prop.price.toLocaleString('en-IN')}` : 'N/A',
+                            prop.builderName || 'N/A',
+                            prop.projectName || 'N/A',
+                            lead.clickedAt ? new Date(lead.clickedAt).toLocaleString('en-IN') : 'N/A'
+                        ];
+                    });
+
+                    doc.autoTable({
+                        head: [['Lead Name', 'Contact', 'Location', 'Type', 'Price', 'Builder', 'Project', 'Time']],
+                        body: tableData,
+                        startY: 40,
+                        styles: { fontSize: 8 },
+                        headStyles: { fillColor: [15, 23, 42] } // Dark blue header
+                    });
+
+                    doc.save(`Interest_Report_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+                    showCustomPopup("✅ PDF downloaded successfully!");
+
+                } catch (error) {
+                    console.error("PDF Error:", error);
+                    showCustomPopup("❌ Error generating PDF: " + error.message);
+                }
+            };
+
+            // Close Interest Analytics Panel
+            if (closeUserAnalyticsBtn) {
+                closeUserAnalyticsBtn.addEventListener('click', () => {
+                    userAnalyticsPanel.classList.remove('open');
+                    overlay.classList.remove('show');
+                });
+            }
         });
     </script>
 </body>

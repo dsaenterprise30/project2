@@ -1,9 +1,10 @@
 import express from "express";
-import { 
-    createComercialListing, 
-    getAllComercialListings, 
-    updateComercialListingById, 
-    deleteComercialListingById 
+import {
+    createComercialListing,
+    getAllComercialListings,
+    updateComercialListingById,
+    deleteComercialListingById,
+    sendInterestSMS
 } from "../controllers/comercialController.js";
 
 // Comment out or remove these imports for now
@@ -26,5 +27,7 @@ router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteComercia
 
 //Route 5: fetch all comercial listings for public access
 router.get("/all-public", verifyAccessToken, getAllComercialListings);
+
+router.post("/send-interest", verifyAccessToken, sendInterestSMS);
 
 export default router;

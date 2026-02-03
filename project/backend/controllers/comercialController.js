@@ -176,3 +176,60 @@ export const deleteComercialListingById = async (req, res) => {
         res.status(500).json({ message: "Server error while deleting listings." });
     }
 };
+
+// Route 5: Send Interest SMS (Mock)
+export const sendInterestSMS = async (req, res) => {
+    const { propertyOwnerContact, propertyDetails } = req.body;
+    const senderMobile = req.mobileNumber; // From verifyAccessToken
+
+    try {
+        console.log("DEBUG: Commercial sendInterestSMS called");
+        console.log("DEBUG Body:", JSON.stringify(req.body, null, 2));
+
+        if (!propertyOwnerContact || !senderMobile) {
+            return res.status(400).json({ message: "Missing contact information." });
+        }
+
+        // --- REAL SMS PROVIDER INTEGRATION POINT ---
+
+        // --- 3. Save Click Data for Analytics ---
+        try {
+            await ContactClick.create({
+                userId: req.userId,
+                propertyId: propertyDetails.id || 'unknown',
+                propertyType: 'commercial', // Explicitly commercial
+                ownerContact: propertyOwnerContact,
+                userName: senderMobile
+            });
+            console.log("Analytics: Commercial Click recorded.");
+        } catch (analyticsError) {
+            console.error("Analytics Error: Failed to record click.", analyticsError);
+        }
+
+        // Format property details for the message
+        let propertyInfo = "commercial property";
+        if (propertyDetails && typeof propertyDetails === 'object') {
+            const { type, location, price, id } = propertyDetails;
+            const priceText = price ? ` listed at ${price}` : '';
+            const locationText = location ? ` in ${location}` : '';
+            const typeText = type ? `${type}` : 'Property';
+            propertyInfo = `${typeText}${locationText}${priceText}`;
+        }
+
+        // MOCK SIMULATION
+        const timestamp = new Date().toLocaleString();
+        console.log("\n================ [SMS SERVICE LOG] ================");
+        console.log(`TIME     : ${timestamp}`);
+        console.log(`STATUS   : SIMULATED SEND SUCCESS (COMMERCIAL)`);
+        console.log(`FROM     : SYSTEM (on behalf of ${senderMobile})`);
+        console.log(`TO       : ${propertyOwnerContact}`);
+        console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your commercial ${propertyInfo}. Please contact them."`);
+        console.log("===================================================\n");
+
+        res.status(200).json({ message: "Interest expressed successfully. SMS sent." });
+
+    } catch (error) {
+        console.error("Error sending SMS:", error.message);
+        res.status(500).json({ message: "Server error while sending SMS." });
+    }
+};

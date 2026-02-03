@@ -15,7 +15,7 @@ const contactClickSchema = new mongoose.Schema({
     },
     propertyType: {
         type: String,
-        enum: ["rent", "sell"],
+        enum: ["rent", "sell", "commercial"],
         required: true
     },
     ownerContact: {
