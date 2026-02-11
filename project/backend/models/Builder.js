@@ -29,6 +29,7 @@ const BuilderSchema = new mongoose.Schema({
   },
   type: {
     type: String,
+    enum: ['Builder', 'User'],
     default: 'Builder'
   },
   isActive: {

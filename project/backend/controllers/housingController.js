@@ -1,4 +1,4 @@
-import housingProperty from "../models/Housing.js";
+import Housing from "../models/Housing.js";
 import User from "../models/User.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
@@ -45,7 +45,7 @@ export const createHousingListing = async (req, res) => {
         }
 
         // Check for duplicate listing
-        const duplicateListing = await housingProperty.findOne({
+        const duplicateListing = await Housing.findOne({
             contact: '91' + sanitizedContact,
             location,
             area,
@@ -60,7 +60,7 @@ export const createHousingListing = async (req, res) => {
             });
         }
 
-        const newListing = new housingProperty({
+        const newListing = new Housing({
             location,
             area,
             propertyType,
@@ -95,8 +95,8 @@ export const createHousingListing = async (req, res) => {
 // Route 2: Get all housing listings
 export const getAllHousingListings = async (req, res) => {
     try {
-        const HousingProperty = housingProperty; // Assuming housingProperty is already imported and exported correctly
-        const listings = await HousingProperty.find().lean();
+        const Housing = Housing; // Assuming Housing is already imported and exported correctly
+        const listings = await Housing.find().lean();
 
         const formattedListings = listings.map(listing => {
             const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
@@ -161,7 +161,7 @@ export const updateHousingListingById = async (req, res) => {
             date,
         };
 
-        const result = await housingProperty.findByIdAndUpdate(id, { $set: update }, { new: true });
+        const result = await Housing.findByIdAndUpdate(id, { $set: update }, { new: true });
 
         if (result) {
             res.status(200).json({
@@ -182,7 +182,7 @@ export const deleteHousingListingById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const result = await housingProperty.findByIdAndDelete(id);
+        const result = await Housing.findByIdAndDelete(id);
 
         if (result) {
             return res.status(200).json({
@@ -262,4 +262,15 @@ export const sendInterestSMS = async (req, res) => {
         console.error("Error sending SMS:", error.message);
         res.status(500).json({ message: "Server error while sending SMS." });
     }
+};
+
+//Route 6: Get a housing listing by priority (for public access)
+export const searchHousingProperties = async (req, res) => {
+  const housingProperties = await Housing.find({
+    location: req.query.location
+  })
+  .sort({ builderPriority: -1, createdAt: -1 })
+  .limit(20);
+
+  res.json(housingProperties);
 };

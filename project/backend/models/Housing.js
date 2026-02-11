@@ -11,6 +11,10 @@ const housingPropertySchema = new mongoose.Schema({
     area: {
         type: String,
     },
+    builderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Builder',
+    },
     carpetArea: {
         type: Number,
     },
@@ -28,6 +32,8 @@ const housingPropertySchema = new mongoose.Schema({
     reraDate: {
         type: Date,
     },
+    builderPlan: String,
+    builderPriority: Number, // 🔥 used for sorting
     contact: {
         type: String,
         required: [true, 'Mobile number is required.'],

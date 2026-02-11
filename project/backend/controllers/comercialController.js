@@ -1,4 +1,4 @@
-import comercialProperty from "../models/Comercial.js";
+import Commercial from "../models/Commercial.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 
@@ -45,7 +45,7 @@ export const createComercialListing = async (req, res) => {
         }
 
         // Check for duplicate listing
-        const duplicateListing = await comercialProperty.findOne({
+        const duplicateListing = await Commercial.findOne({
             contact: sanitizedContact,
             location,
             area,
@@ -60,7 +60,7 @@ export const createComercialListing = async (req, res) => {
             });
         }
 
-        const newListing = new comercialProperty({
+        const newListing = new Commercial({
             location,
             area,
             carpetArea,
@@ -95,7 +95,7 @@ export const createComercialListing = async (req, res) => {
 // Route 2: Get all comercial listings
 export const getAllComercialListings = async (req, res) => {
     try {
-        const listings = await comercialProperty.find().lean();
+        const listings = await Commercial.find().lean();
 
         const formattedListings = listings.map(listing => {
             const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
@@ -141,7 +141,7 @@ export const updateComercialListingById = async (req, res) => {
             carpetArea // ✅ Allow updating carpetArea
         };
 
-        const result = await comercialProperty.findByIdAndUpdate(id, { $set: update }, { new: true });
+        const result = await Commercial.findByIdAndUpdate(id, { $set: update }, { new: true });
 
         if (result) {
             res.status(200).json({
@@ -162,7 +162,7 @@ export const deleteComercialListingById = async (req, res) => {
     const { id } = req.params; // Get ID from URL parameter
 
     try {
-        const result = await comercialProperty.findByIdAndDelete(id);
+        const result = await Commercial.findByIdAndDelete(id);
 
         if (result) {
             return res.status(200).json({
@@ -232,4 +232,15 @@ export const sendInterestSMS = async (req, res) => {
         console.error("Error sending SMS:", error.message);
         res.status(500).json({ message: "Server error while sending SMS." });
     }
+};
+
+//Route 6: Get all comercial listings by priority for public access (Brokers)
+export const searchCommercialProperties = async (req, res) => {
+  const commercialProperties = await Commercial.find({
+    location: req.query.location
+  })
+  .sort({ builderPriority: -1, createdAt: -1 })
+  .limit(20);
+
+  res.json(commercialProperties);
 };
