@@ -3,6 +3,8 @@ import User from "../models/User.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 
+import { sendWhatsAppMessage } from "./whatsappController.js";
+
 // Helper function to sanitize and parse the price string
 const parsePrice = (priceString) => {
     if (typeof priceString !== 'string') return null;
@@ -246,17 +248,26 @@ export const sendInterestSMS = async (req, res) => {
             propertyInfo = `${typeText}${locationText}${priceText}`;
         }
 
-        // MOCK SIMULATION
+        // --- LOGGING (Restored as requested) ---
         const timestamp = new Date().toLocaleString();
         console.log("\n================ [SMS SERVICE LOG] ================");
         console.log(`TIME     : ${timestamp}`);
-        console.log(`STATUS   : SIMULATED SEND SUCCESS`);
+        console.log(`STATUS   : WHATSAPP API TRIGGERED`);
         console.log(`FROM     : SYSTEM (on behalf of ${senderMobile})`);
         console.log(`TO       : ${propertyOwnerContact}`);
         console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your ${propertyInfo}. Please contact them."`);
         console.log("===================================================\n");
 
-        res.status(200).json({ message: "Interest expressed successfully. SMS sent." });
+        // Create WhatsApp Message
+        // Template: property_interest
+        // Variables: {{1}} = senderMobile, {{2}} = propertyInfo
+        sendWhatsAppMessage(propertyOwnerContact, "property_interest", [senderMobile, propertyInfo])
+            .then(res => {
+                if (!res.success) console.warn("WhatsApp Send Failed");
+            })
+            .catch(err => console.error("WhatsApp Send Validation Error", err));
+
+        res.status(200).json({ message: "Interest expressed successfully. SMS/WhatsApp sent." });
 
     } catch (error) {
         console.error("Error sending SMS:", error.message);
