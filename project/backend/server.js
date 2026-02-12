@@ -12,7 +12,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
 import planRoutes from "./routes/planRoutes.js";
 import builderRoutes from "./routes/builderRoutes.js";
-import subscriptionRoutes from "./routes/subscriptionRoute.js";
+import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import "./subscriptionCron.js";
 
 
