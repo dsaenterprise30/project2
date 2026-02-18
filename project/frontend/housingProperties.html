@@ -1126,7 +1126,7 @@
             // --- DATA FETCHING ---
             async function fetchProperties() {
                 // Ensure API_BASE_URL is ready
-                const BASE_URL = `${window.API_BASE_URL || 'http://localhost:3000'}/api/housing`;
+                const BASE_URL = `${window.API_BASE_URL}/api/housing`;
 
                 try {
                     const response = await fetch(`${BASE_URL}/all-public`, {
