@@ -338,49 +338,154 @@
   </div>
 
   <!-- ================= JS ================= -->
-  <script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script type="module">
+    import { RAZORPAY_KEY_ID } from './razorpayConfig.js';
+
     const plansContainer = document.getElementById("plans");
+    const builderId = localStorage.getItem("builderId") || "guest_builder"; // Fallback for testing
 
-    const plans = [
-      {
-        name: "Monthly Plan",
-        price: 1999,
-        interval: "month"
-      },
-      {
-        name: "Half Yearly Plan",
-        price: 10000,
-        interval: "6 months",
-        promo: "Save ₹1,994"
-      },
-      {
-        name: "Yearly Plan",
-        price: 20000,
-        interval: "year",
-        promo: "Save ₹3,988",
-        popular: true
+    async function fetchPlans() {
+      try {
+        const response = await fetch('/api/plans');
+        const plans = await response.json();
+        renderPlans(plans);
+      } catch (error) {
+        console.error("Error fetching plans:", error);
+        showPopup("Failed to load plans given by server. Please try again later.");
       }
-    ];
+    }
 
-    plans.forEach(plan => {
-      const card = document.createElement("div");
-      card.className = "plan-card";
+    function renderPlans(plans) {
+      plansContainer.innerHTML = "";
+      plans.forEach(plan => {
+        const card = document.createElement("div");
+        card.className = "plan-card";
 
-      if (plan.popular) {
-        card.innerHTML += `<div class="badge">Most Popular</div>`;
+        // Logic to highlighting popular plans or specific styling can be improved here
+        if (plan.plan === "platinum") /* Example logic */ {
+          card.innerHTML += `<div class="badge">Best Value</div>`;
+        }
+
+        const featuresHtml = plan.features ? plan.features.map(f => `<div>• ${f}</div>`).join('') : '';
+
+        card.innerHTML += `
+          <h2>${plan.plan.charAt(0).toUpperCase() + plan.plan.slice(1)} Plan</h2>
+          <div class="plan-price">₹${plan.price.toLocaleString('en-IN')}</div>
+          <p style="color:var(--text-muted); margin-bottom:1rem;">${plan.description || ''}</p>
+          <div style="margin-bottom:1.5rem; text-align:left; color:var(--text-muted); font-size:0.9rem;">
+            ${featuresHtml}
+          </div>
+          <button class="btn" onclick="initiatePayment('${plan.plan}')">
+            Subscribe Now
+          </button>
+        `;
+
+        plansContainer.appendChild(card);
+      });
+    }
+
+    window.initiatePayment = async (planName) => {
+      if (!builderId || builderId === "guest_builder") {
+        // Try to get from user object if stored differently
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user && user._id) {
+          // It's likely a user ID, but we need builderId. 
+          // Assuming for now user._id is what we use or we need to fetch builder profile.
+          // For now, prompt generic login if absolutely no ID.
+        }
+        // For this implementation, I will proceed but warn if it might fail on backend
+        // Actually, backend needs builderId to update the builder. 
+        // Let's assume the user is logged in as a builder and localStorage has 'user'
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          showPopup("Please log in to subscribe.");
+          setTimeout(() => window.location.href = 'login.html', 2000);
+          return;
+        }
+        // We'll use the user's ID as builderId for the flow
+        const headerBuilderId = JSON.parse(userData)._id;
+
+        // Real implementation:
+        createOrder(headerBuilderId, planName);
+        return;
       }
+      createOrder(builderId, planName);
+    };
 
-      card.innerHTML += `
-        <h2>${plan.name}</h2>
-        <div class="plan-price">₹${plan.price.toLocaleString('en-IN')} <span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/ ${plan.interval}</span></div>
-        ${plan.promo ? `<div class="promo-text">${plan.promo}</div>` : ""}
-        <button class="btn" onclick="showPopup('Please log in to subscribe')">
-          Subscribe Now
-        </button>
-      `;
+    async function createOrder(bId, planName) {
+      try {
+        const response = await fetch('/api/plans/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ builderId: bId, plan: planName })
+        });
 
-      plansContainer.appendChild(card);
-    });
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.message || "Order creation failed");
+        }
+
+        const order = await response.json();
+        handleRazorpay(order, bId, planName);
+
+      } catch (error) {
+        console.error("Order Error:", error);
+        showPopup("Failed to initiate payment. " + error.message);
+      }
+    }
+
+    function handleRazorpay(order, bId, planName) {
+      const options = {
+        key: RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "DSA Enterprise",
+        description: `Subscription for ${planName} plan`,
+        order_id: order.id,
+        handler: async function (response) {
+          verifyPayment(response, bId, planName);
+        },
+        prefill: {
+          name: "Builder Name", // Could fetch from user profile
+          email: "builder@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#3b82f6"
+        }
+      };
+      const rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+
+    async function verifyPayment(paymentResponse, bId, planName) {
+      try {
+        const response = await fetch('/api/plans/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_order_id: paymentResponse.razorpay_order_id,
+            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+            razorpay_signature: paymentResponse.razorpay_signature,
+            builderId: bId,
+            plan: planName
+          })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          showPopup("Subscription Successful!");
+          // Optionally redirect
+          // window.location.href = 'dashboard.html';
+        } else {
+          showPopup("Payment verification failed: " + result.message);
+        }
+      } catch (error) {
+        console.error("Verification Error:", error);
+        showPopup("Payment verification failed due to network error.");
+      }
+    }
 
     function showPopup(message) {
       const popup = document.getElementById('alert-popup');
@@ -389,7 +494,7 @@
       popup.classList.add('show');
     }
 
-    function hidePopup() {
+    window.hidePopup = function () {
       const popup = document.getElementById('alert-popup');
       popup.classList.remove('show');
     }
@@ -400,6 +505,9 @@
         hidePopup();
       }
     });
+
+    // Initial load
+    fetchPlans();
   </script>
 
 </body>

@@ -33,4 +33,5 @@ router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteBuilderB
 router.get("/all", verifyAccessToken, checkAdminNumber, getAllBuilders);
 //Route 5: Get All Builders (Admin Only)
 
+
 export default router;

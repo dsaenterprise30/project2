@@ -2,7 +2,7 @@ import express from "express";
 import razorpay from "../config/razorpay.js";
 import User from "../models/User.js";
 import dotenv from "dotenv";
-import SubscriptionPlan from "../models/subscriptionPlan.js";
+import subscriptionPlan from "../models/subscriptionPlan.js";
 import crypto from "crypto";
 import Builder from "../models/Builder.js";
 import Housing from "../models/Housing.js";
@@ -39,68 +39,138 @@ export const verifyPayment = async (req, res) => {
     return res.status(400).json({ message: "Payment verification failed" });
   }
 
-  // 1️⃣ Set subscription dates
-  const startDate = new Date();
-  const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + 1);
+  try {
+    // Fetch plan details to get priority
+    const planDetails = await subscriptionPlan.findOne({ plan: plan });
+    const priority = planDetails ? planDetails.priorityLevel : (planPriorityMap[plan] || 0);
 
-  // 2️⃣ Update Builder
-  await Builder.findByIdAndUpdate(builderId, {
-    subscription: {
-      plan,
-      priority: planPriorityMap[plan],
-      startDate,
-      endDate,
-      status: "active"
-    }
-  });
+    // 1️⃣ Set subscription dates
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
 
-  // 3️⃣ Update Properties
-  await Housing.updateMany(
-    { builderId },
-    {
-      $set: {
-        builderPlan: plan,
-        builderPriority: planPriorityMap[plan]
+    // 2️⃣ Update Builder
+    await Builder.findByIdAndUpdate(builderId, {
+      subscription: {
+        planName: plan,
+        priorityScore: priority,
+        startDate,
+        endDate,
+        status: "active"
       }
-    }
-  );
-    await Commercial.updateMany(
-        { builderId },
-        {
-          $set: {
-            builderPlan: plan,
-            builderPriority: planPriorityMap[plan]
-          }
+    });
+
+    // 3️⃣ Update Properties
+    await Housing.updateMany(
+      { builderId },
+      {
+        $set: {
+          builderPlan: plan,
+          builderPriority: priority
         }
+      }
+    );
+    await Commercial.updateMany(
+      { builderId },
+      {
+        $set: {
+          builderPlan: plan,
+          builderPriority: priority
+        }
+      }
     );
 
-  res.json({ message: "Subscription activated successfully" });
+    res.json({ message: "Subscription activated successfully" });
+  } catch (error) {
+    console.error("Error activating subscription:", error);
+    res.status(500).json({ message: "Error activating subscription" });
+  }
 };
 
 
-// Route 2 : to create a new subscriptionimport razorpay from "../config/razorpay.js"
+// Route 2 : to create a new subscription
 export const createSubscriptionOrder = async (req, res) => {
   const { builderId, plan } = req.body;
 
-  const planAmount = {
-    platinum: 2999,
-    gold: 1999,
-    silver: 999
-  };
+  try {
+    const planDetails = await subscriptionPlan.findOne({ plan: plan });
 
-  const order = await razorpay.orders.create({
-    amount: planAmount[plan] * 100, // paise
-    currency: "INR",
-    receipt: `builder_${builderId}_${Date.now()}`,
-    notes: {
-      project: "real_estate_platform",
-      builderId,
-      plan
+    if (!planDetails) {
+      return res.status(404).json({ message: "Plan not found" });
     }
-  });
 
-  res.json(order);
+    const options = {
+      amount: planDetails.price * 100, // amount in the smallest currency unit
+      currency: "INR",
+      receipt: `receipt_order_${Date.now()}`,
+      notes: {
+        builderId: builderId,
+        plan: plan
+      }
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Route 3: Update Subscription (Directly, e.g. from Admin or specific flow)
+export const updateSubscription = async (req, res) => {
+  const { builderId, plan, planName } = req.body;
+  const id = req.params.id || builderId; // accurate ID from params
+  const selectedPlan = plan || planName;
+
+  try {
+    const planDetails = await subscriptionPlan.findOne({ plan: selectedPlan });
+
+    if (!planDetails) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + planDetails.durationInDays);
+
+    // Update Builder
+    await Builder.findByIdAndUpdate(id, {
+      subscription: {
+        planName: selectedPlan,
+        priorityScore: planDetails.priorityLevel,
+        startDate,
+        endDate,
+        status: "active"
+      }
+    });
+
+    // Update Properties
+    await Housing.updateMany(
+      { builderId: id },
+      {
+        $set: {
+          builderPlan: selectedPlan,
+          builderPriority: planDetails.priorityLevel
+        }
+      }
+    );
+    await Commercial.updateMany(
+      { builderId: id },
+      {
+        $set: {
+          builderPlan: selectedPlan,
+          builderPriority: planDetails.priorityLevel
+        }
+      }
+    );
+
+    res.json({ message: "Subscription updated successfully", plan: planDetails });
+
+  } catch (error) {
+    console.error("Error updating subscription:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 

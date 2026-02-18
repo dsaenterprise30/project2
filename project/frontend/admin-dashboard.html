@@ -906,6 +906,35 @@
         </div>
     </div>
 
+    <!-- Subscription Plan Edit Modal (Side Panel) -->
+    <div id="subscriptionPlanModal" class="side-panel">
+        <div class="panel-header">
+            <span>Edit Subscription Plan</span>
+            <button class="close-btn" id="closeSubscriptionPlanBtn">&times;</button>
+        </div>
+        <div class="panel-content">
+            <form id="subscriptionPlanForm">
+                <input type="hidden" id="subscriptionPlanUserId">
+                <p
+                    style="margin-bottom: 1.5rem; color: var(--text-main); padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: var(--radius-sm); border: 1px solid rgba(139, 92, 246, 0.3);">
+                    User: <span id="subscriptionPlanUserName" style="font-weight:700;"></span>
+                </p>
+
+                <label for="subscriptionPlanSelect">Select Plan</label>
+                <select id="subscriptionPlanSelect" required>
+                    <option value="">-- Choose a Plan --</option>
+                </select>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn" style="flex: 1;">Update Plan</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('closeSubscriptionPlanBtn').click()"
+                        style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- User Analytics Side Panel -->
     <div id="userAnalyticsPanel" class="side-panel">
         <div class="panel-header">
@@ -997,8 +1026,114 @@
 
     <script type="module">
         import { API_BASE_URL } from './config.js';
+        import { RAZORPAY_KEY_ID } from './razorpayConfig.js';
+
+        // Make it available globally for other scripts if needed (though we use it inside module)
         window.API_BASE_URL = API_BASE_URL;
+
+        document.getElementById("subscriptionPlanForm")
+            .addEventListener("submit", async function (e) {
+
+                e.preventDefault(); // stop normal form submit
+
+                const builderId = document.getElementById("subscriptionPlanUserId").value;
+                const plan = document.getElementById("subscriptionPlanSelect").value;
+                const submitBtn = this.querySelector('button[type="submit"]');
+
+                if (!plan || plan === "free") {
+                    alert("Free plan does not require payment.");
+                    return;
+                }
+
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = "Processing...";
+
+                    // 1️⃣ Call backend to create Razorpay order
+                    const response = await fetch(`${API_BASE_URL}/api/subscription/create-subscription-order`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            builderId,
+                            plan
+                        })
+                    });
+
+                    const order = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(order.message || "Failed to create subscription order");
+                    }
+
+                    // 2️⃣ Configure Razorpay popup
+                    const options = {
+                        key: RAZORPAY_KEY_ID,
+                        amount: order.amount,
+                        currency: "INR",
+                        name: "DSA Enterprise",
+                        description: plan.toUpperCase() + " Subscription",
+                        order_id: order.id,
+
+                        handler: async function (paymentResponse) {
+
+                            // 3️⃣ Verify payment on backend
+                            try {
+                                const verifyRes = await fetch(`${API_BASE_URL}/api/subscription/verifyPayment`, {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                                        razorpay_signature: paymentResponse.razorpay_signature,
+                                        builderId,
+                                        plan
+                                    })
+                                });
+
+                                const result = await verifyRes.json();
+                                if (!verifyRes.ok) throw new Error(result.message || "Payment verification failed");
+
+                                alert(result.message);
+
+                                // Close modal
+                                document.getElementById("closeSubscriptionPlanBtn").click();
+
+                                // Refresh user list if the function exists
+                                if (typeof fetchUsers === 'function') {
+                                    fetchUsers();
+                                }
+                            } catch (verifyError) {
+                                console.error(verifyError);
+                                alert("Payment verification failed: " + verifyError.message);
+                            }
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                submitBtn.disabled = false;
+                                submitBtn.innerText = "Update Plan";
+                            }
+                        },
+                        theme: {
+                            color: "#8B5CF6"
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+
+                } catch (error) {
+                    console.error(error);
+                    alert("Error: " + error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Update Plan";
+                }
+            });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // --- Initial State & Data ---
@@ -1333,10 +1468,103 @@
                 overlay.classList.add('show');
             };
 
+            // --- Open Subscription Plan Modal ---
+            window.openSubscriptionPlanModal = async function (id, name) {
+                document.getElementById('subscriptionPlanUserId').value = id;
+                document.getElementById('subscriptionPlanUserName').textContent = name;
+
+                const planSelect = document.getElementById('subscriptionPlanSelect');
+                planSelect.innerHTML = '<option value="">Loading plans...</option>';
+
+                try {
+                    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3000'}/api/plans`);
+                    if (!response.ok) throw new Error("Failed to fetch plans");
+
+                    const plans = await response.json();
+
+                    planSelect.innerHTML = '<option value="">-- Choose a Plan --</option>';
+                    plans.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.plan;
+                        option.textContent = `${p.plan.charAt(0).toUpperCase() + p.plan.slice(1)} Plan (${p.price === 0 ? 'Free' : '₹' + p.price})`;
+                        planSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Error fetching plans:", error);
+                    planSelect.innerHTML = '<option value="">Error loading plans</option>';
+                    showCustomPopup("❌ Error loading subscription plans");
+                }
+
+
+                const subscriptionPlanModal = document.getElementById('subscriptionPlanModal');
+                subscriptionPlanModal.classList.add('open');
+                overlay.classList.add('show');
+            };
+
             if (closeEditUserBtn) {
                 closeEditUserBtn.addEventListener('click', () => {
                     editUserModal.classList.remove('open');
                     overlay.classList.remove('show');
+                });
+            }
+
+            // --- Close Subscription Plan Modal ---
+            const closeSubscriptionPlanBtn = document.getElementById('closeSubscriptionPlanBtn');
+            if (closeSubscriptionPlanBtn) {
+                closeSubscriptionPlanBtn.addEventListener('click', () => {
+                    const subscriptionPlanModal = document.getElementById('subscriptionPlanModal');
+                    subscriptionPlanModal.classList.remove('open');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            // --- Handle Subscription Plan Form Submission ---
+            const subscriptionPlanForm = document.getElementById('subscriptionPlanForm');
+            if (subscriptionPlanForm) {
+                subscriptionPlanForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const userId = document.getElementById('subscriptionPlanUserId').value;
+                    const plan = document.getElementById('subscriptionPlanSelect').value;
+
+                    // Validation
+                    if (!plan) {
+                        showCustomPopup("❌ Please select a plan");
+                        return;
+                    }
+
+                    try {
+                        const token = localStorage.getItem("token");
+                        const subscriptionPlanModal = document.getElementById('subscriptionPlanModal');
+
+                        const response = await fetch(`http://localhost:3000/api/subscription/${userId}/subscriptions`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                planName: plan,
+                                subscriptionStatus: 'active'
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.message || result.msg || "Failed to update subscription plan");
+                        }
+
+                        showCustomPopup("✅ Subscription plan updated successfully!");
+                        subscriptionPlanModal.classList.remove('open');
+                        overlay.classList.remove('show');
+                        subscriptionPlanForm.reset();
+                        fetchUsers(); // Refresh the builder list
+
+                    } catch (error) {
+                        console.error("Error updating subscription plan:", error);
+                        showCustomPopup("❌ Error: " + error.message);
+                    }
                 });
             }
 
@@ -1465,6 +1693,9 @@
                         <td data-label="Actions"> 
                             <button class="btn btn-sm" onclick="openEditUserModal('${user._id}', '${user.fullName || "N/A"}', '${expiryRaw}')" title="Edit User" style="margin-right: 5px;">
                                 <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm" onclick="openSubscriptionPlanModal('${user._id}', '${user.fullName || "N/A"}')" title="Edit Subscription Plan" style="margin-right: 5px; background: #8b5cf6;">
+                                <i class="fas fa-calendar-check"></i>
                             </button>
                             <button class="btn btn-sm" onclick="openUserAnalytics('${user._id}', '${user.fullName || "N/A"}')" title="View Leads" style="margin-right: 5px;">
                                 <i class="fas fa-chart-line"></i>

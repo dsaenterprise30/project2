@@ -39,9 +39,13 @@ const BuilderSchema = new mongoose.Schema({
   subscription: {
     planId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubscriptionPlan"
+      ref: "SubscriptionPlan.js"
     },
-    planName: String,
+    planName: {
+      type: String,
+      default: "free",
+
+    },
     priorityScore: {
       type: Number,
       default: 0   // 🔥 used for sorting

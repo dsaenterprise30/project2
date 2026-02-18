@@ -15,8 +15,6 @@ import builderRoutes from "./routes/builderRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import "./subscriptionCron.js";
 
-
-
 dotenv.config();
 const app = express(); // Initialize Express app
 
@@ -25,7 +23,7 @@ app.use(cors());
 // Serve frontend static files (so /pricing.html is available)
 const frontendPath = path.join(process.cwd(), "..", "frontend");
 app.use(express.static(frontendPath));
-app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'pricing.html')));
+app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'staticpricingpage.html')));
 
 // razorpay webhook route
 app.use("/api/webhook", webhookRoutes);
