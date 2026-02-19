@@ -1,5 +1,8 @@
 import express from "express";
 import { verifyPayment, createSubscriptionOrder, updateSubscription } from "../controllers/subscriptionController.js";
+import { verifyAccessToken } from "../middleware/userAuth.js";
+import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
+import checkSubscription from "../middleware/checkSubscription.js";
 
 const router = express.Router();
 
@@ -7,9 +10,9 @@ const router = express.Router();
 router.post("/verifyPayment", verifyPayment);
 
 //Route 2: To create the subscription order.
-router.post("/create-subscription-order", createSubscriptionOrder);
+router.post("/create-subscription-order", checkSubscription, checkAdminNumber, verifyAccessToken, createSubscriptionOrder);
 
 //Route 3: To update subscription manually/directly
-router.put("/:id/subscriptions", updateSubscription);
+router.put("/:id/subscriptions", verifyAccessToken, checkAdminNumber, updateSubscription);
 
 export default router;

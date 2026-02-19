@@ -1469,7 +1469,7 @@
             };
 
             // --- Open Subscription Plan Modal ---
-            window.openSubscriptionPlanModal = async function (id, name) {
+            window.openSubscriptionPlanModal = async function (id, name, currentPlan = "free") {
                 document.getElementById('subscriptionPlanUserId').value = id;
                 document.getElementById('subscriptionPlanUserName').textContent = name;
 
@@ -1477,16 +1477,21 @@
                 planSelect.innerHTML = '<option value="">Loading plans...</option>';
 
                 try {
+                    // Fetch available plans from DB
                     const response = await fetch(`${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/plans`);
                     if (!response.ok) throw new Error("Failed to fetch plans");
 
                     const plans = await response.json();
 
                     planSelect.innerHTML = '<option value="">-- Choose a Plan --</option>';
+                    
                     plans.forEach(p => {
                         const option = document.createElement('option');
                         option.value = p.plan;
-                        option.textContent = `${p.plan.charAt(0).toUpperCase() + p.plan.slice(1)} Plan (${p.price === 0 ? 'Free' : '₹' + p.price})`;
+                        const isCurrentPlan = p.plan === currentPlan;
+                        const planLabel = `${p.plan.charAt(0).toUpperCase() + p.plan.slice(1)} Plan (${p.price === 0 ? 'Free' : '₹' + p.price})`;
+                        option.textContent = isCurrentPlan ? `✓ ${planLabel} (Current)` : planLabel;
+                        option.selected = isCurrentPlan;
                         planSelect.appendChild(option);
                     });
                 } catch (error) {
@@ -1517,8 +1522,8 @@
                     overlay.classList.remove('show');
                 });
             }
-
-            // --- Handle Subscription Plan Form Submission ---
+/*
+        // --- Handle Subscription Plan Form Submission ---
             const subscriptionPlanForm = document.getElementById('subscriptionPlanForm');
             if (subscriptionPlanForm) {
                 subscriptionPlanForm.addEventListener('submit', async (e) => {
@@ -1526,6 +1531,7 @@
 
                     const userId = document.getElementById('subscriptionPlanUserId').value;
                     const plan = document.getElementById('subscriptionPlanSelect').value;
+                    const builderId = document.getElementById("subscriptionPlanUserId").value;
 
                     // Validation
                     if (!plan) {
@@ -1544,8 +1550,8 @@
                                 "Authorization": `Bearer ${token}`
                             },
                             body: JSON.stringify({
-                                planName: plan,
-                                subscriptionStatus: 'active'
+                                builderId,
+                                plan
                             })
                         });
 
@@ -1554,8 +1560,9 @@
                         if (!response.ok) {
                             throw new Error(result.message || result.msg || "Failed to update subscription plan");
                         }
-
+                        if (response.ok) {
                         showCustomPopup("✅ Subscription plan updated successfully!");
+                        }
                         subscriptionPlanModal.classList.remove('open');
                         overlay.classList.remove('show');
                         subscriptionPlanForm.reset();
@@ -1566,7 +1573,7 @@
                         showCustomPopup("❌ Error: " + error.message);
                     }
                 });
-            }
+            }  */
 
             if (editUserForm) {
                 editUserForm.addEventListener('submit', async (e) => {
@@ -1694,7 +1701,7 @@
                             <button class="btn btn-sm" onclick="openEditUserModal('${user._id}', '${user.fullName || "N/A"}', '${expiryRaw}')" title="Edit User" style="margin-right: 5px;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm" onclick="openSubscriptionPlanModal('${user._id}', '${user.fullName || "N/A"}')" title="Edit Subscription Plan" style="margin-right: 5px; background: #8b5cf6;">
+                            <button class="btn btn-sm" onclick="openSubscriptionPlanModal('${user._id}', '${user.fullName || "N/A"}', '${user.subscription?.planName || user.subscriptionStatus || "free"}')" title="Edit Subscription Plan" style="margin-right: 5px; background: #8b5cf6;">
                                 <i class="fas fa-calendar-check"></i>
                             </button>
                             <button class="btn btn-sm" onclick="openUserAnalytics('${user._id}', '${user.fullName || "N/A"}')" title="View Leads" style="margin-right: 5px;">
