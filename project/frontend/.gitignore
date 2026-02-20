@@ -6,3 +6,4 @@ build/
 config.js
 razorpayConfig.js
 create-config.mjs
+firebaseConfig.js

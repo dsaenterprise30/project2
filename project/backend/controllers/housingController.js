@@ -97,41 +97,59 @@ export const createHousingListing = async (req, res) => {
 // Route 2: Get all housing listings
 export const getAllHousingListings = async (req, res) => {
     try {
-        const Housing = Housing; // Assuming Housing is already imported and exported correctly
         const listings = await Housing.find().lean();
 
-        const formattedListings = listings.map(listing => {
-            const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
-                ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
-                : "N/A";
+        const formattedListings = await Promise.all(
+            listings.map(async (listing) => {
+                const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
+                    ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
+                    : "N/A";
 
-            // Format dates to MM/DD/YYYY
-            let formattedDate = '';
-            if (listing.date || listing.createdAt) {
-                const dateObj = new Date(listing.date || listing.createdAt);
-                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                const day = String(dateObj.getDate()).padStart(2, '0');
-                const year = dateObj.getFullYear();
-                formattedDate = `${month}/${day}/${year}`;
-            }
+                // Format dates to MM/DD/YYYY
+                let formattedDate = '';
+                if (listing.date || listing.createdAt) {
+                    const dateObj = new Date(listing.date || listing.createdAt);
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const year = dateObj.getFullYear();
+                    formattedDate = `${month}/${day}/${year}`;
+                }
 
-            let formattedReraDate = '';
-            if (listing.reraDate) {
-                const reraDateObj = new Date(listing.reraDate);
-                const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
-                const day = String(reraDateObj.getDate()).padStart(2, '0');
-                const year = reraDateObj.getFullYear();
-                formattedReraDate = `${month}/${day}/${year}`;
-            }
+                let formattedReraDate = '';
+                if (listing.reraDate) {
+                    const reraDateObj = new Date(listing.reraDate);
+                    const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(reraDateObj.getDate()).padStart(2, '0');
+                    const year = reraDateObj.getFullYear();
+                    formattedReraDate = `${month}/${day}/${year}`;
+                }
 
-            return {
-                ...listing,
-                id: listing._id.toString(),
-                price: formattedPrice,
-                date: formattedDate,
-                reraDate: formattedReraDate
-            };
-        });
+                // Find builder to get priorityScore
+                let builderPriority = 0;
+                if (listing.contact) {
+                    const sanitizedContact = String(listing.contact).replace(/\D/g, '');
+                    const builder = await Builder.findOne({
+                        $or: [
+                            { mobileNumber: sanitizedContact },
+                            { mobileNumber: '91' + sanitizedContact },
+                            { mobileNumber: sanitizedContact.replace(/^91/, '') }
+                        ]
+                    }).lean();
+                    if (builder && builder.subscription && builder.subscription.priorityScore) {
+                        builderPriority = builder.subscription.priorityScore;
+                    }
+                }
+
+                return {
+                    ...listing,
+                    id: listing._id.toString(),
+                    price: formattedPrice,
+                    date: formattedDate,
+                    reraDate: formattedReraDate,
+                    builderPriority: builderPriority
+                };
+            })
+        );
 
         res.status(200).json({
             message: "All housing properties listed below.",

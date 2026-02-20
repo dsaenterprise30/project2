@@ -1088,7 +1088,7 @@
 
             // --- DATA FETCHING ---
             async function fetchProperties() {
-                const BASE_URL = `${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/comercial`;
+                const BASE_URL = `${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/commercial`;
                 try {
                     const response = await fetch(`${BASE_URL}/all-public`, {
                         headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token}` }
@@ -1138,6 +1138,13 @@
 
                     return matchLocation && matchType && matchPrice && matchOwnershipType && matchContact;
                 });
+
+                // Sort by builder priority score (lowest first - ascending)
+                filteredData.sort((a, b) => {
+                    const builderPriorityA = parseInt(a.builderPriority) || 0;
+                    const builderPriorityB = parseInt(b.builderPriority) || 0;
+                    return builderPriorityA - builderPriorityB; // Ascending builder priority
+                });
             }
 
             function renderProperties() {
@@ -1162,7 +1169,7 @@
                         <td data-label="Area">${property.area || ''}</td>
                         <td data-label="Property Type">${property.propertyType || ''}</td>
                         <td data-label="Price">${displayPrice}</td>
-                        <td data-label="Name">${property.userName || ''}</td>
+                        <td data-label="Name">${property.builderName || ''}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
                                 onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}', '${property.location || ''}', '${displayPrice}')">

@@ -18,11 +18,11 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new comercial listing
 export const createComercialListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, date, ownershipType, name, carpetArea, projectName, builderName } = req.body || {};
+    const { contact, area, location, propertyType, price, date, carpetArea, projectName, builderName } = req.body || {};
 
     try {
         // Relax 'name' requirement if 'projectName' is provided.
-        if (!contact || !area || !location || !propertyType || !price || !date || !ownershipType || !(name || projectName) || !carpetArea) {
+        if (!contact || !area || !location || !propertyType || !price || !date|| !projectName || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
@@ -52,7 +52,6 @@ export const createComercialListing = async (req, res) => {
             area,
             propertyType,
             price: parsePrice(price),
-            ownershipType
         });
 
         if (duplicateListing) {
@@ -68,7 +67,6 @@ export const createComercialListing = async (req, res) => {
             propertyType,
             price: parsePrice(price),
             date,
-            ownershipType,
             contact: sanitizedContact,
             projectName: projectName || name || '', // Use projectName or generic name
             builderName: builderName || builder.fullName, // ✅ Added builderName using builder info
@@ -98,17 +96,37 @@ export const getAllComercialListings = async (req, res) => {
     try {
         const listings = await Commercial.find().lean();
 
-        const formattedListings = listings.map(listing => {
-            const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
-                ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
-                : "Price on request";
+        // Fetch builder information for each listing to get priorityScore
+        const formattedListings = await Promise.all(
+            listings.map(async (listing) => {
+                const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
+                    ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
+                    : "Price on request";
 
-            return {
-                ...listing,
-                id: listing._id.toString(),
-                price: formattedPrice
-            };
-        });
+                // Find builder to get priorityScore
+                let builderPriority = 0;
+                if (listing.contact) {
+                    const sanitizedContact = String(listing.contact).replace(/\D/g, '');
+                    const builder = await Builder.findOne({
+                        $or: [
+                            { mobileNumber: sanitizedContact },
+                            { mobileNumber: '91' + sanitizedContact },
+                            { mobileNumber: sanitizedContact.replace(/^91/, '') }
+                        ]
+                    }).lean();
+                    if (builder && builder.subscription && builder.subscription.priorityScore) {
+                        builderPriority = builder.subscription.priorityScore;
+                    }
+                }
+
+                return {
+                    ...listing,
+                    id: listing._id.toString(),
+                    price: formattedPrice,
+                    builderPriority: builderPriority
+                };
+            })
+        );
 
         res.status(200).json({
             message: "All commercial properties listed below.",

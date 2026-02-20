@@ -20,6 +20,7 @@ const comercialPropertySchema = new mongoose.Schema({
     area: {
         type: String
     },
+    propertyType: String,
     carpetArea: {
         type: String,
         required: true

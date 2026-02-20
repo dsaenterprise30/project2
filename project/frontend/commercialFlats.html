@@ -1150,7 +1150,7 @@
                 });
 
                 function getFilteredData() {
-                    return properties.filter(p => {
+                    const filtered = properties.filter(p => {
                         if (filters.location && filters.location.value && p.location !== filters.location.value) return false;
                         if (filters.flatType && filters.flatType.value && p.propertyType !== filters.flatType.value) return false;
                         if (filters.price && filters.price.value) {
@@ -1161,6 +1161,15 @@
                         if (filters.mobile && filters.mobile.value && !String(p.contact).includes(filters.mobile.value)) return false;
                         return true;
                     });
+
+                    // Sort by builder priority score (lowest first - ascending)
+                    filtered.sort((a, b) => {
+                        const builderPriorityA = parseInt(a.builderPriority) || 0;
+                        const builderPriorityB = parseInt(b.builderPriority) || 0;
+                        return builderPriorityA - builderPriorityB; // Ascending builder priority
+                    });
+
+                    return filtered;
                 }
 
                 function filterAndRender() {

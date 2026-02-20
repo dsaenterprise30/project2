@@ -1181,6 +1181,13 @@
 
                     return matchLocation && matchType && matchTenant && matchPrice && matchOwnership && matchContact;
                 });
+
+                // Sort by builder priority score (lowest first - ascending)
+                filteredData.sort((a, b) => {
+                    const builderPriorityA = parseInt(a.builderPriority) || 0;
+                    const builderPriorityB = parseInt(b.builderPriority) || 0;
+                    return builderPriorityA - builderPriorityB; // Ascending builder priority
+                });
             }
 
             function shouldShowCards() {
