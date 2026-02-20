@@ -1,9 +1,9 @@
-//import User from "../models/User.js";
-
+import Builder from "../models/Builder.js";
+import subscriptionPlan from "../models/subscriptionPlan.js";
 async function checkSubscription(req, res, next) {
   try {
     const userId = req.userId; // ✅ set by verifyAccessToken
-    const user = await User.findById(userId);
+    const user = await Builder.findById(userId);
 
     if (!user) {
       return res
