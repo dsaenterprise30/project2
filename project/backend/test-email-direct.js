@@ -10,56 +10,39 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-/**
- * Sends an interest email to the property owner/builder.
- * @param {string} to - Recipient email (Builder's email).
- * @param {string} senderMobile - Mobile number of the interested user.
- * @param {object} propertyInfo - Formatted string or object with property details.
- * @returns {Promise<{success: boolean, messageId?: string, error?: any}>}
- */
-export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEmail = null, senderName = "A user", builderName = "Builder") => {
+const sendEmail = async () => {
     try {
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.error("❌ Email Credentials missing in .env");
-            return { success: false, error: "Missing Credentials in .env" };
-        }
-
-        // Remove Indian country code (91) from the start of the mobile number if it exists
-        const displayMobile = senderMobile.toString().startsWith('91')
-            ? senderMobile.toString().substring(2)
-            : senderMobile.toString();
-
         const dateStr = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         const trackingId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         const mailOptions = {
             from: `"DSA Enterprise" <${process.env.EMAIL_USER}>`,
-            to: to,
-            subject: `New Property Interest: ${senderName} - [${trackingId}]`,
-            text: `Hello ${builderName},\n\n${senderName} (Mobile: ${displayMobile}) is interested in your property: ${propertyInfo}.\n\nPlease contact them soon.\n\nBest Regards,\nDSA Enterprise Team\n\nDate: ${dateStr}\nRef: ${trackingId}`,
+            to: "secondcount18@gmail.com",
+            subject: `Test Property Interest: Super Admin - [${trackingId}]`,
+            text: `Hello Sahil,\n\nSuper Admin (Mobile: 917021062721) is interested in your property: 2 BHK in Malad West listed at 42000.\n\nPlease contact them soon.\n\nBest Regards,\nDSA Enterprise Team\n\nDate: ${dateStr}\nRef: ${trackingId}`,
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                     <div style="background-color: #1e293b; color: white; padding: 20px; text-align: center;">
                         <h2 style="margin: 0; font-size: 24px; font-weight: 600;">Property Interest Notification</h2>
                     </div>
                     <div style="padding: 30px; background-color: #ffffff;">
-                        <p style="font-size: 16px; margin-top: 0;">Hello <strong>${builderName}</strong>,</p>
+                        <p style="font-size: 16px; margin-top: 0;">Hello <strong>Sahil</strong>,</p>
                         <p style="font-size: 16px; line-height: 1.6;">Great news! A user has expressed interest in one of your listed properties. Here are their contact details:</p>
                         
                         <table style="width: 100%; border-collapse: collapse; margin: 25px 0; background-color: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;">
                             <tr>
                                 <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; width: 35%; color: #64748b; font-weight: 600;">Interested User:</td>
-                                <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${senderName}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">Super Admin</td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Contact Number:</td>
                                 <td style="padding: 15px; border-bottom: 1px solid #e2e8f0;">
-                                    <a href="tel:+${senderMobile}" style="color: #2563eb; text-decoration: none; font-weight: bold; font-size: 16px;">${displayMobile}</a>
+                                    <a href="tel:917021062721" style="color: #2563eb; text-decoration: none; font-weight: bold; font-size: 16px;">917021062721</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; color: #64748b; font-weight: 600;">Property Info:</td>
-                                <td style="padding: 15px; color: #0f172a; line-height: 1.5;">${propertyInfo}</td>
+                                <td style="padding: 15px; color: #0f172a; line-height: 1.5;">2 BHK in Malad West listed at 42000</td>
                             </tr>
                         </table>
                         
@@ -77,21 +60,11 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
             `,
         };
 
-        if (senderEmail) {
-            mailOptions.replyTo = `"${senderName}" <${senderEmail}>`;
-            mailOptions.text += `\nYou can also reply to this email to reach them at ${senderEmail}.`;
-            mailOptions.html = mailOptions.html.replace(
-                '<p style="font-size: 16px; line-height: 1.6;">Please reach out to them as soon as possible to discuss the details and take this forward.</p>',
-                `<p style="font-size: 16px; line-height: 1.6;">Please reach out to them as soon as possible to discuss the details and take this forward. You can also reply directly to this email to reach them at <a href="mailto:${senderEmail}" style="color: #2563eb;">${senderEmail}</a>.</p>`
-            );
-        }
-
         const info = await transporter.sendMail(mailOptions);
-
-        console.log("✅ Email Sent Successfully: %s", info.messageId);
-        return { success: true, messageId: info.messageId };
+        console.log("✅ Direct Email Sent Successfully: %s", info.messageId);
     } catch (error) {
         console.error("❌ Error sending email:", error);
-        return { success: false, error: error.message };
     }
 };
+
+sendEmail();

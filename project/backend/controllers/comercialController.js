@@ -1,6 +1,7 @@
 import Commercial from "../models/Commercial.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
+import mongoose from "mongoose";
 import { sendWhatsAppMessage } from "./whatsappController.js";
 import { sendInterestEmail } from "./emailController.js";
 
@@ -233,6 +234,30 @@ export const sendInterestSMS = async (req, res) => {
         console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your commercial ${propertyInfo}. Please contact them."`);
         console.log("===================================================\n");
 
+        // Fetch Sender Details (The one clicking 'Contact')
+        let senderEmail = null;
+        let senderName = "A user";
+        try {
+            const [senderBuilder, senderAdmin, senderCommon] = await Promise.all([
+                Builder.findOne({ mobileNumber: senderMobile }),
+                mongoose.model('Admin') ? mongoose.model('Admin').findOne({ mobileNumber: senderMobile }).catch(() => null) : null,
+                mongoose.model('User') ? mongoose.model('User').findOne({ mobileNumber: senderMobile }).catch(() => null) : null
+            ]);
+
+            if (senderBuilder) {
+                senderName = senderBuilder.fullName || senderBuilder.builderName || "User";
+                senderEmail = senderBuilder.email || null;
+            } else if (senderAdmin) {
+                senderName = senderAdmin.fullName || "Admin User";
+                senderEmail = senderAdmin.email || null;
+            } else if (senderCommon) {
+                senderName = senderCommon.fullName || "User";
+                senderEmail = senderCommon.email || null;
+            }
+        } catch (error) {
+            console.error("Error fetching sender details:", error.message);
+        }
+
         // Fetch Builder to get their email
         const builder = await Builder.findOne({
             $or: [
@@ -243,8 +268,10 @@ export const sendInterestSMS = async (req, res) => {
         });
 
         if (builder && builder.email) {
-            console.log(`Email Service (Commercial): Sending interest to ${builder.email}`);
-            sendInterestEmail(builder.email, senderMobile, propertyInfo)
+            console.log(`Email Service (Commercial): Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
+            // Pass the senderEmail, senderName, and builderName
+            const builderName = builder.fullName || builder.builderName || "Builder";
+            sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName)
                 .then(res => {
                     if (!res.success) console.warn("Commercial Email Send Failed:", res.error);
                 })
