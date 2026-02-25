@@ -666,7 +666,8 @@
             </a>
         </div>
         <ul class="nav-links">
-            <li><a href="#" id="addUserBtn"><i class="fas fa-user-plus"></i> Add User</a></li>
+
+            <li><a href="#" id="addBuilderBtn"><i class="fas fa-hammer"></i> Add Builder</a></li>
             <li><a href="#" id="viewRegisteredUsersBtn"><i class="fas fa-users"></i> Users</a></li>
             <li><a href="commercialFlats.html">Commercial Flats</a></li>
             <li><a href="housingFlats.html">Housing Flats</a></li>
@@ -804,6 +805,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Contact</th>
+                                    <th>Email</th>
                                     <th>Date Joined</th>
                                     <th>User Type</th>
                                     <th>Plan Expiry</th>
@@ -853,31 +855,29 @@
         </div>
     </div>
 
-    <!-- Add User Modal (Side Panel) -->
-    <div id="addUserModal" class="side-panel">
+
+
+    <!-- Add Builder Modal (Side Panel) -->
+    <div id="addBuilderModal" class="side-panel">
         <div class="panel-header">
-            <span>Add New User</span>
-            <button class="close-btn" id="closeAddUserBtn">&times;</button>
+            <span>Add New Builder</span>
+            <button class="close-btn" id="closeAddBuilderBtn">&times;</button>
         </div>
         <div class="panel-content">
-            <form id="addUserForm">
-                <label for="newUserName">Full Name</label>
-                <input type="text" id="newUserName" required>
+            <form id="addBuilderForm">
+                <label for="newBuilderName">Full Name</label>
+                <input type="text" id="newBuilderName" required>
 
-                <label for="newUserMobile">Mobile Number</label>
-                <input type="tel" id="newUserMobile" pattern="[6789]\d{9}" maxlength="10" required>
+                <label for="newBuilderMobile">Mobile Number</label>
+                <input type="tel" id="newBuilderMobile" pattern="[6789]\d{9}" maxlength="10" required>
 
-                <label for="newUserPassword">Password</label>
-                <input type="password" id="newUserPassword" required minlength="6">
+                <label for="newBuilderEmail">Email Address</label>
+                <input type="email" id="newBuilderEmail" required>
 
-                <label for="newUserType">User Type</label>
-                <select id="newUserType">
-                    <option value="User">User</option>
-                    <option value="Agent">Agent</option>
-                    <option value="Owner">Owner</option>
-                </select>
+                <label for="newBuilderPassword">Password</label>
+                <input type="password" id="newBuilderPassword" required minlength="6">
 
-                <button type="submit" class="btn" style="margin-top: 2rem;">Create User</button>
+                <button type="submit" class="btn" style="margin-top: 2rem;">Register Builder</button>
             </form>
         </div>
     </div>
@@ -1153,6 +1153,7 @@
             // Panels
             const profilePanel = document.getElementById('profilePanel');
             const addUserModal = document.getElementById('addUserModal');
+            const addBuilderModal = document.getElementById('addBuilderModal');
             const editUserModal = document.getElementById('editUserModal');
             const userAnalyticsPanel = document.getElementById('userAnalyticsPanel');
 
@@ -1160,12 +1161,15 @@
             const profileIcon = document.getElementById('profileIcon');
             const closeProfileBtn = document.getElementById('closeProfileBtn');
             const addUserBtn = document.getElementById('addUserBtn');
+            const addBuilderBtn = document.getElementById('addBuilderBtn');
             const closeAddUserBtn = document.getElementById('closeAddUserBtn');
+            const closeAddBuilderBtn = document.getElementById('closeAddBuilderBtn');
             const closeEditUserBtn = document.getElementById('closeEditUserBtn');
             const closeUserAnalyticsBtn = document.getElementById('closeUserAnalyticsBtn');
 
             // Forms
             const addUserForm = document.getElementById('addUserForm');
+            const addBuilderForm = document.getElementById('addBuilderForm');
             const editUserForm = document.getElementById('editUserForm');
             const statusDropdown = document.getElementById('accountStatusFilter');
             const logoutBtn = document.getElementById('logoutBtn');
@@ -1256,21 +1260,16 @@
                 if (document.getElementById("profileMobile")) document.getElementById("profileMobile").value = userData.mobileNumber || "";
             }
 
-            // --- Logic for Add/Edit User ---
-            if (addUserBtn) {
-                console.log("Add User Button found, attaching listener");
-                addUserBtn.addEventListener('click', (e) => {
-                    console.log("Add User Clicked");
+
+
+            if (addBuilderBtn) {
+                addBuilderBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (addUserModal) {
-                        addUserModal.classList.add('open');
+                    if (addBuilderModal) {
+                        addBuilderModal.classList.add('open');
                         overlay.classList.add('show');
-                    } else {
-                        console.error("Add User Modal not found");
                     }
                 });
-            } else {
-                console.error("Add User Button not found");
             }
 
             // --- Registered Users Button Handler ---
@@ -1414,35 +1413,45 @@
                 });
             }
 
-            if (closeAddUserBtn) {
-                closeAddUserBtn.addEventListener('click', () => {
-                    if (addUserModal) addUserModal.classList.remove('open');
+
+
+            if (closeAddBuilderBtn) {
+                closeAddBuilderBtn.addEventListener('click', () => {
+                    if (addBuilderModal) addBuilderModal.classList.remove('open');
                     overlay.classList.remove('show');
-                    if (addUserForm) addUserForm.reset();
+                    if (addBuilderForm) addBuilderForm.reset();
                 });
             }
 
-            if (addUserForm) {
-                addUserForm.addEventListener('submit', async (e) => {
+
+
+            if (addBuilderForm) {
+                addBuilderForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const fullName = document.getElementById('newUserName').value;
-                    const mobileNumber = document.getElementById('newUserMobile').value;
-                    const password = document.getElementById('newUserPassword').value;
+                    const fullName = document.getElementById('newBuilderName').value;
+                    const mobileNumber = document.getElementById('newBuilderMobile').value;
+                    const email = document.getElementById('newBuilderEmail').value;
+                    const password = document.getElementById('newBuilderPassword').value;
 
                     try {
                         const response = await fetch(`${getApiBase()}/create`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ fullName, mobileNumber: "+91" + mobileNumber, password })
+                            body: JSON.stringify({
+                                fullName,
+                                mobileNumber: "+91" + mobileNumber,
+                                email,
+                                password
+                            })
                         });
 
                         const result = await response.json();
                         if (!response.ok) throw new Error(result.message || result.msg || "Failed");
 
-                        showCustomPopup("✅ User created successfully!");
-                        addUserModal.classList.remove('open');
+                        showCustomPopup("✅ Builder registered successfully!");
+                        addBuilderModal.classList.remove('open');
                         overlay.classList.remove('show');
-                        addUserForm.reset();
+                        addBuilderForm.reset();
                         fetchUsers();
 
                     } catch (error) {
@@ -1484,7 +1493,7 @@
                     const plans = await response.json();
 
                     planSelect.innerHTML = '<option value="">-- Choose a Plan --</option>';
-                    
+
                     plans.forEach(p => {
                         const option = document.createElement('option');
                         option.value = p.plan;
@@ -1522,58 +1531,58 @@
                     overlay.classList.remove('show');
                 });
             }
-/*
-        // --- Handle Subscription Plan Form Submission ---
-            const subscriptionPlanForm = document.getElementById('subscriptionPlanForm');
-            if (subscriptionPlanForm) {
-                subscriptionPlanForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-
-                    const userId = document.getElementById('subscriptionPlanUserId').value;
-                    const plan = document.getElementById('subscriptionPlanSelect').value;
-                    const builderId = document.getElementById("subscriptionPlanUserId").value;
-
-                    // Validation
-                    if (!plan) {
-                        showCustomPopup("❌ Please select a plan");
-                        return;
-                    }
-
-                    try {
-                        const token = localStorage.getItem("token");
-                        const subscriptionPlanModal = document.getElementById('subscriptionPlanModal');
-
-                        const response = await fetch(`https://project2-mj7h.onrender.com/api/subscription/${userId}/subscriptions`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                builderId,
-                                plan
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(result.message || result.msg || "Failed to update subscription plan");
-                        }
-                        if (response.ok) {
-                        showCustomPopup("✅ Subscription plan updated successfully!");
-                        }
-                        subscriptionPlanModal.classList.remove('open');
-                        overlay.classList.remove('show');
-                        subscriptionPlanForm.reset();
-                        fetchUsers(); // Refresh the builder list
-
-                    } catch (error) {
-                        console.error("Error updating subscription plan:", error);
-                        showCustomPopup("❌ Error: " + error.message);
-                    }
-                });
-            }  */
+            /*
+                    // --- Handle Subscription Plan Form Submission ---
+                        const subscriptionPlanForm = document.getElementById('subscriptionPlanForm');
+                        if (subscriptionPlanForm) {
+                            subscriptionPlanForm.addEventListener('submit', async (e) => {
+                                e.preventDefault();
+            
+                                const userId = document.getElementById('subscriptionPlanUserId').value;
+                                const plan = document.getElementById('subscriptionPlanSelect').value;
+                                const builderId = document.getElementById("subscriptionPlanUserId").value;
+            
+                                // Validation
+                                if (!plan) {
+                                    showCustomPopup("❌ Please select a plan");
+                                    return;
+                                }
+            
+                                try {
+                                    const token = localStorage.getItem("token");
+                                    const subscriptionPlanModal = document.getElementById('subscriptionPlanModal');
+            
+                                    const response = await fetch(`https://project2-mj7h.onrender.com/api/subscription/${userId}/subscriptions`, {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "Authorization": `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({
+                                            builderId,
+                                            plan
+                                        })
+                                    });
+            
+                                    const result = await response.json();
+            
+                                    if (!response.ok) {
+                                        throw new Error(result.message || result.msg || "Failed to update subscription plan");
+                                    }
+                                    if (response.ok) {
+                                    showCustomPopup("✅ Subscription plan updated successfully!");
+                                    }
+                                    subscriptionPlanModal.classList.remove('open');
+                                    overlay.classList.remove('show');
+                                    subscriptionPlanForm.reset();
+                                    fetchUsers(); // Refresh the builder list
+            
+                                } catch (error) {
+                                    console.error("Error updating subscription plan:", error);
+                                    showCustomPopup("❌ Error: " + error.message);
+                                }
+                            });
+                        }  */
 
             if (editUserForm) {
                 editUserForm.addEventListener('submit', async (e) => {
@@ -1693,6 +1702,7 @@
                     row.innerHTML = `
                         <td data-label="Name">${user.fullName || "N/A"}</td>
                         <td data-label="Contact">${formattedMobile}</td>
+                        <td data-label="Email">${user.email || "N/A"}</td>
                         <td data-label="Date Joined">${user.registrationDate ? new Date(user.registrationDate).toLocaleDateString() : "N/A"}</td>
                         <td data-label="User Type">${user.type || "N/A"}</td>
                         <td data-label="Plan Expiry">${expiryText}</td>

@@ -2,6 +2,7 @@ import Commercial from "../models/Commercial.js";
 import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 import { sendWhatsAppMessage } from "./whatsappController.js";
+import { sendInterestEmail } from "./emailController.js";
 
 // Helper function to sanitize and parse the price string
 const parsePrice = (priceString) => {
@@ -22,7 +23,7 @@ export const createComercialListing = async (req, res) => {
 
     try {
         // Relax 'name' requirement if 'projectName' is provided.
-        if (!contact || !area || !location || !propertyType || !price || !date|| !projectName || !carpetArea) {
+        if (!contact || !area || !location || !propertyType || !price || !date || !projectName || !carpetArea) {
             return res.status(400).json({ message: "All required fields must be provided." });
         }
 
@@ -70,6 +71,9 @@ export const createComercialListing = async (req, res) => {
             contact: sanitizedContact,
             projectName: projectName || name || '', // Use projectName or generic name
             builderName: builderName || builder.fullName, // ✅ Added builderName using builder info
+            builderId: builder._id,
+            builderPlan: builder.subscription ? builder.subscription.planName : "free",
+            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0
         });
 
         const savedListing = await newListing.save();
@@ -94,39 +98,23 @@ export const createComercialListing = async (req, res) => {
 // Route 2: Get all comercial listings
 export const getAllComercialListings = async (req, res) => {
     try {
-        const listings = await Commercial.find().lean();
+        const listings = await Commercial.find()
+            .sort({ builderPriority: -1, createdAt: -1 })
+            .lean();
 
-        // Fetch builder information for each listing to get priorityScore
-        const formattedListings = await Promise.all(
-            listings.map(async (listing) => {
-                const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
-                    ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
-                    : "Price on request";
+        // Format listings (using denormalized builderPriority)
+        const formattedListings = listings.map((listing) => {
+            const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
+                ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
+                : "Price on request";
 
-                // Find builder to get priorityScore
-                let builderPriority = 0;
-                if (listing.contact) {
-                    const sanitizedContact = String(listing.contact).replace(/\D/g, '');
-                    const builder = await Builder.findOne({
-                        $or: [
-                            { mobileNumber: sanitizedContact },
-                            { mobileNumber: '91' + sanitizedContact },
-                            { mobileNumber: sanitizedContact.replace(/^91/, '') }
-                        ]
-                    }).lean();
-                    if (builder && builder.subscription && builder.subscription.priorityScore) {
-                        builderPriority = builder.subscription.priorityScore;
-                    }
-                }
-
-                return {
-                    ...listing,
-                    id: listing._id.toString(),
-                    price: formattedPrice,
-                    builderPriority: builderPriority
-                };
-            })
-        );
+            return {
+                ...listing,
+                id: listing._id.toString(),
+                price: formattedPrice,
+                builderPriority: listing.builderPriority || 0
+            };
+        });
 
         res.status(200).json({
             message: "All commercial properties listed below.",
@@ -245,6 +233,28 @@ export const sendInterestSMS = async (req, res) => {
         console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your commercial ${propertyInfo}. Please contact them."`);
         console.log("===================================================\n");
 
+        // Fetch Builder to get their email
+        const builder = await Builder.findOne({
+            $or: [
+                { mobileNumber: propertyOwnerContact },
+                { mobileNumber: '91' + propertyOwnerContact },
+                { mobileNumber: propertyOwnerContact.replace(/^91/, '') }
+            ]
+        });
+
+        if (builder && builder.email) {
+            console.log(`Email Service (Commercial): Sending interest to ${builder.email}`);
+            sendInterestEmail(builder.email, senderMobile, propertyInfo)
+                .then(res => {
+                    if (!res.success) console.warn("Commercial Email Send Failed:", res.error);
+                })
+                .catch(err => console.error("Commercial Email Send Validation Error", err));
+        } else {
+            console.warn(`Email Service (Commercial): Builder not found or email missing for contact ${propertyOwnerContact}`);
+        }
+
+        // --- WHATSAPP CODE PRESERVED (Commented Out) ---
+        /*
         // Create WhatsApp Message
         // Template: property_interest
         // Variables: {{1}} = senderMobile, {{2}} = propertyInfo
@@ -253,8 +263,9 @@ export const sendInterestSMS = async (req, res) => {
                 if (!res.success) console.warn("Commercial WhatsApp Send Failed");
             })
             .catch(err => console.error("Commercial WhatsApp Send Validation Error", err));
+        */
 
-        res.status(200).json({ message: "Interest expressed successfully. SMS/WhatsApp sent." });
+        res.status(200).json({ message: "Interest expressed successfully. Email sent to owner." });
 
     } catch (error) {
         console.error("Error sending SMS:", error.message);
@@ -264,11 +275,11 @@ export const sendInterestSMS = async (req, res) => {
 
 //Route 6: Get all comercial listings by priority for public access (Brokers)
 export const searchCommercialProperties = async (req, res) => {
-  const commercialProperties = await Commercial.find({
-    location: req.query.location
-  })
-  .sort({ builderPriority: -1, createdAt: -1 })
-  .limit(20);
+    const commercialProperties = await Commercial.find({
+        location: req.query.location
+    })
+        .sort({ builderPriority: -1, createdAt: -1 })
+        .limit(20);
 
-  res.json(commercialProperties);
+    res.json(commercialProperties);
 };

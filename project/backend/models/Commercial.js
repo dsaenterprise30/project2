@@ -10,6 +10,10 @@ const comercialPropertySchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    builderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Builder',
+    },
     builderName: {
         type: String,
     },
@@ -38,6 +42,8 @@ const comercialPropertySchema = new mongoose.Schema({
     date: {
         type: Date,
     },
+    builderPlan: String,
+    builderPriority: Number, // used for sorting
     createdAt: {
         type: Date,
         default: Date.now

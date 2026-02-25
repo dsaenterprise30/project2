@@ -1182,11 +1182,15 @@
                     return matchLocation && matchType && matchTenant && matchPrice && matchOwnership && matchContact;
                 });
 
-                // Sort by builder priority score (lowest first - ascending)
+                // Sort by builder priority score (highest first - descending)
                 filteredData.sort((a, b) => {
                     const builderPriorityA = parseInt(a.builderPriority) || 0;
                     const builderPriorityB = parseInt(b.builderPriority) || 0;
-                    return builderPriorityA - builderPriorityB; // Ascending builder priority
+                    if (builderPriorityB !== builderPriorityA) {
+                        return builderPriorityB - builderPriorityA; // Descending builder priority
+                    }
+                    // Secondary sort by date (newest first)
+                    return new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt);
                 });
             }
 
@@ -1484,18 +1488,21 @@
                         },
                         body: JSON.stringify({
                             propertyOwnerContact: contactNumber,
-                            propertyDetails: { 
-                                id: propertyId, 
+                            propertyDetails: {
+                                id: propertyId,
                                 type: propertyType,
                                 location: location,
                                 price: price
                             }
                         })
                     });
-                    // Silently sent - no popup or notification to user
+
+                    // Show confirmation popup
+                    if (window.showCustomPopup) {
+                        showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
+                    }
                 } catch (error) {
-                    // Silently fail - user still gets the contact number
-                    console.log('Background SMS send failed, but contact revealed');
+                    console.log('Background Email send failed, but contact revealed');
                 }
             };
 

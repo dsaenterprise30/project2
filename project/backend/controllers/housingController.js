@@ -4,6 +4,7 @@ import Builder from "../models/Builder.js";
 import ContactClick from "../models/ContactClick.js";
 
 import { sendWhatsAppMessage } from "./whatsappController.js";
+import { sendInterestEmail } from "./emailController.js";
 
 // Helper function to sanitize and parse the price string
 const parsePrice = (priceString) => {
@@ -71,7 +72,10 @@ export const createHousingListing = async (req, res) => {
             builderName: builderName || builder.fullName,
             projectName,
             date,
-            carpetArea
+            carpetArea,
+            builderId: builder._id,
+            builderPlan: builder.subscription ? builder.subscription.planName : "free",
+            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0
         });
 
         const savedListing = await newListing.save();
@@ -97,59 +101,43 @@ export const createHousingListing = async (req, res) => {
 // Route 2: Get all housing listings
 export const getAllHousingListings = async (req, res) => {
     try {
-        const listings = await Housing.find().lean();
+        const listings = await Housing.find()
+            .sort({ builderPriority: -1, createdAt: -1 })
+            .lean();
 
-        const formattedListings = await Promise.all(
-            listings.map(async (listing) => {
-                const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
-                    ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
-                    : "N/A";
+        const formattedListings = listings.map((listing) => {
+            const formattedPrice = (typeof listing.price === 'number' && !isNaN(listing.price))
+                ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
+                : "N/A";
 
-                // Format dates to MM/DD/YYYY
-                let formattedDate = '';
-                if (listing.date || listing.createdAt) {
-                    const dateObj = new Date(listing.date || listing.createdAt);
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    const year = dateObj.getFullYear();
-                    formattedDate = `${month}/${day}/${year}`;
-                }
+            // Format dates to MM/DD/YYYY
+            let formattedDate = '';
+            if (listing.date || listing.createdAt) {
+                const dateObj = new Date(listing.date || listing.createdAt);
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                formattedDate = `${month}/${day}/${year}`;
+            }
 
-                let formattedReraDate = '';
-                if (listing.reraDate) {
-                    const reraDateObj = new Date(listing.reraDate);
-                    const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
-                    const day = String(reraDateObj.getDate()).padStart(2, '0');
-                    const year = reraDateObj.getFullYear();
-                    formattedReraDate = `${month}/${day}/${year}`;
-                }
+            let formattedReraDate = '';
+            if (listing.reraDate) {
+                const reraDateObj = new Date(listing.reraDate);
+                const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(reraDateObj.getDate()).padStart(2, '0');
+                const year = reraDateObj.getFullYear();
+                formattedReraDate = `${month}/${day}/${year}`;
+            }
 
-                // Find builder to get priorityScore
-                let builderPriority = 0;
-                if (listing.contact) {
-                    const sanitizedContact = String(listing.contact).replace(/\D/g, '');
-                    const builder = await Builder.findOne({
-                        $or: [
-                            { mobileNumber: sanitizedContact },
-                            { mobileNumber: '91' + sanitizedContact },
-                            { mobileNumber: sanitizedContact.replace(/^91/, '') }
-                        ]
-                    }).lean();
-                    if (builder && builder.subscription && builder.subscription.priorityScore) {
-                        builderPriority = builder.subscription.priorityScore;
-                    }
-                }
-
-                return {
-                    ...listing,
-                    id: listing._id.toString(),
-                    price: formattedPrice,
-                    date: formattedDate,
-                    reraDate: formattedReraDate,
-                    builderPriority: builderPriority
-                };
-            })
-        );
+            return {
+                ...listing,
+                id: listing._id.toString(),
+                price: formattedPrice,
+                date: formattedDate,
+                reraDate: formattedReraDate,
+                builderPriority: listing.builderPriority || 0
+            };
+        });
 
         res.status(200).json({
             message: "All housing properties listed below.",
@@ -276,6 +264,28 @@ export const sendInterestSMS = async (req, res) => {
         console.log(`CONTENT  : "Hello , User with mobile ${senderMobile} is interested in your ${propertyInfo}. Please contact them."`);
         console.log("===================================================\n");
 
+        // Fetch Builder to get their email
+        const builder = await Builder.findOne({
+            $or: [
+                { mobileNumber: propertyOwnerContact },
+                { mobileNumber: '91' + propertyOwnerContact },
+                { mobileNumber: propertyOwnerContact.replace(/^91/, '') }
+            ]
+        });
+
+        if (builder && builder.email) {
+            console.log(`Email Service: Sending interest to ${builder.email}`);
+            sendInterestEmail(builder.email, senderMobile, propertyInfo)
+                .then(res => {
+                    if (!res.success) console.warn("Email Send Failed:", res.error);
+                })
+                .catch(err => console.error("Email Send Validation Error", err));
+        } else {
+            console.warn(`Email Service: Builder not found or email missing for contact ${propertyOwnerContact}`);
+        }
+
+        // --- WHATSAPP CODE PRESERVED (Commented Out) ---
+        /*
         // Create WhatsApp Message
         // Template: property_interest
         // Variables: {{1}} = senderMobile, {{2}} = propertyInfo
@@ -284,8 +294,9 @@ export const sendInterestSMS = async (req, res) => {
                 if (!res.success) console.warn("WhatsApp Send Failed");
             })
             .catch(err => console.error("WhatsApp Send Validation Error", err));
+        */
 
-        res.status(200).json({ message: "Interest expressed successfully. SMS/WhatsApp sent." });
+        res.status(200).json({ message: "Interest expressed successfully. Email sent to owner." });
 
     } catch (error) {
         console.error("Error sending SMS:", error.message);
@@ -295,11 +306,11 @@ export const sendInterestSMS = async (req, res) => {
 
 //Route 6: Get a housing listing by priority (for public access)
 export const searchHousingProperties = async (req, res) => {
-  const housingProperties = await Housing.find({
-    location: req.query.location
-  })
-  .sort({ builderPriority: -1, createdAt: -1 })
-  .limit(20);
+    const housingProperties = await Housing.find({
+        location: req.query.location
+    })
+        .sort({ builderPriority: -1, createdAt: -1 })
+        .limit(20);
 
-  res.json(housingProperties);
+    res.json(housingProperties);
 };

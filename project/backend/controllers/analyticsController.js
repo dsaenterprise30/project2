@@ -198,3 +198,55 @@ export const getLeadsByBuilder = async (req, res) => {
         });
     }
 };
+
+// Get leads for the authenticated builder (Self-service)
+export const getLeadsByBuilderSelf = async (req, res) => {
+    try {
+        const builderContact = req.mobileNumber; // From verifyAccessToken
+
+        if (!builderContact) {
+            return res.status(401).json({ message: "Unauthorized: Builder contact missing." });
+        }
+
+        const cleanContact = builderContact.replace(/\D/g, '');
+
+        const leads = await ContactClick.find({
+            $or: [
+                { ownerContact: cleanContact },
+                { ownerContact: '91' + cleanContact },
+                { ownerContact: cleanContact.replace(/^91/, '') }
+            ]
+        })
+            .sort({ clickedAt: -1 })
+            .populate("userId", "fullName mobileNumber")
+            .lean();
+
+        const formattedLeads = leads.map(lead => ({
+            id: lead._id,
+            interestedUser: {
+                name: lead.userId?.fullName || lead.userName || 'Unknown',
+                contact: lead.userId?.mobileNumber || 'N/A'
+            },
+            propertyId: lead.propertyId,
+            propertyType: lead.propertyType,
+            clickedAt: lead.clickedAt,
+            formattedDate: new Date(lead.clickedAt).toLocaleString('en-IN', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            })
+        }));
+
+        res.status(200).json({
+            success: true,
+            count: formattedLeads.length,
+            leads: formattedLeads
+        });
+
+    } catch (error) {
+        console.error("Error fetching self leads:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching your leads."
+        });
+    }
+};

@@ -1,5 +1,5 @@
 import express from "express";
-import { getClickAnalytics, getUserInterests, getLeadsByBuilder } from "../controllers/analyticsController.js";
+import { getClickAnalytics, getUserInterests, getLeadsByBuilder, getLeadsByBuilderSelf } from "../controllers/analyticsController.js";
 import { verifyAccessToken } from "../middleware/userAuth.js";
 import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
 
@@ -16,5 +16,8 @@ router.get("/user/:userId", verifyAccessToken, checkAdminNumber, getUserInterest
 
 // Get leads by builder contact number (Admin Only)
 router.get("/leads/:builderContact", verifyAccessToken, checkAdminNumber, getLeadsByBuilder);
+
+// Get leads for the authenticated builder (Self-service)
+router.get("/my-leads", verifyAccessToken, getLeadsByBuilderSelf);
 
 export default router;

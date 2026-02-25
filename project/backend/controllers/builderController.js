@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 // Route 1: Builder Registration
 export const registerBuilder = async (req, res) => {
-    const { fullName, mobileNumber, password } = req.body;
+    const { fullName, mobileNumber, email, password } = req.body;
     try {
         if (!fullName || !mobileNumber || !password) {
             return res.status(400).json({ message: 'Please enter all fields.' });
@@ -23,6 +23,7 @@ export const registerBuilder = async (req, res) => {
         const newUser = new Builder({
             fullName,
             mobileNumber,
+            email,
             password: hashpassword,
         });
         await newUser.save();

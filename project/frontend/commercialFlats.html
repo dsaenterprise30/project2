@@ -925,6 +925,28 @@
             <!-- Card View (Mobile) -->
             <div id="cardView" class="card-view" style="display: none;"></div>
         </div>
+
+        <!-- Customer Interest History Card -->
+        <div class="property-container" style="margin-top: 2rem;">
+            <h2 class="property-title">Customer Interest History</h2>
+            <div id="leadsTableView" style="overflow-x:auto;">
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Contact</th>
+                            <th>Property Type</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Loading interest history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </section>
 
     <!-- Import & Config -->
@@ -1052,9 +1074,42 @@
                         const data = await response.json();
                         properties = data.data || []; // Note: commercialFlats typically returns data in 'data' field or 'commercialFlatsList', checking previous file it was 'data'
                         filterAndRender();
+                        fetchAndRenderLeads(); // Fetch leads after properties
                     } catch (error) {
                         console.error("Error fetching rental properties:", error);
                         showCustomPopup("❌ Could not fetch listings. Please log in again.");
+                    }
+                }
+
+                async function fetchAndRenderLeads() {
+                    try {
+                        const accessToken = localStorage.getItem('token');
+                        const response = await fetch(`${window.API_BASE_URL}/api/analytics/my-leads`, {
+                            headers: { 'authorization': `Bearer ${accessToken}` }
+                        });
+                        const data = await response.json();
+                        const leadsBody = document.getElementById('leadsBody');
+
+                        if (data.success && data.leads) {
+                            if (data.leads.length === 0) {
+                                leadsBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No interest history found yet.</td></tr>';
+                                return;
+                            }
+
+                            leadsBody.innerHTML = data.leads.map(lead => `
+                                <tr>
+                                    <td>${lead.interestedUser.name}</td>
+                                    <td><a href="tel:${lead.interestedUser.contact}" style="color: var(--accent); text-decoration: none;">${lead.interestedUser.contact}</a></td>
+                                    <td style="text-transform: capitalize;">${lead.propertyType}</td>
+                                    <td>${lead.formattedDate}</td>
+                                </tr>
+                            `).join('');
+                        } else {
+                            leadsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Failed to load interest history.</td></tr>';
+                        }
+                    } catch (error) {
+                        console.error("Error fetching leads:", error);
+                        document.getElementById('leadsBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Error connecting to analytics server.</td></tr>';
                     }
                 }
 
@@ -1162,11 +1217,15 @@
                         return true;
                     });
 
-                    // Sort by builder priority score (lowest first - ascending)
+                    // Sort by builder priority score (highest first - descending)
                     filtered.sort((a, b) => {
                         const builderPriorityA = parseInt(a.builderPriority) || 0;
                         const builderPriorityB = parseInt(b.builderPriority) || 0;
-                        return builderPriorityA - builderPriorityB; // Ascending builder priority
+                        if (builderPriorityB !== builderPriorityA) {
+                            return builderPriorityB - builderPriorityA; // Descending builder priority
+                        }
+                        // Secondary sort by date (newest first)
+                        return new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt);
                     });
 
                     return filtered;
