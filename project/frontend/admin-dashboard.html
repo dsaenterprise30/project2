@@ -1339,13 +1339,13 @@
                     else if (!formattedMobile.startsWith('+')) formattedMobile = '+91' + formattedMobile;
 
                     const registrationDate = user.createdAt || user.registrationDate;
-                    const regDateText = registrationDate ? new Date(registrationDate).toLocaleDateString() : "N/A";
+                    const regDateText = registrationDate ? new Date(registrationDate).toLocaleDateString('en-IN') : "N/A";
 
                     const subscriptionStatus = user.subscriptionStatus || user.subscriptionActive ? 'Active' : 'Inactive';
                     const statusClass = subscriptionStatus === 'Active' ? 'status-active' : 'status-inactive';
 
                     const expiryRaw = user.planExpiryDate || user.subscriptionExpiry || null;
-                    const expiryText = expiryRaw ? new Date(expiryRaw).toLocaleDateString() : "N/A";
+                    const expiryText = expiryRaw ? new Date(expiryRaw).toLocaleDateString('en-IN') : "N/A";
 
                     const userType = user.type || user.userType || "User";
 
@@ -1385,14 +1385,14 @@
                         doc.setFontSize(18);
                         doc.text('DSA Enterprise - Registered Users', 14, 22);
                         doc.setFontSize(11);
-                        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+                        doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
 
                         const tableData = users.map(user => [
                             user.fullName || "N/A",
                             user.mobileNumber || "N/A",
-                            user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A",
+                            user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : "N/A",
                             user.subscriptionActive ? 'Active' : 'Inactive',
-                            user.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString() : "N/A",
+                            user.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString('en-IN') : "N/A",
                             user.type || "User"
                         ]);
 
@@ -1696,14 +1696,14 @@
                     else if (!formattedMobile.startsWith('+')) formattedMobile = '+91' + formattedMobile;
 
                     const expiryRaw = user.planExpiryDate || user.subscriptionExpiry || null;
-                    const expiryText = expiryRaw ? new Date(expiryRaw).toLocaleDateString() : "N/A";
+                    const expiryText = expiryRaw ? new Date(expiryRaw).toLocaleDateString('en-IN') : "N/A";
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td data-label="Name">${user.fullName || "N/A"}</td>
                         <td data-label="Contact">${formattedMobile}</td>
                         <td data-label="Email">${user.email || "N/A"}</td>
-                        <td data-label="Date Joined">${user.registrationDate ? new Date(user.registrationDate).toLocaleDateString() : "N/A"}</td>
+                        <td data-label="Date Joined">${user.registrationDate ? new Date(user.registrationDate).toLocaleDateString('en-IN') : "N/A"}</td>
                         <td data-label="User Type">${user.type || "N/A"}</td>
                         <td data-label="Plan Expiry">${expiryText}</td>
                         <td data-label="Status"><span class="${statusClass}">${statusText}</span></td>
@@ -2009,7 +2009,7 @@
                     doc.setFontSize(18);
                     doc.text(`Interest Report for ${userName}`, 14, 22);
                     doc.setFontSize(11);
-                    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+                    doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
                     doc.text(`Total Leads: ${leads.length}`, 14, 36);
 
                     const tableData = leads.map(lead => {
