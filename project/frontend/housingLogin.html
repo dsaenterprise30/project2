@@ -851,18 +851,6 @@
               localStorage.setItem("userMobileNumber", phoneNumber);
               localStorage.setItem("user", JSON.stringify(data.data));
               window.location.href = "housingProperties.html";
-            } else if (response.status === 403 && data.subscriptionActive === false) {
-              // Subscription expired / not active – ask user to subscribe now
-              showCustomPopup(
-                data.message || "⚠️ Your subscription has expired. Please subscribe to continue.",
-                "Subscription Required",
-                () => {
-                  // Redirect to pricing page so user can choose a plan and renew
-                  localStorage.setItem("userMobileNumber", phoneNumber);
-                  window.location.href = `pricing.html?mode=renewal&mobile=${encodeURIComponent(phoneNumber)}`;
-                },
-                true
-              );
             } else {
               showCustomPopup("❌ " + (data.message || "Login failed"));
             }
@@ -1033,45 +1021,41 @@
               return;
             }
 
-            showCustomPopup(
-              "✅ OTP verified. To start your account, please pay the subscription fee now. You will 1 month subscription.",
-              "Subscription Required",
-              async () => {
-                const fullName = localStorage.getItem("tempFullName");
-                const password = localStorage.getItem("tempPassword");
-                const mobileNumber = localStorage.getItem("tempMobileNumber");
+            // Regular User Registration (No subscription required)
+            const fullName = localStorage.getItem("tempFullName");
+            const password = localStorage.getItem("tempPassword");
+            const mobileNumber = localStorage.getItem("tempMobileNumber");
 
-                if (!fullName || !password || !mobileNumber) {
-                  showCustomPopup("⚠️ Registration data not found. Please try again.");
-                  return;
-                }
+            if (!fullName || !password || !mobileNumber) {
+              showCustomPopup("⚠️ Registration data not found. Please try again.");
+              return;
+            }
 
-                try {
-                  const response = await fetch(`${API_BASE_URL}/api/builder/create`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      fullName: fullName,
-                      mobileNumber: mobileNumber,
-                      password: password
-                    })
-                  });
+            try {
+              const response = await fetch(`${API_BASE_URL}/api/users/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fullName: fullName,
+                  mobileNumber: mobileNumber,
+                  password: password
+                })
+              });
 
-                  const data = await response.json();
-                  if (data.status === 'success') {
-                    // Save mobile and redirect to pricing page for plan selection
-                    localStorage.setItem("userMobileNumber", mobileNumber);
-                    window.location.href = `pricing.html?mode=registration&mobile=${encodeURIComponent(mobileNumber)}`;
-                  } else {
-                    showCustomPopup("❌ " + (data.message || "Registration failed."));
-                  }
-                } catch (error) {
-                  console.error("API error:", error);
-                  showCustomPopup("❌ Error registering user: " + error.message);
-                }
-              },
-              true
-            );
+              const data = await response.json();
+              if (data.status === 'success') {
+                showCustomPopup(
+                  "✅ Registration Successful! You can now log in.",
+                  "Success",
+                  () => renderRegistrationConfirmPage()
+                );
+              } else {
+                showCustomPopup("❌ " + (data.message || data.msg || "Registration failed."));
+              }
+            } catch (error) {
+              console.error("API error:", error);
+              showCustomPopup("❌ Error registering user: " + error.message);
+            }
           } catch (error) {
             console.error("OTP verification failed:", error);
             showCustomPopup("❌ OTP verification failed: " + error.message);
