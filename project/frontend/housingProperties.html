@@ -967,7 +967,7 @@
                     link.style.fontWeight = 'bold';
                     cell.appendChild(link);
 
-                    showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
+                    // Muted intentionally: showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
                 } else {
                     throw new Error("Failed to send interest.");
                 }
@@ -1497,10 +1497,10 @@
                         })
                     });
 
-                    // Show confirmation popup
-                    if (window.showCustomPopup) {
-                        showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
-                    }
+                    // Show confirmation popup intentionally muted
+                    // if (window.showCustomPopup) {
+                    //     showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
+                    // }
                 } catch (error) {
                     console.log('Background Email send failed, but contact revealed');
                 }

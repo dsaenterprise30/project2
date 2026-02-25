@@ -644,9 +644,6 @@
               <i class="fa-solid fa-eye-slash toggle-password"></i>
             </div>
           </div>
-          <div class="input-group">
-            <label for="regEmail">Email Address</label>
-            <input type="email" id="regEmail" name="email" placeholder="Enter your email address" required>
           </div>
           <div id="recaptcha-container-register"></div>
           <button type="submit" id="sendOtpBtn" class="btn">Register</button>
@@ -902,12 +899,10 @@
             showCustomPopup("✅ OTP sent for registration!");
 
             tempFullName = document.getElementById("regName").value;
-            tempEmail = document.getElementById("regEmail").value;
             tempPassword = document.getElementById("regPassword").value;
             tempMobileNumber = phoneNumber;
 
             localStorage.setItem("tempFullName", tempFullName);
-            localStorage.setItem("tempEmail", tempEmail);
             localStorage.setItem("tempPassword", tempPassword);
             localStorage.setItem("tempMobileNumber", tempMobileNumber);
 
@@ -1052,14 +1047,12 @@
                 }
 
                 try {
-                  const email = localStorage.getItem("tempEmail");
                   const response = await fetch(`${API_BASE_URL}/api/builder/create`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       fullName: fullName,
                       mobileNumber: mobileNumber,
-                      email: email,
                       password: password
                     })
                   });

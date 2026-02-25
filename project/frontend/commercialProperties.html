@@ -1060,7 +1060,7 @@
 
                 // Send interest message in background silently (no user notification)
                 try {
-                    await fetch(`${window.API_BASE_URL}/api/comercial/send-interest`, {
+                    await fetch(`${window.API_BASE_URL}/api/commercial/send-interest`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1077,10 +1077,10 @@
                         })
                     });
 
-                    // Show confirmation popup
-                    if (window.showCustomPopup) {
-                        showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
-                    }
+                    // Show confirmation popup intentionally muted
+                    // if (window.showCustomPopup) {
+                    //     showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
+                    // }
                 } catch (error) {
                     console.log('Background Email send failed, but contact revealed');
                 }

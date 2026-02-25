@@ -1,6 +1,7 @@
 import Housing from "../models/Housing.js";
 import User from "../models/User.js";
 import Builder from "../models/Builder.js";
+import Admin from "../models/Admin.js";
 import ContactClick from "../models/ContactClick.js";
 import mongoose from "mongoose";
 
@@ -271,33 +272,48 @@ export const sendInterestSMS = async (req, res) => {
         try {
             // Attempt to find the sender's name and email
             // Note: Users in frontend register via Builder, while traditional Users/Admins might lack an email.
+            // Account for '91' prefix differences and Number vs String types in DB
+            const cleanSenderMobile = senderMobile.toString().replace(/^91/, '');
+            const senderQuery = {
+                $or: [
+                    { mobileNumber: cleanSenderMobile },
+                    { mobileNumber: '91' + cleanSenderMobile },
+                    { mobileNumber: senderMobile },
+                    { mobileNumber: Number(cleanSenderMobile) },
+                    { mobileNumber: Number('91' + cleanSenderMobile) }
+                ]
+            };
+
             const [senderBuilder, senderAdmin, senderCommon] = await Promise.all([
-                Builder.findOne({ mobileNumber: senderMobile }),
-                mongoose.model('Admin') ? mongoose.model('Admin').findOne({ mobileNumber: senderMobile }).catch(() => null) : null,
-                mongoose.model('User') ? mongoose.model('User').findOne({ mobileNumber: senderMobile }).catch(() => null) : null
+                Builder.findOne(senderQuery),
+                Admin.findOne(senderQuery).catch(() => null),
+                User.findOne(senderQuery).catch(() => null)
             ]);
 
-            if (senderBuilder) {
+            if (senderCommon) {
+                senderName = senderCommon.fullName || "User";
+                senderEmail = senderCommon.email || null;
+            } else if (senderBuilder) {
                 senderName = senderBuilder.fullName || senderBuilder.builderName || "User";
                 senderEmail = senderBuilder.email || null;
             } else if (senderAdmin) {
                 senderName = senderAdmin.fullName || "Admin User";
                 // Admin schema doesn't have email by default, but just in case
                 senderEmail = senderAdmin.email || null;
-            } else if (senderCommon) {
-                senderName = senderCommon.fullName || "User";
-                senderEmail = senderCommon.email || null;
             }
         } catch (error) {
             console.error("Error fetching sender details:", error.message);
         }
 
         // Fetch Builder to get their email
+        const cleanOwnerContact = propertyOwnerContact.replace(/^91/, '');
         const builder = await Builder.findOne({
             $or: [
+                { mobileNumber: cleanOwnerContact },
+                { mobileNumber: '91' + cleanOwnerContact },
                 { mobileNumber: propertyOwnerContact },
-                { mobileNumber: '91' + propertyOwnerContact },
-                { mobileNumber: propertyOwnerContact.replace(/^91/, '') }
+                { mobileNumber: Number(cleanOwnerContact) },
+                { mobileNumber: Number('91' + cleanOwnerContact) }
             ]
         });
 
@@ -305,11 +321,13 @@ export const sendInterestSMS = async (req, res) => {
             console.log(`Email Service: Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
             // Pass the senderEmail, senderName, and builderName
             const builderName = builder.fullName || builder.builderName || "Builder";
-            sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName)
-                .then(res => {
-                    if (!res.success) console.warn("Email Send Failed:", res.error);
-                })
-                .catch(err => console.error("Email Send Validation Error", err));
+
+            try {
+                const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
+                if (!res.success) console.warn("Email Send Failed:", res.error);
+            } catch (err) {
+                console.error("Email Send Validation Error", err);
+            }
         } else {
             console.warn(`Email Service: Builder not found or email missing for contact ${propertyOwnerContact}`);
         }
