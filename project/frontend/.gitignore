@@ -3,6 +3,6 @@ razorpay.js
 node_modules/
 dist/
 build/
-config.js
+
 razorpayConfig.js
 create-config.mjs

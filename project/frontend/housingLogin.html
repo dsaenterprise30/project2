@@ -547,8 +547,8 @@
 
       function setupRecaptchaRegister() {
         if (window.recaptchaRegister) {
-          console.log("♻️ Re-using existing reCAPTCHA");
-          return window.recaptchaRegister;
+          try { window.recaptchaRegister.clear(); } catch (e) { }
+          window.recaptchaRegister = null;
         }
 
         const container = document.getElementById('recaptcha-container-register');
@@ -571,8 +571,8 @@
 
       function setupRecaptchaForgot() {
         if (window.recaptchaForgot) {
-          console.log("♻️ Re-using existing reCAPTCHA");
-          return window.recaptchaForgot;
+          try { window.recaptchaForgot.clear(); } catch (e) { }
+          window.recaptchaForgot = null;
         }
 
         const container = document.getElementById('recaptcha-container-forgot');
@@ -875,11 +875,14 @@
           e.preventDefault();
           const mobileInput = document.getElementById('regMobile').value;
           const phoneNumber = "+91" + mobileInput;
+          const submitBtn = registerForm.querySelector('button[type="submit"]');
 
           if (!/^\+91[6-9]\d{9}$/.test(phoneNumber)) {
             showCustomPopup("⚠️ Please enter a valid 10-digit mobile number.");
             return;
           }
+
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Sending..."; }
 
           try {
             confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, setupRecaptchaRegister());
@@ -897,6 +900,7 @@
             renderOtpForm("register", phoneNumber);
           } catch (error) {
             showCustomPopup("❌ Error sending OTP: " + error.message);
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Register"; }
           }
         });
 
@@ -905,11 +909,14 @@
           e.preventDefault();
           const mobileInput = document.getElementById('fpMobile').value;
           const phoneNumber = '+91' + mobileInput;
+          const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
 
           if (!/^\+91[6-9]\d{9}$/.test(phoneNumber)) {
             showCustomPopup("⚠️ Please enter a valid 10-digit mobile number.");
             return;
           }
+
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Sending..."; }
 
           try {
             const response = await fetch(`${API_BASE_URL}/api/users/forgot`, {
@@ -923,6 +930,7 @@
             const data = await response.json();
             if (!response.ok) {
               showCustomPopup("❌ " + data.msg);
+              if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Send OTP"; }
               return;
             }
 
@@ -933,6 +941,7 @@
             renderOtpForm("forgot", phoneNumber);
           } catch (error) {
             showCustomPopup("❌ Error sending OTP: " + error.message);
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "Send OTP"; }
           }
         });
 
