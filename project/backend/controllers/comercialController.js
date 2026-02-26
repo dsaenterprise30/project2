@@ -274,7 +274,8 @@ export const sendInterestSMS = async (req, res) => {
         }
 
         // Fetch Builder to get their email
-        const cleanOwnerContact = propertyOwnerContact.replace(/^91/, '');
+        const cleanOwnerContact = String(propertyOwnerContact).replace(/^91/, '').replace(/\D/g, '');
+        console.log(`DEBUG: Cleaned owner contact for DB lookup: ${cleanOwnerContact}`);
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanOwnerContact },
