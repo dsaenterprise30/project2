@@ -740,7 +740,7 @@
     <!-- Main Content -->
     <section class="search-section" id="home">
         <div class="search-container">
-            <h2 class="search-title">Find Your Perfect Property For housing</h2>
+            <h2 class="search-title">Find Your Perfect Property For Housing</h2>
 
             <div class="search-form" id="searchForm">
                 <div class="search-group">
@@ -1130,17 +1130,10 @@
                 filteredData = propertiesData.filter(property => {
                     const rowLocation = (property.location || '').toLowerCase();
                     const normalizedRowType = (property.propertyType || '').toLowerCase().replace(/\s+/g, '');
-                    const rowTenant = (property.tenantType || '').toLowerCase();
-                    const rowOwnership = (property.ownershipType || '').toLowerCase();
 
                     const matchLocation = !filterLocation || rowLocation.includes(filterLocation);
                     const matchType = !filterType || normalizedRowType === filterType;
 
-                    let matchContact = true;
-                    if (filterContact) {
-                        const propContact = String(property.contact || '').replace(/\D/g, '');
-                        matchContact = propContact.includes(filterContact);
-                    }
 
                     let matchPrice = true;
                     if (priceValue) {
