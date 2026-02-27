@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyPayment, createSubscriptionOrder, updateSubscription } from "../controllers/subscriptionController.js";
+import { verifyPayment, createSubscriptionOrder, updateSubscription, getAllPlans } from "../controllers/subscriptionController.js";
 import { verifyAccessToken } from "../middleware/userAuth.js";
 import { checkAdminNumber } from "../middleware/checkAdminNumber.js";
 import checkSubscription from "../middleware/checkSubscription.js";
@@ -14,5 +14,8 @@ router.post("/create-subscription-order", checkAdminNumber, createSubscriptionOr
 
 //Route 3: To update subscription manually/directly
 router.put("/:id/subscriptions", checkAdminNumber, updateSubscription);
+
+//Route 4: To get all subscription plans
+router.get("/subscriptionPlans", getAllPlans); 
 
 export default router;

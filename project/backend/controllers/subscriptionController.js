@@ -173,6 +173,15 @@ export const updateSubscription = async (req, res) => {
   }
 };
 
-
+//Route 4: To get all subscription plans
+export const getAllPlans = async (req, res) => {
+  try {
+    const plans = await subscriptionPlan.find({ isActive: true }).sort({ priorityLevel: -1 });
+    return res.json(plans);
+  } catch (err) {
+    console.error("Failed to fetch plans:", err);
+    return res.status(500).json({ message: "Server error fetching plans" });
+  }
+};
 
 export default router;

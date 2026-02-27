@@ -343,18 +343,23 @@
     import { RAZORPAY_KEY_ID } from './razorpayConfig.js';
 
     const plansContainer = document.getElementById("plans");
-    const builderId = localStorage.getItem("builderId") || "guest_builder"; // Fallback for testing
+    // The page is only intended for builders, so we expect a builderId saved in localStorage after registration/login.
+    const builderId = localStorage.getItem("builderId");
 
     async function fetchPlans() {
-      try {
-        const response = await fetch('/api/plans');
-        const plans = await response.json();
-        renderPlans(plans);
-      } catch (error) {
-        console.error("Error fetching plans:", error);
-        showPopup("Failed to load plans given by server. Please try again later.");
-      }
+  try {
+    const response = await fetch('http://localhost:3000/api/subscription/subscriptionPlans');
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
+    const data = await response.json();
+    renderPlans(data);
+  } catch (error) {
+    console.error("Error fetching plans:", error);
+  }
+}
 
     function renderPlans(plans) {
       plansContainer.innerHTML = "";
@@ -386,106 +391,13 @@
     }
 
     window.initiatePayment = async (planName) => {
-      if (!builderId || builderId === "guest_builder") {
-        // Try to get from user object if stored differently
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (user && user._id) {
-          // It's likely a user ID, but we need builderId. 
-          // Assuming for now user._id is what we use or we need to fetch builder profile.
-          // For now, prompt generic login if absolutely no ID.
-        }
-        // For this implementation, I will proceed but warn if it might fail on backend
-        // Actually, backend needs builderId to update the builder. 
-        // Let's assume the user is logged in as a builder and localStorage has 'user'
-        const userData = localStorage.getItem("user");
-        if (!userData) {
-          showPopup("Please log in to subscribe.");
-          setTimeout(() => window.location.href = 'login.html', 2000);
-          return;
-        }
-        // We'll use the user's ID as builderId for the flow
-        const headerBuilderId = JSON.parse(userData)._id;
-
-        // Real implementation:
-        createOrder(headerBuilderId, planName);
+      // if there's no builderId stored we can't proceed; ask user to register as builder first
+      if (!builderId) {
+        showPopup("Please register as a builder first.");
         return;
       }
       createOrder(builderId, planName);
     };
-
-    async function createOrder(bId, planName) {
-      try {
-        const response = await fetch('/api/plans/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ builderId: bId, plan: planName })
-        });
-
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.message || "Order creation failed");
-        }
-
-        const order = await response.json();
-        handleRazorpay(order, bId, planName);
-
-      } catch (error) {
-        console.error("Order Error:", error);
-        showPopup("Failed to initiate payment. " + error.message);
-      }
-    }
-
-    function handleRazorpay(order, bId, planName) {
-      const options = {
-        key: RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "DSA Enterprise",
-        description: `Subscription for ${planName} plan`,
-        order_id: order.id,
-        handler: async function (response) {
-          verifyPayment(response, bId, planName);
-        },
-        prefill: {
-          name: "Builder Name", // Could fetch from user profile
-          email: "builder@example.com",
-          contact: "9999999999"
-        },
-        theme: {
-          color: "#3b82f6"
-        }
-      };
-      const rzp1 = new Razorpay(options);
-      rzp1.open();
-    }
-
-    async function verifyPayment(paymentResponse, bId, planName) {
-      try {
-        const response = await fetch('/api/plans/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            razorpay_order_id: paymentResponse.razorpay_order_id,
-            razorpay_payment_id: paymentResponse.razorpay_payment_id,
-            razorpay_signature: paymentResponse.razorpay_signature,
-            builderId: bId,
-            plan: planName
-          })
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-          showPopup("Subscription Successful!");
-          // Optionally redirect
-          // window.location.href = 'dashboard.html';
-        } else {
-          showPopup("Payment verification failed: " + result.message);
-        }
-      } catch (error) {
-        console.error("Verification Error:", error);
-        showPopup("Payment verification failed due to network error.");
-      }
-    }
 
     function showPopup(message) {
       const popup = document.getElementById('alert-popup');
