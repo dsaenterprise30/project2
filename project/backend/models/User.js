@@ -27,6 +27,11 @@ const UserSchema = new mongoose.Schema({
     enum: ['Agent', 'Admnin'],
     default: 'Agent',
   },
+  location: {
+    type: String,
+    required: [true, 'Location is required.'],
+    trim: true,
+  },
 });
 
 const User = mongoose.model('User', UserSchema);

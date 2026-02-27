@@ -18,6 +18,9 @@ const housingPropertySchema = new mongoose.Schema({
     carpetArea: {
         type: Number,
     },
+    carParking: {
+        type: String,
+    },
     propertyType: {
         type: String,
         required: true

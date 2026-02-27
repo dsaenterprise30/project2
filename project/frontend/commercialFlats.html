@@ -158,7 +158,18 @@
             margin: 0 auto;
         }
 
-        .search-container,
+        .search-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
         .property-container {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -167,6 +178,8 @@
             padding: 2rem;
             backdrop-filter: blur(10px);
             margin-bottom: 2rem;
+            position: relative;
+            z-index: 5;
         }
 
         h2.search-title,
@@ -745,7 +758,7 @@
     <!-- Side Panel for Adding Property -->
     <div id="propertyPanel" class="side-panel">
         <div class="panel-header">
-            <span id="propertyPanelTitle">Add New Property for Sale</span>
+            <span id="propertyPanelTitle">Add New Property for Commercial Use</span>
             <button class="close-btn" id="closePropertyPanel">&times;</button>
         </div>
         <div class="panel-content">
@@ -813,7 +826,7 @@
 
     <section class="search-section" id="home">
         <div class="search-container">
-            <h2 class="search-title">commercial Properties</h2>
+            <h2 class="search-title">Commercial Properties</h2>
             <form class="search-form" onsubmit="return false;">
                 <!-- Search Groups -->
                 <div class="search-group">
@@ -861,15 +874,6 @@
                     </div>
                 </div>
 
-                <div class="search-group">
-                    <label class="search-label">Enter Mobile No.</label>
-                    <div class="input-with-clear">
-                        <input type="text" class="search-input" id="mobile" placeholder="e.g., 9876543210">
-                        <button type="button" class="clear-btn" data-target="mobile">&times;</button>
-                    </div>
-                </div>
-
-
                 <div class="search-group" style="align-self: flex-end;">
                     <button type="button" class="search-btn" id="searchBtn"><i class="fas fa-search"></i>
                         Search</button>
@@ -882,48 +886,39 @@
     <section class="listings-section">
         <div class="property-container">
             <div class="property-header">
-                <h2 class="property-title">Listed Properties for Sale</h2>
+                <h2 class="property-title">Listed Properties for Commercial Use</h2>
                 <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i>Add New</button>
             </div>
 
-            <div class="property-counters">
-                <div class="counter-card">
-                    <h4>Total Properties</h4>
-                    <div class="count" id="totalProperties">0</div>
-                </div>
-                <div class="counter-card" style="display: none;">
-                    <h4>Owner Properties</h4>
-                    <div class="count" id="ownerProperties">0</div>
-                </div>
-                <div class="counter-card" style="display: none;">
-                    <h4>Agent Properties</h4>
-                    <div class="count" id="agentProperties">0</div>
-                </div>
+            <div class="counter-card">
+                <h4>Total Properties</h4>
+                <div class="count" id="totalProperties">0</div>
             </div>
+        </div>
 
-            <!-- Table View (Desktop) -->
-            <div id="tableView" style="display: none; overflow-x:auto;">
-                <table class="property-table">
-                    <thead id="propertiesHeader">
-                        <tr>
-                            <th>Location</th>
-                            <th>Area Name</th>
-                            <th>Type</th>
-                            <th>Carpet Area</th>
-                            <th>Price</th>
-                            <th>Project Name</th>
-                            <th>Builder Name</th>
-                            <th>Contact</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="propertiesBody"></tbody>
-                </table>
-            </div>
+        <!-- Table View (Desktop) -->
+        <div id="tableView" style="display: none; overflow-x:auto;">
+            <table class="property-table">
+                <thead id="propertiesHeader">
+                    <tr>
+                        <th>Location</th>
+                        <th>Area Name</th>
+                        <th>Type</th>
+                        <th>Carpet Area</th>
+                        <th>Price</th>
+                        <th>Project Name</th>
+                        <th>Builder Name</th>
+                        <th>Contact</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="propertiesBody"></tbody>
+            </table>
+        </div>
 
-            <!-- Card View (Mobile) -->
-            <div id="cardView" class="card-view" style="display: none;"></div>
+        <!-- Card View (Mobile) -->
+        <div id="cardView" class="card-view" style="display: none;"></div>
         </div>
 
         <!-- Customer Interest History Card -->
@@ -1213,7 +1208,6 @@
                             const filterBudget = parseInt(filters.price.value.replace(/[^0-9]/g, ''), 10);
                             if (!isNaN(propertyPrice) && !isNaN(filterBudget) && propertyPrice > filterBudget) return false;
                         }
-                        if (filters.mobile && filters.mobile.value && !String(p.contact).includes(filters.mobile.value)) return false;
                         return true;
                     });
 
@@ -1326,8 +1320,7 @@
                     const defaultLabels = {
                         location: 'Select Location',
                         flatType: 'Select Property Type',
-                        price: 'Enter Budget',
-                        mobile: 'Enter Mobile No.'
+                        price: 'Enter Budget'
                     };
 
                     Object.keys(filters).forEach(key => {

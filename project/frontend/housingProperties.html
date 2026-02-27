@@ -162,7 +162,18 @@
             margin: 0 auto;
         }
 
-        .search-container,
+        .search-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
         .property-container {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -171,6 +182,8 @@
             padding: 2rem;
             backdrop-filter: blur(10px);
             margin-bottom: 2rem;
+            position: relative;
+            z-index: 5;
         }
 
         .search-title,
@@ -780,39 +793,6 @@
                     </div>
                 </div>
 
-                <div class="search-group">
-                    <label class="search-label">Tenant</label>
-                    <div class="dropdown" id="tenantType">
-                        <div class="dropdown-btn">
-                            <span>Select Choice</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="family">Family</div>
-                            <div class="dropdown-option" data-value="bachelor">Bachelor</div>
-                            <div class="dropdown-option" data-value="any">Any</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="search-group">
-                    <label class="search-label">Ownership Type</label>
-                    <div class="dropdown" id="ownershipType">
-                        <div class="dropdown-btn">
-                            <span>Select Ownership Type</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="owner">Owner</div>
-                            <div class="dropdown-option" data-value="agent">Agent</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="search-group">
-                    <label class="search-label">Contact Number</label>
-                    <input type="text" class="search-input" id="contactInput" placeholder="digits only">
-                </div>
 
                 <div class="search-group" style="align-self: flex-end;">
                     <button type="button" class="search-btn" id="searchBtn">
@@ -840,13 +820,13 @@
                         <tr>
                             <th>Location</th>
                             <th>Area Name</th>
-                            <th>Type</th>
+                            <th>Property Type</th>
+                            <th>Carpet Area</th>
+                            <th>Car Parking</th>
                             <th>Price</th>
-                            <th>Builder Name</th>
-                            <th>Project Name</th>
-                            <th>Rera Date</th>
+                            <th>Name</th>
                             <th>Contact</th>
-                            <th>Date</th>
+                            <th>Ownership Type</th>
                         </tr>
                     </thead>
                     <tbody id="propertiesBody">
@@ -932,7 +912,7 @@
         // Make function globally available for onclick events (copied logic)
         window.handleContactClick = async function (btnElement, contactNumber, propertyId, propertyType) {
 
-            const cell = btnElement.pahousingElement;
+            const cell = btnElement.parentElement;
             const token = localStorage.getItem("userToken");
             if (!token) {
                 showCustomPopup("⚠️ Please login to contact owners.", "Login Required");
@@ -1004,10 +984,10 @@
 
             // Remove old listeners to avoid stacking
             const newOk = okBtn.cloneNode(true);
-            okBtn.pahousingNode.replaceChild(newOk, okBtn);
+            okBtn.parentNode.replaceChild(newOk, okBtn);
 
             const newClose = closeBtn.cloneNode(true);
-            closeBtn.pahousingNode.replaceChild(newClose, closeBtn);
+            closeBtn.parentNode.replaceChild(newClose, closeBtn);
 
             newOk.onclick = () => {
                 if (onOk) {
@@ -1144,11 +1124,8 @@
             // --- CORE FILTERING LOGIC ---
             function applyFilters() {
                 const filterLocation = filters.location ? filters.location.value.toLowerCase() : '';
-                const filterType = filters.propertyType ? filters.propertyType.value.toLowerCase() : '';
-                const filterTenant = filters.tenantType ? filters.tenantType.value.toLowerCase() : '';
-                const filterOwnership = filters.ownershipType ? filters.ownershipType.value.toLowerCase() : '';
+                const filterType = filters.propertyType ? filters.propertyType.value.toLowerCase().replace(/\s+/g, '') : '';
                 const priceValue = filters.priceInput ? filters.priceInput.value : '';
-                const filterContact = filters.contactInput ? String(filters.contactInput.value).replace(/\D/g, '') : '';
 
                 filteredData = propertiesData.filter(property => {
                     const rowLocation = (property.location || '').toLowerCase();
@@ -1158,8 +1135,6 @@
 
                     const matchLocation = !filterLocation || rowLocation.includes(filterLocation);
                     const matchType = !filterType || normalizedRowType === filterType;
-                    const matchTenant = !filterTenant || rowTenant === filterTenant;
-                    const matchOwnership = !filterOwnership || rowOwnership === filterOwnership;
 
                     let matchContact = true;
                     if (filterContact) {
@@ -1179,7 +1154,7 @@
                         }
                     }
 
-                    return matchLocation && matchType && matchTenant && matchPrice && matchOwnership && matchContact;
+                    return matchLocation && matchType && matchPrice;
                 });
 
                 // Sort by builder priority score (highest first - descending)
@@ -1258,19 +1233,18 @@
                     row.innerHTML = `
                         <td data-label="Location">${property.location || ''}</td>
                         <td data-label="Area Name">${property.area || ''}</td>
-                        <td data-label="Type">${property.propertyType || ''}</td>
+                        <td data-label="Property Type">${property.propertyType || ''}</td>
+                        <td data-label="Carpet Area">${property.carpetArea || ''}</td>
+                        <td data-label="Car Parking">${property.carParking || ''}</td>
                         <td data-label="Price">${displayPrice}</td>
-                        <td data-label="Builder Name">${property.builderName || ''}</td>
-                        <td data-label="Project Name">${property.projectName || ''}</td>
-                        <td data-label="Rera Date">${formattedReraDate}</td>
+                        <td data-label="Name">${property.builderName || ''}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
-                                data-sender-mobile="${userData?.mobileNumber || ''}"
                                 onclick="handleContactClick(this, '${property.contact || ''}', '${property._id}', '${property.propertyType}', '${property.location || ''}', '${displayPrice}')">
                                 Contact
                             </button>
                         </td>
-                        <td data-label="Date">${formattedDate}</td>
+                        <td data-label="Ownership">${property.builderPlan || 'Free'}</td>
                     `;
                     propertiesBody.appendChild(row);
                 });
@@ -1291,8 +1265,10 @@
                     card.innerHTML = `
                         <div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${property.location || ''}</span></div>
                         <div class="card-row"><span class="card-label">Area:</span> <span class="card-value">${property.area || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${property.carpetArea || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Car Parking:</span> <span class="card-value">${property.carParking || ''}</span></div>
                         <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">housing:</span> <span class="card-value">${displayPrice}</span></div>
+                        <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
                         <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
                         <div class="card-row"><span class="card-label">Contact:</span> 
                             <span class="card-value">
@@ -1305,7 +1281,6 @@
                         </div>
                         <div class="card-row"><span class="card-label">Tenant Type:</span> <span class="card-value">${property.tenantType || ''}</span></div>
                         <div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${property.ownershipType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${property.date ? new Date(property.date).toLocaleDateString() : ''}</span></div>
                     `;
                     cardView.appendChild(card);
                 });
@@ -1395,28 +1370,15 @@
                 updateSelectedFilters();
             });
 
-            contactInput.addEventListener('input', () => {
-                const raw = contactInput.value.trim();
-                const digits = raw.replace(/\D/g, '');
-                if (digits) {
-                    filters.contactInput = { value: digits, text: `Contact: ${raw}` };
-                } else {
-                    delete filters.contactInput;
-                }
-                updateSelectedFilters();
-            });
 
             clearAllBtn.addEventListener('click', () => {
                 filters = {};
                 priceInput.value = '';
-                contactInput.value = '';
                 dropdowns.forEach(dropdown => {
                     const btnSpan = dropdown.querySelector('.dropdown-btn span');
                     if (!btnSpan) return;
                     if (dropdown.id === 'location') btnSpan.textContent = 'Select Location';
                     else if (dropdown.id === 'propertyType') btnSpan.textContent = 'Select Property Type';
-                    else if (dropdown.id === 'tenantType') btnSpan.textContent = 'Select Choice';
-                    else if (dropdown.id === 'ownershipType') btnSpan.textContent = 'Select Ownership Type';
                     else btnSpan.textContent = 'Select Choice';
                     dropdown.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
                 });

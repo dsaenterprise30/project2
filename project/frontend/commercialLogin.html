@@ -646,6 +646,10 @@
               <i class="fa-solid fa-eye-slash toggle-password"></i>
             </div>
           </div>
+          <div class="input-group">
+            <label for="regLocation">Location</label>
+            <input type="text" id="regLocation" name="location" placeholder="Enter your city/location" required>
+          </div>
           <div id="recaptcha-container-register"></div>
           <button type="submit" id="sendOtpBtn" class="btn">Register</button>
         </form>
@@ -892,10 +896,12 @@
 
             tempFullName = document.getElementById("regName").value;
             tempPassword = document.getElementById("regPassword").value;
+            const tempLocation = document.getElementById("regLocation").value;
             tempMobileNumber = phoneNumber;
 
             localStorage.setItem("tempFullName", tempFullName);
             localStorage.setItem("tempPassword", tempPassword);
+            localStorage.setItem("tempLocation", tempLocation);
             localStorage.setItem("tempMobileNumber", tempMobileNumber);
 
             renderOtpForm("register", phoneNumber);
@@ -1034,9 +1040,10 @@
             // Regular User Registration (No subscription required)
             const fullName = localStorage.getItem("tempFullName");
             const password = localStorage.getItem("tempPassword");
+            const location = localStorage.getItem("tempLocation");
             const mobileNumber = localStorage.getItem("tempMobileNumber");
 
-            if (!fullName || !password || !mobileNumber) {
+            if (!fullName || !password || !mobileNumber || !location) {
               showCustomPopup("⚠️ Registration data not found. Please try again.");
               return;
             }
@@ -1048,7 +1055,8 @@
                 body: JSON.stringify({
                   fullName: fullName,
                   mobileNumber: mobileNumber,
-                  password: password
+                  password: password,
+                  location: location
                 })
               });
 

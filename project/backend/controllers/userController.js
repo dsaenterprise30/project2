@@ -25,10 +25,10 @@ const addOneMonth = (date) => {
 
 //Route 1 - Register user
 export const registerUser = async (req, res) => {
-  const { fullName, mobileNumber, password } = req.body;
+  const { fullName, mobileNumber, password, location } = req.body;
 
   try {
-    if (!fullName || !mobileNumber || !password) {
+    if (!fullName || !mobileNumber || !password || !location) {
       return res.status(400).json({ msg: 'Please enter all fields.' });
     }
 
@@ -47,13 +47,15 @@ export const registerUser = async (req, res) => {
     pendingUsers[mobileNumber] = {
       fullName,
       mobileNumber,
-      password: hashpassword
+      password: hashpassword,
+      location
     };
 
     const newUser = new User({
       fullName,
       mobileNumber,
-      password: hashpassword
+      password: hashpassword,
+      location
     });
 
     await newUser.save();
@@ -64,6 +66,7 @@ export const registerUser = async (req, res) => {
       data: {
         fullName: newUser.fullName,
         contact: newUser.mobileNumber,
+        location: newUser.location
       }
     });
   } catch (error) {
@@ -109,7 +112,7 @@ export const loginUser = async (req, res) => {
         userId: existingUser._id,
         fullName: existingUser.fullName,
         mobileNumber: existingUser.mobileNumber,
-        
+
       }
     });
   } catch (error) {
@@ -432,10 +435,10 @@ export const updateUser = async (req, res) => {
 
 // Route 14 - Admin Register User (Direct Creation)
 export const registerUserByAdmin = async (req, res) => {
-  let { fullName, mobileNumber, password } = req.body;
+  let { fullName, mobileNumber, password, location } = req.body;
 
   try {
-    if (!fullName || !mobileNumber || !password) {
+    if (!fullName || !mobileNumber || !password || !location) {
       return res.status(400).json({ msg: 'Please enter all fields.' });
     }
 
@@ -463,6 +466,7 @@ export const registerUserByAdmin = async (req, res) => {
       fullName,
       mobileNumber: formattedMobile,
       password: hashpassword,
+      location,
       subscriptionActive: false,
       subscriptionStatus: "Inactive",
       subscriptionExpiry: null,
@@ -477,7 +481,8 @@ export const registerUserByAdmin = async (req, res) => {
       data: {
         id: newUser._id,
         fullName: newUser.fullName,
-        mobileNumber: newUser.mobileNumber
+        mobileNumber: newUser.mobileNumber,
+        location: newUser.location
       }
     });
   } catch (error) {
