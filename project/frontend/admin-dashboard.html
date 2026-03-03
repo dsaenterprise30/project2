@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Admin Panel for Real Estate User Management">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#FFFDF9">
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
     <title>DSA Enterprise - Admin Panel</title>
 
@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
     <!-- PDF Generation Libraries -->
@@ -24,39 +24,31 @@
 
 
     <style>
-        /* --- Premium Design System --- */
+        /* --- Premium Design System — Light Warm Theme --- */
         :root {
-            /* Palette */
-            --primary: #0f172a;
-            /* Slate 900 */
-            --primary-light: #1e293b;
-            /* Slate 800 */
-            --accent: #3b82f6;
-            /* Blue 500 */
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --success: #10b981;
-            /* Emerald 500 */
-            --danger: #ef4444;
-            /* Red 500 */
-            --text-main: #f8fafc;
-            /* Slate 50 */
-            --text-muted: #94a3b8;
-            /* Slate 400 */
-
-            --glass-bg: rgba(15, 23, 42, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --input-bg: rgba(15, 23, 42, 0.6);
+            --primary: #FFFDF9;
+            --primary-light: #F7F3EE;
+            --accent: #C9A86C;
+            --accent-dark: #A6853A;
+            --accent-glow: rgba(201, 168, 108, 0.35);
+            --success: #2ECC71;
+            --danger: #E74C3C;
+            --text-main: #1A1A2E;
+            --text-muted: #6B7280;
+            --glass-bg: rgba(255, 253, 249, 0.92);
+            --glass-border: rgba(201, 168, 108, 0.3);
+            --card-bg: rgba(255, 253, 249, 0.97);
+            --input-bg: #FFFFFF;
+            --shadow-lg: 0 20px 60px rgba(26, 26, 46, 0.1);
 
             /* Typography */
-            --font-heading: 'Outfit', sans-serif;
-            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'DM Sans', sans-serif;
 
             /* Spacing & Radius */
             --radius-lg: 24px;
             --radius-md: 16px;
             --radius-sm: 8px;
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         /* --- Base & Reset --- */
@@ -74,8 +66,8 @@
             display: flex;
             flex-direction: column;
             background-image:
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+                radial-gradient(ellipse at 15% 30%, rgba(201, 168, 108, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 70%, rgba(247, 243, 238, 0.8) 0%, transparent 50%);
             background-attachment: fixed;
         }
 
@@ -328,8 +320,23 @@
         }
 
         .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--glass-border);
+            background: #F0EBE3;
+            border: 1px solid rgba(201, 168, 108, 0.4);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn:disabled,
+        .btn-secondary:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         /* --- Tables --- */
@@ -362,7 +369,7 @@
         }
 
         .data-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(201, 168, 108, 0.06);
         }
 
         .status-active {
@@ -556,6 +563,37 @@
             transition: all 0.3s;
         }
 
+        /* --- Time Filter Buttons --- */
+        .time-filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .time-filter-btn {
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .time-filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .time-filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
         #custom-popup-overlay.popup-visible {
             opacity: 1;
             visibility: visible;
@@ -737,6 +775,12 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <h3>Recent Interest Activity</h3>
+                    <div class="time-filter-group" id="timeFilterGroup">
+                        <button class="time-filter-btn active" data-filter="all">All Time</button>
+                        <button class="time-filter-btn" data-filter="today">Today</button>
+                        <button class="time-filter-btn" data-filter="week">This Week</button>
+                        <button class="time-filter-btn" data-filter="month">This Month</button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="data-table-wrapper">
@@ -1735,18 +1779,60 @@
                         headers: { 'authorization': `Bearer ${token}` }
                     });
 
-                    if (!response.ok) return;
+                    if (!response.ok) {
+                        console.error("fetchAnalytics HTTP error:", response.status, await response.text());
+                        return;
+                    }
 
                     const data = await response.json();
-                    allAnalyticsData = data.recentClicks || [];
+                    // Backend returns: { status: "success", data: { totalClicks, clicksByType, recentClicks } }
+                    allAnalyticsData = (data.data && data.data.recentClicks) || data.recentClicks || [];
                     currentAnalyticsPage = 1;
-                    renderAnalyticsTable(allAnalyticsData, currentAnalyticsPage);
-                    updatePaginationControls('analytics', allAnalyticsData.length, currentAnalyticsPage);
+                    applyTimeFilter(); // apply currently active filter instead of rendering directly
 
                 } catch (error) {
                     console.error("Error fetching analytics:", error);
                 }
             }
+
+            // --- Time Filter Logic ---
+            function getFilteredAnalyticsData(filter) {
+                if (!filter || filter === 'all') return allAnalyticsData;
+
+                const now = new Date();
+                let cutoff;
+
+                if (filter === 'today') {
+                    cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight today
+                } else if (filter === 'week') {
+                    cutoff = new Date(now);
+                    cutoff.setDate(now.getDate() - 7);
+                } else if (filter === 'month') {
+                    cutoff = new Date(now);
+                    cutoff.setMonth(now.getMonth() - 1);
+                }
+
+                return allAnalyticsData.filter(click => new Date(click.clickedAt) >= cutoff);
+            }
+
+            function applyTimeFilter() {
+                const activeBtn = document.querySelector('.time-filter-btn.active');
+                const filter = activeBtn ? activeBtn.dataset.filter : 'all';
+                const filtered = getFilteredAnalyticsData(filter);
+                currentAnalyticsPage = 1;
+                renderAnalyticsTable(filtered, 1);
+                updatePaginationControls('analytics', filtered.length, 1);
+            }
+
+            // Attach filter button click events
+            document.getElementById('timeFilterGroup').addEventListener('click', function (e) {
+                const btn = e.target.closest('.time-filter-btn');
+                if (!btn) return;
+                // Update active state
+                document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                applyTimeFilter();
+            });
 
             function renderAnalyticsTable(data, page = 1) {
                 const clicksBody = document.getElementById('clicksBody');
@@ -1770,8 +1856,8 @@
                     row.innerHTML = `
                         <td data-label="User Name">${userName}</td>
                         <td data-label="Contact">${userContact}</td>
-                        <td data-label="Type">${click.propertyType.toUpperCase()}</td>
-                        <td data-label="Owner Contact">${click.ownerContact}</td>
+                        <td data-label="Type">${click.propertyType ? click.propertyType.toUpperCase() : 'N/A'}</td>
+                        <td data-label="Owner Contact">${click.ownerContact || 'N/A'}</td>
                         <td data-label="Time">${new Date(click.clickedAt).toLocaleString()}</td>
                     `;
                 });
