@@ -987,15 +987,21 @@
         </div>
         <div class="panel-content" style="padding: 1rem;">
             <div
-                style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h4 style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Leads for</h4>
                     <span id="analyticsUserName" style="font-weight: 700; color: var(--text-main);"></span>
                 </div>
+                <div class="filter-pills" id="userAnalyticsTimeFilters"
+                    style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="time-filter-btn active" data-time="all">All Time</button>
+                    <button class="time-filter-btn" data-time="today">Today</button>
+                    <button class="time-filter-btn" data-time="week">This Week</button>
+                    <button class="time-filter-btn" data-time="month">This Month</button>
+                </div>
                 <div>
                     <span style="font-size: 0.9rem; margin-right: 10px;">Total: <strong
                             id="analyticsTotalLeads">0</strong></span>
-
                 </div>
             </div>
 
@@ -2020,56 +2026,13 @@
                     const data = await response.json();
 
                     if (data.status === 'success' && data.data.leads) {
-                        const leads = data.data.leads;
-                        analyticsTotalLeads.textContent = leads.length;
+                        window.allUserLeadsData = data.data.leads;
+                        // Reset filter to 'all'
+                        const timeFilters = document.querySelectorAll('#userAnalyticsTimeFilters .time-filter-btn');
+                        timeFilters.forEach(btn => btn.classList.remove('active'));
+                        if (timeFilters.length > 0) timeFilters[0].classList.add('active');
 
-                        // Store leads for PDF generation
-                        window.currentLeadsData = leads;
-
-                        if (leads.length === 0) {
-                            userAnalyticsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">No leads found for this user</td></tr>';
-                            return;
-                        }
-
-                        // Render leads table
-                        userAnalyticsBody.innerHTML = '';
-                        leads.forEach(lead => {
-                            const row = userAnalyticsBody.insertRow();
-                            const prop = lead.propertyDetails || {};
-
-                            // Lead Name
-                            row.insertCell().textContent = lead.userId?.fullName || 'Unknown';
-
-                            // Contact
-                            row.insertCell().textContent = lead.userId?.mobileNumber || 'N/A';
-
-                            // Location
-                            row.insertCell().textContent = prop.location || 'N/A';
-
-                            // Area Name
-                            row.insertCell().textContent = prop.areaName || 'N/A';
-
-                            // Type
-                            row.insertCell().textContent = prop.type || lead.propertyType || 'N/A';
-
-                            // Price
-                            const priceCell = row.insertCell();
-                            priceCell.textContent = prop.price ? `₹${prop.price.toLocaleString('en-IN')}` : 'N/A';
-
-                            // Builder
-                            row.insertCell().textContent = prop.builderName || 'N/A';
-
-                            // Project
-                            row.insertCell().textContent = prop.projectName || 'N/A';
-
-                            // RERA Date
-                            const reraDate = prop.reraRegistrationDate ? new Date(prop.reraRegistrationDate).toLocaleDateString('en-IN') : 'N/A';
-                            row.insertCell().textContent = reraDate;
-
-                            // Time
-                            const time = lead.clickedAt ? new Date(lead.clickedAt).toLocaleString('en-IN') : 'N/A';
-                            row.insertCell().textContent = time;
-                        });
+                        renderUserAnalyticsTable(window.allUserLeadsData);
                     } else {
                         const errorMsg = data.message || data.msg || JSON.stringify(data);
                         userAnalyticsBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--danger);">Error: ${errorMsg}</td></tr>`;
@@ -2079,6 +2042,68 @@
                     userAnalyticsBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--danger);">Error loading data: ${error.message}</td></tr>`;
                 }
             };
+
+            // Setup Time Filters for User Analytics
+            document.querySelectorAll('#userAnalyticsTimeFilters .time-filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Update active class
+                    document.querySelectorAll('#userAnalyticsTimeFilters .time-filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    if (!window.allUserLeadsData) return;
+
+                    const filter = e.target.getAttribute('data-time');
+                    const now = new Date();
+                    let filtered = window.allUserLeadsData;
+
+                    if (filter === 'today') {
+                        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        filtered = window.allUserLeadsData.filter(lead => new Date(lead.clickedAt) >= todayStart);
+                    } else if (filter === 'week') {
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        filtered = window.allUserLeadsData.filter(lead => new Date(lead.clickedAt) >= weekAgo);
+                    } else if (filter === 'month') {
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        filtered = window.allUserLeadsData.filter(lead => new Date(lead.clickedAt) >= monthAgo);
+                    }
+
+                    renderUserAnalyticsTable(filtered);
+                });
+            });
+
+            function renderUserAnalyticsTable(leads) {
+                analyticsTotalLeads.textContent = leads.length;
+                window.currentLeadsData = leads; // For PDF download
+
+                if (leads.length === 0) {
+                    userAnalyticsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">No leads found for this time period</td></tr>';
+                    return;
+                }
+
+                userAnalyticsBody.innerHTML = '';
+                leads.forEach(lead => {
+                    const row = userAnalyticsBody.insertRow();
+                    const prop = lead.propertyDetails || {};
+
+                    row.insertCell().textContent = lead.userId?.fullName || 'Unknown';
+                    row.insertCell().textContent = lead.userId?.mobileNumber || 'N/A';
+                    row.insertCell().textContent = prop.location || 'N/A';
+                    row.insertCell().textContent = prop.areaName || 'N/A';
+                    row.insertCell().textContent = prop.type || lead.propertyType || 'N/A';
+
+                    const priceCell = row.insertCell();
+                    priceCell.textContent = prop.price ? `₹${prop.price.toLocaleString('en-IN')}` : 'N/A';
+
+                    row.insertCell().textContent = prop.builderName || 'N/A';
+                    row.insertCell().textContent = prop.projectName || 'N/A';
+
+                    const reraDate = prop.reraRegistrationDate ? new Date(prop.reraRegistrationDate).toLocaleDateString('en-IN') : 'N/A';
+                    row.insertCell().textContent = reraDate;
+
+                    const time = lead.clickedAt ? new Date(lead.clickedAt).toLocaleString('en-IN') : 'N/A';
+                    row.insertCell().textContent = time;
+                });
+            }
 
             // PDF Download Function
             window.downloadAnalyticsPDF = function (userName) {

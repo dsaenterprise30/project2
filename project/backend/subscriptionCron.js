@@ -11,6 +11,19 @@ cron.schedule("0 0 * * *", async () => {
     "subscription.plan": { $ne: "free" }
   });
 
+  // Check for expired 30-day trials
+  const expiredTrialBuilders = await Builder.find({
+    planExpiryDate: { $lt: new Date() },
+    subscriptionStatus: "Active"
+  });
+
+  for (const builder of expiredTrialBuilders) {
+    await Builder.findByIdAndUpdate(builder._id, {
+      subscriptionStatus: "Inactive"
+    });
+    console.log(`Builder Trial Expired: ${builder._id} marked Inactive`);
+  }
+
   for (const builder of expiredBuilders) {
     await Builder.findByIdAndUpdate(builder._id, {
       subscription: {
@@ -32,13 +45,13 @@ cron.schedule("0 0 * * *", async () => {
       }
     );
     await Commercial.updateMany(
-        { builderId:builder._id },
-        {
+      { builderId: builder._id },
+      {
         $set: {
-            builderPlan: "free",
-            builderPriority: 0
-        }  
+          builderPlan: "free",
+          builderPriority: 0
         }
+      }
     )
 
     console.log(`Builder ${builder._id} downgraded`);

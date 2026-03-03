@@ -287,15 +287,29 @@ export const sendInterestSMS = async (req, res) => {
         });
 
         if (builder && builder.email) {
-            console.log(`Email Service (Commercial): Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
-            // Pass the senderEmail, senderName, and builderName
-            const builderName = builder.fullName || builder.builderName || "Builder";
+            // Check if builder has an active subscription (not free, not expired)
+            const sub = builder.subscription || {};
+            const planName = sub.planName || sub.plan || 'free';
 
-            try {
-                const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
-                if (!res.success) console.warn("Commercial Email Send Failed:", res.error);
-            } catch (err) {
-                console.error("Commercial Email Send Validation Error", err);
+            // Trial active if status is Active AND expiry date hasn't passed
+            const isTrialActive = builder.subscriptionStatus === 'Active' &&
+                (!builder.planExpiryDate || new Date(builder.planExpiryDate) > new Date());
+
+            const hasActivePlan = isTrialActive || (planName !== 'free' && sub.status !== 'expired');
+
+            if (hasActivePlan) {
+                console.log(`Email Service (Commercial): Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
+                // Pass the senderEmail, senderName, and builderName
+                const builderName = builder.fullName || builder.builderName || "Builder";
+
+                try {
+                    const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
+                    if (!res.success) console.warn("Commercial Email Send Failed:", res.error);
+                } catch (err) {
+                    console.error("Commercial Email Send Validation Error", err);
+                }
+            } else {
+                console.log(`Email Service (Commercial): Builder ${builder.email} has no active plan (Free/Expired). Email suppressed. Lead saved in admin panel.`);
             }
         } else {
             console.warn(`Email Service (Commercial): Builder not found or email missing for contact ${propertyOwnerContact}`);

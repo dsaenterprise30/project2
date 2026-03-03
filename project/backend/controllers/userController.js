@@ -51,11 +51,18 @@ export const registerUser = async (req, res) => {
       location
     };
 
+    const trialExpiry = new Date();
+    trialExpiry.setDate(trialExpiry.getDate() + 30);
+
     const newUser = new User({
       fullName,
       mobileNumber,
       password: hashpassword,
-      location
+      location,
+      subscriptionStatus: 'Active',
+      subscriptionActive: true,
+      subscriptionExpiry: trialExpiry,
+      hasUsedTrial: true
     });
 
     await newUser.save();

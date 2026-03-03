@@ -20,11 +20,16 @@ export const registerBuilder = async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const hashpassword = await bcrypt.hash(password, salt);
+        const trialExpiry = new Date();
+        trialExpiry.setDate(trialExpiry.getDate() + 30);
+
         const newUser = new Builder({
             fullName,
             mobileNumber,
             email,
             password: hashpassword,
+            subscriptionStatus: 'Active',
+            planExpiryDate: trialExpiry
         });
         await newUser.save();
         res.status(201).json({
