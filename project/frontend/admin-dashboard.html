@@ -706,6 +706,7 @@
         <ul class="nav-links">
 
             <li><a href="#" id="addBuilderBtn"><i class="fas fa-hammer"></i> Add Builder</a></li>
+            <li><a href="#" id="addCityBtn"><i class="fas fa-city"></i> Add City</a></li>
             <li><a href="#" id="viewRegisteredUsersBtn"><i class="fas fa-users"></i> Users</a></li>
             <li><a href="commercialFlats.html">Commercial Flats</a></li>
             <li><a href="housingFlats.html">Housing Flats</a></li>
@@ -922,6 +923,22 @@
                 <input type="password" id="newBuilderPassword" required minlength="6">
 
                 <button type="submit" class="btn" style="margin-top: 2rem;">Register Builder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add City Modal (Side Panel) -->
+    <div id="addCityModal" class="side-panel">
+        <div class="panel-header">
+            <span>Add New City</span>
+            <button class="close-btn" id="closeAddCityBtn">&times;</button>
+        </div>
+        <div class="panel-content">
+            <form id="addCityForm">
+                <label for="newCityName">City Name</label>
+                <input type="text" id="newCityName" required placeholder="e.g. Mira Road East">
+
+                <button type="submit" class="btn" style="margin-top: 2rem;">Add City</button>
             </form>
         </div>
     </div>
@@ -1318,6 +1335,60 @@
                     if (addBuilderModal) {
                         addBuilderModal.classList.add('open');
                         overlay.classList.add('show');
+                    }
+                });
+            }
+
+            // --- Add City Button Logic ---
+            const addCityBtn = document.getElementById('addCityBtn');
+            const addCityModal = document.getElementById('addCityModal');
+            const closeAddCityBtn = document.getElementById('closeAddCityBtn');
+            const addCityForm = document.getElementById('addCityForm');
+
+            if (addCityBtn) {
+                addCityBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (addCityModal) {
+                        addCityModal.classList.add('open');
+                        overlay.classList.add('show');
+                    }
+                });
+            }
+
+            if (closeAddCityBtn) {
+                closeAddCityBtn.addEventListener('click', () => {
+                    if (addCityModal) addCityModal.classList.remove('open');
+                    overlay.classList.remove('show');
+                    if (addCityForm) addCityForm.reset();
+                });
+            }
+
+            if (addCityForm) {
+                addCityForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const cityName = document.getElementById('newCityName').value;
+                    const token = localStorage.getItem("token");
+
+                    try {
+                        const response = await fetch(`${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/properties/add-city`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ name: cityName })
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.message || "Failed to add city");
+
+                        showCustomPopup("✅ City added successfully!");
+                        addCityModal.classList.remove('open');
+                        overlay.classList.remove('show');
+                        addCityForm.reset();
+
+                    } catch (error) {
+                        showCustomPopup("❌ " + error.message);
                     }
                 });
             }

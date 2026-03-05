@@ -769,17 +769,10 @@
                             <span>Select Location</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
-                        <div class="dropdown-content">
-                            <div class="dropdown-option" data-value="mira road east">Mira Road East</div>
-                            <div class="dropdown-option" data-value="mira road west">Mira Road West</div>
-                            <div class="dropdown-option" data-value="dahisar west">Dahisar West</div>
-                            <div class="dropdown-option" data-value="borivali west">Borivali West</div>
-                            <div class="dropdown-option" data-value="kandivali west">Kandivali West</div>
-                            <div class="dropdown-option" data-value="malad west">Malad West</div>
-                            <div class="dropdown-option" data-value="ram mandir west">Ram Mandir West</div>
-                            <div class="dropdown-option" data-value="goregaon west">Goregaon West</div>
-                            <div class="dropdown-option" data-value="andheri west">Andheri West</div>
-                            <div class="dropdown-option" data-value="vile parle west">Vile Parle West</div>
+                        <div class="dropdown-content" id="locationDropdownContent">
+                            <!-- Locations will be fetched from DB -->
+                            <div class="dropdown-option" style="color: var(--text-muted); padding: 1rem;">Loading
+                                locations...</div>
                         </div>
                     </div>
                 </div>
@@ -1123,6 +1116,53 @@
             // Already in HTML, no need to create
 
             // --- DATA FETCHING ---
+            async function fetchLocations() {
+                const token = localStorage.getItem("userToken");
+                try {
+                    const response = await fetch(`${window.API_BASE_URL}/api/properties/locations`, {
+                        headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Failed to fetch locations');
+                    const result = await response.json();
+                    const locations = result.locations || [];
+
+                    const dropdownContent = document.getElementById('locationDropdownContent');
+                    if (dropdownContent) {
+                        if (locations.length === 0) {
+                            dropdownContent.innerHTML = '<div class="dropdown-option" style="color: var(--text-muted); padding: 1rem;">No locations found</div>';
+                        } else {
+                            dropdownContent.innerHTML = locations.map(loc =>
+                                `<div class="dropdown-option" data-value="${loc.toLowerCase()}">${loc}</div>`
+                            ).join('');
+
+                            // Re-bind click events to new options
+                            const options = dropdownContent.querySelectorAll('.dropdown-option');
+                            const locationDropdown = document.getElementById('location');
+                            const btn = locationDropdown.querySelector('.dropdown-btn');
+
+                            options.forEach(option => {
+                                option.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    const span = btn.querySelector('span');
+                                    if (span) span.textContent = option.textContent;
+                                    options.forEach(opt => opt.classList.remove('selected'));
+                                    option.classList.add('selected');
+                                    filters['location'] = { value: option.dataset.value, text: option.textContent };
+                                    locationDropdown.classList.remove('active');
+                                    updateSelectedFilters();
+                                });
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching locations:', error);
+                    const dropdownContent = document.getElementById('locationDropdownContent');
+                    if (dropdownContent) {
+                        dropdownContent.innerHTML = '<div class="dropdown-option" style="color: var(--danger); padding: 1rem;">Error loading locations</div>';
+                    }
+                }
+            }
+
             async function fetchProperties() {
                 // Ensure API_BASE_URL is ready
                 const BASE_URL = `${window.API_BASE_URL}/api/housing`;
@@ -1481,6 +1521,7 @@
             };
 
             showTableMessage('⚠️ Please use the search filters above to find properties.');
+            fetchLocations();
             fetchProperties();
         });
     </script>
