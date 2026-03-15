@@ -24,8 +24,8 @@ const UserSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['Agent', 'Admnin'],
-    default: 'Agent',
+    enum: ['Broker', 'Individual'],
+    default: 'Individual',
   },
   location: {
     type: String,

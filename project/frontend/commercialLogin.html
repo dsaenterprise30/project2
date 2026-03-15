@@ -242,6 +242,31 @@
       background: rgba(15, 23, 42, 0.8);
     }
 
+    .input-group select {
+      width: 100%;
+      padding: 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+      font-family: var(--font-body);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+
+    .input-group select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201, 168, 108, 0.2);
+      outline: none;
+    }
+
     .phone-input {
       display: flex;
       align-items: center;
@@ -640,6 +665,13 @@
             </div>
           </div>
           <div class="input-group">
+            <label for="regUserType">I am a</label>
+            <select id="regUserType" name="userType" required>
+              <option value="Individual">Individual</option>
+              <option value="Broker">Broker</option>
+            </select>
+          </div>
+          <div class="input-group">
             <label for="regLocation">Location</label>
             <input type="text" id="regLocation" name="location" placeholder="Enter your city/location" required>
           </div>
@@ -890,11 +922,13 @@
             tempFullName = document.getElementById("regName").value;
             tempPassword = document.getElementById("regPassword").value;
             const tempLocation = document.getElementById("regLocation").value;
+            const tempUserType = document.getElementById("regUserType").value;
             tempMobileNumber = phoneNumber;
 
             localStorage.setItem("tempFullName", tempFullName);
             localStorage.setItem("tempPassword", tempPassword);
             localStorage.setItem("tempLocation", tempLocation);
+            localStorage.setItem("tempUserType", tempUserType);
             localStorage.setItem("tempMobileNumber", tempMobileNumber);
 
             renderOtpForm("register", phoneNumber);
@@ -1034,6 +1068,7 @@
             const fullName = localStorage.getItem("tempFullName");
             const password = localStorage.getItem("tempPassword");
             const location = localStorage.getItem("tempLocation");
+            const userType = localStorage.getItem("tempUserType") || 'Individual';
             const mobileNumber = localStorage.getItem("tempMobileNumber");
 
             if (!fullName || !password || !mobileNumber || !location) {
@@ -1049,7 +1084,8 @@
                   fullName: fullName,
                   mobileNumber: mobileNumber,
                   password: password,
-                  location: location
+                  location: location,
+                  userType: userType
                 })
               });
 

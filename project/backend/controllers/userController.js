@@ -25,7 +25,7 @@ const addOneMonth = (date) => {
 
 //Route 1 - Register user
 export const registerUser = async (req, res) => {
-  const { fullName, mobileNumber, password, location } = req.body;
+  const { fullName, mobileNumber, password, location, userType } = req.body;
 
   try {
     if (!fullName || !mobileNumber || !password || !location) {
@@ -59,6 +59,7 @@ export const registerUser = async (req, res) => {
       mobileNumber,
       password: hashpassword,
       location,
+      type: userType || 'Individual',
       subscriptionStatus: 'Active',
       subscriptionActive: true,
       subscriptionExpiry: trialExpiry,
@@ -119,7 +120,7 @@ export const loginUser = async (req, res) => {
         userId: existingUser._id,
         fullName: existingUser.fullName,
         mobileNumber: existingUser.mobileNumber,
-
+        type: existingUser.type
       }
     });
   } catch (error) {
@@ -442,7 +443,7 @@ export const updateUser = async (req, res) => {
 
 // Route 14 - Admin Register User (Direct Creation)
 export const registerUserByAdmin = async (req, res) => {
-  let { fullName, mobileNumber, password, location } = req.body;
+  let { fullName, mobileNumber, password, location, userType } = req.body;
 
   try {
     if (!fullName || !mobileNumber || !password || !location) {
@@ -474,6 +475,7 @@ export const registerUserByAdmin = async (req, res) => {
       mobileNumber: formattedMobile,
       password: hashpassword,
       location,
+      type: userType || 'Individual',
       subscriptionActive: false,
       subscriptionStatus: "Inactive",
       subscriptionExpiry: null,
