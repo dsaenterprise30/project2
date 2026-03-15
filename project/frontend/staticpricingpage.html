@@ -332,6 +332,7 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script type="module">
     import { RAZORPAY_KEY_ID } from './razorpayConfig.js';
+    import { API_BASE_URL } from './config.js';
 
     const plansContainer = document.getElementById("plans");
     // The page is only intended for builders, so we expect a builderId saved in localStorage after registration/login.
@@ -339,7 +340,7 @@
 
     async function fetchPlans() {
       try {
-        const response = await fetch('http://localhost:3000/api/subscription/subscriptionPlans');
+        const response = await fetch(`${API_BASE_URL}/api/subscription/subscriptionPlans`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
