@@ -22,7 +22,7 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new comercial listing
 export const createComercialListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, date, carpetArea, projectName, builderName } = req.body || {};
+    const { contact, area, location, propertyType, price, date, carpetArea, projectName, builderName, possessionDate, commercialType } = req.body || {};
 
     try {
         // Relax 'name' requirement if 'projectName' is provided.
@@ -76,7 +76,9 @@ export const createComercialListing = async (req, res) => {
             builderName: builderName || builder.fullName, // ✅ Added builderName using builder info
             builderId: builder._id,
             builderPlan: builder.subscription ? builder.subscription.planName : "free",
-            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0
+            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0,
+            possessionDate: possessionDate,
+            commercialType: commercialType
         });
 
         const savedListing = await newListing.save();
@@ -134,7 +136,7 @@ export const getAllComercialListings = async (req, res) => {
 // Route 3: Update a comercial listing by its ID
 export const updateComercialListingById = async (req, res) => {
     const { id } = req.params;
-    const { location, area, propertyType, price, name, contact, date, ownershipType, projectName, builderName, carpetArea } = req.body || {};
+    const { location, area, propertyType, price, name, contact, date, projectName, builderName, carpetArea, possessionDate, commercialType } = req.body || {};
 
     try {
         const update = {
@@ -146,9 +148,10 @@ export const updateComercialListingById = async (req, res) => {
             userName: name, // Keep simplified name ref if needed
             contact: cleanMobileNumber(contact),
             date,
-            ownershipType,
             builderName, // ✅ Allow updating builderName
-            carpetArea // ✅ Allow updating carpetArea
+            carpetArea, // ✅ Allow updating carpetArea
+            possessionDate,
+            commercialType
         };
 
         const result = await Commercial.findByIdAndUpdate(id, { $set: update }, { new: true });
@@ -335,7 +338,7 @@ export const sendInterestSMS = async (req, res) => {
     }
 };
 
-//Route 6: Get all comercial listings by priority for public access (Brokers)
+//Route 6: Get all comercial listings by priority for public access (Agents)
 export const searchCommercialProperties = async (req, res) => {
     const commercialProperties = await Commercial.find({
         location: req.query.location

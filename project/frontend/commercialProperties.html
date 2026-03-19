@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="author" content="QuadCoders Team">
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
-    <title>DSA Enterprise - commercial Properties</title>
+    <title>DSA Enterprise - Commercial Properties</title>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -718,7 +718,7 @@
         </div>
 
         <ul class="nav-links">
-            <li><a href="housingProperties.html">Housing Properties</a></li>
+            <li><a href="housingProperties.html">Residential Properties</a></li>
             <li><a id="profileIcon"><i class="fas fa-user-circle fa-xl"></i> My Profile</a></li>
         </ul>
 
@@ -836,9 +836,11 @@
                             <th>Carpet Area</th>
                             <th>Property Type</th>
                             <th>Price</th>
+                            <th>Project Name</th>
+                            <th>Possession Date</th>
+                            <th>Commercial Type</th>
                             <th>Name</th>
                             <th>Contact</th>
-                            <th>Ownership Type</th>
                         </tr>
                     </thead>
                     <tbody id="propertiesBody">
@@ -872,7 +874,7 @@
                 <h3>Quick Links</h3>
                 <ul class="footer-nav">
                     <li><a href="#home"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="housingProperties.html">Housing Properties</a></li>
+                    <li><a href="housingProperties.html">Residential Properties</a></li>
                 </ul>
             </div>
             <div class="footer-right">
@@ -1222,6 +1224,9 @@
                         <td data-label="Carpet Area">${property.carpetArea || ''}</td>
                         <td data-label="Property Type">${property.propertyType || ''}</td>
                         <td data-label="Price">${displayPrice}</td>
+                        <td data-label="Project Name">${property.projectName || ''}</td>
+                        <td data-label="Possession Date">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</td>
+                        <td data-label="Commercial Type">${property.commercialType || 'N/A'}</td>
                         <td data-label="Name">${property.builderName || ''}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
@@ -1229,7 +1234,6 @@
                                 Contact
                             </button>
                         </td>
-                        <td data-label="Ownership">${property.ownershipType || 'Agent'}</td>
                     `;
                     propertiesBody.appendChild(row);
                 });
@@ -1255,7 +1259,10 @@
                         <div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${property.carpetArea || ''}</span></div>
                         <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
                         <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
-                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${property.projectName || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</span></div>
+                        <div class="card-row"><span class="card-label">Commercial Type:</span> <span class="card-value">${property.commercialType || 'N/A'}</span></div>
+                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.builderName || ''}</span></div>
                         <div class="card-row"><span class="card-label">Contact:</span> 
                             <span class="card-value">
                                 <button class="action-btn" style="background: var(--success); margin:0; padding: 0.5rem 1rem; font-size: 0.9em;" 
@@ -1264,7 +1271,6 @@
                                 </button>
                             </span>
                         </div>
-                        <div class="card-row"><span class="card-label">Ownership:</span> <span class="card-value">${property.ownershipType || 'Agent'}</span></div>
                     `;
                     cardView.appendChild(card);
                 });

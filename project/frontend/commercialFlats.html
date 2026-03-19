@@ -753,7 +753,7 @@
             </a>
         </div>
         <ul class="nav-links">
-            <li><a href="housingFlats.html">Housing Flats</a></li>
+            <li><a href="housingFlats.html">Residential</a></li>
             <li><a href="admin-dashboard.html">Dashboard</a></li>
 
         </ul>
@@ -803,6 +803,14 @@
                     <option value="3.5 BHK">3.5 BHK</option>
                     <option value="4 BHK">4 BHK</option>
                 </select>
+                
+                <label for="commercialType">Commercial Type:</label>
+                <select id="commercialType" name="commercialType" required>
+                    <option value="">Select a Commercial Type</option>
+                    <option value="Shop">Shop</option>
+                    <option value="Godown">Godown</option>
+                    <option value="Office">Office</option>
+                </select>
 
                 <label for="propertyPrice">Price:</label>
                 <input type="text" id="propertyPrice" name="price" placeholder="e.g., ₹50,00,000" required>
@@ -812,6 +820,9 @@
 
                 <label for="propertyName">Project Name:</label>
                 <input type="text" id="propertyName" name="projectName" placeholder="e.g., John Doe" required>
+
+                <label for="possessionDate">Possession Date:</label>
+                <input type="date" id="possessionDate" name="possessionDate" required>
 
                 <label for="builderName">Builder Name:</label>
                 <input type="text" id="builderName" name="builderName" placeholder="e.g., ABC Builders" required>
@@ -906,6 +917,8 @@
                         <th>Carpet Area</th>
                         <th>Price</th>
                         <th>Project Name</th>
+                        <th>Possession Date</th>
+                        <th>Commercial Type</th>
                         <th>Builder Name</th>
                         <th>Contact</th>
                         <th>Date</th>
@@ -1184,12 +1197,14 @@
                         location: propertyForm.elements['location'].value,
                         area: propertyForm.elements['area'].value,
                         propertyType: propertyForm.elements['propertyType'].value,
+                        commercialType: propertyForm.elements['commercialType'].value,
                         price: propertyForm.elements['price'].value,
                         carpetArea: propertyForm.elements['carpetArea'].value,
                         projectName: propertyForm.elements['projectName'].value,
                         builderName: propertyForm.elements['builderName'].value,
                         contact: propertyForm.elements['contact'].value,
-                        date: propertyForm.elements['date'].value
+                        date: propertyForm.elements['date'].value,
+                        possessionDate: propertyForm.elements['possessionDate'].value
                     };
                     const propertyId = propertyIdInput.value;
                     const isCreating = propertyId === '';
@@ -1229,13 +1244,15 @@
                             propertyForm.elements['location'].value = property.location;
                             propertyForm.elements['area'].value = property.area || '';
                             propertyForm.elements['propertyType'].value = property.propertyType;
+                            propertyForm.elements['commercialType'].value = property.commercialType || '';
                             propertyForm.elements['price'].value = property.price.replace(/[₹,]/g, '');
                             propertyForm.elements['carpetArea'].value = property.carpetArea || '';
                             propertyForm.elements['projectName'].value = property.projectName || property.userName || '';
                             propertyForm.elements['builderName'].value = property.builderName || '';
                             propertyForm.elements['contact'].value = property.contact;
                             propertyForm.elements['date'].value = new Date(property.date).toISOString().substring(0, 10);
-                            document.getElementById('propertyPanelTitle').textContent = 'Edit Sale Property';
+                            propertyForm.elements['possessionDate'].value = property.possessionDate ? new Date(property.possessionDate).toISOString().substring(0, 10) : '';
+                            document.getElementById('propertyPanelTitle').textContent = 'Edit Commercial Property';
                             document.getElementById('submitPropertyBtn').textContent = 'Save Changes';
                             openPanel();
                         }
@@ -1249,11 +1266,11 @@
                                     if (!accessToken) { showCustomPopup('❌ Authentication error.'); return; }
                                     const response = await fetch(`${BASE_URL}/delete/${deleteBtn.dataset.id}`, { method: 'DELETE', headers: { 'authorization': `Bearer ${accessToken}` } });
                                     if (!response.ok) throw new Error('Failed to delete property.');
-                                    showCustomPopup('✅ Sale property deleted successfully!');
+                                    showCustomPopup('✅ Commercial property deleted successfully!');
                                     await fetchAndRenderProperties();
                                 } catch (error) {
                                     console.error("Error deleting property:", error);
-                                    showCustomPopup("❌ Failed to delete sale property.");
+                                    showCustomPopup("❌ Failed to delete commercial property.");
                                 }
                             }
                         });
@@ -1310,7 +1327,7 @@
                             contact = '+91 ' + contact.substring(2);
                         }
 
-                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.carpetArea || ''}</td><td>${prop.price || ''}</td><td>${prop.projectName || prop.userName || ''}</td><td>${prop.builderName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.carpetArea || ''}</td><td>${prop.price || ''}</td><td>${prop.projectName || prop.userName || ''}</td><td>${prop.possessionDate ? new Date(prop.possessionDate).toLocaleDateString() : 'N/A'}</td><td>${prop.commercialType || 'N/A'}</td><td>${prop.builderName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
                     });
                 }
 
@@ -1323,7 +1340,7 @@
                         if (contact && !contact.includes('+') && contact.length === 10) {
                             contact = '+91 ' + contact;
                         }
-                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${prop.carpetArea || ''}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${prop.projectName || prop.userName || ''}</span></div><div class="card-row"><span class="card-label">Builder Name:</span> <span class="card-value">${prop.builderName || ''}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${prop.carpetArea || ''}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${prop.projectName || prop.userName || ''}</span></div><div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${prop.possessionDate ? new Date(prop.possessionDate).toLocaleDateString() : 'N/A'}</span></div><div class="card-row"><span class="card-label">Commercial Type:</span> <span class="card-value">${prop.commercialType || 'N/A'}</span></div><div class="card-row"><span class="card-label">Builder Name:</span> <span class="card-value">${prop.builderName || ''}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
                         cardView.appendChild(card);
                     });
                 }
@@ -1335,7 +1352,7 @@
                 function openPanel() { propertyPanel.style.width = window.innerWidth <= 768 ? '100%' : '400px'; propertyPanel.classList.add('open'); overlay.style.display = 'block'; }
                 function closePanel() { propertyPanel.style.width = '0'; propertyPanel.classList.remove('open'); overlay.style.display = 'none'; }
 
-                addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New Sale Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
+                addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New Commercial Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
                 closePropertyPanelBtn.addEventListener('click', closePanel);
                 overlay.addEventListener('click', closePanel);
                 hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));

@@ -17,6 +17,9 @@ const comercialPropertySchema = new mongoose.Schema({
     builderName: {
         type: String,
     },
+    possessionDate: {
+        type: Date,
+    },
     location: {
         type: String,
         required: true
@@ -25,6 +28,10 @@ const comercialPropertySchema = new mongoose.Schema({
         type: String
     },
     propertyType: String,
+    commercialType: {
+        type: String,
+        required: false
+    },
     carpetArea: {
         type: String,
         required: true
