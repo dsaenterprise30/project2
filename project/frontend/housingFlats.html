@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DSA Enterprise - housing Properties</title>
+    <title>DSA Enterprise - Residential Properties</title>
     <link rel="icon" type="image/x-icon" href="img/DSA.png">
 
     <!-- Fonts & Icons -->
@@ -810,6 +810,9 @@
                 <label for="propertyName">Project Name:</label>
                 <input type="text" id="propertyName" name="projectName" placeholder="e.g., John Doe" required>
 
+                <label for="possessionDate">Possession Date:</label>
+                <input type="date" id="possessionDate" name="possessionDate" required>
+
                 <label for="propertyContact">Contact:</label>
                 <input type="text" id="propertyContact" name="contact" placeholder="e.g., 9876543210" required>
 
@@ -836,7 +839,7 @@
 
     <section class="search-section" id="home">
         <div class="search-container">
-            <h2 class="search-title">Housing Properties</h2>
+            <h2 class="search-title">Residential Properties</h2>
             <form class="search-form" onsubmit="return false;">
                 <!-- Search Groups -->
                 <div class="search-group">
@@ -889,7 +892,7 @@
     <section class="listings-section">
         <div class="property-container">
             <div class="property-header">
-                <h2 class="property-title">Listed Properties For Housing</h2>
+                <h2 class="property-title">Listed Properties For Residence</h2>
                 <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i>Add New</button>
             </div>
 
@@ -920,6 +923,7 @@
                             <th>Car Parking</th>
                             <th>Price</th>
                             <th>Project Name</th>
+                            <th>Possession Date</th>
                             <th>Builder Name</th>
                             <th>Contact</th>
                             <th>Date</th>
@@ -1211,7 +1215,8 @@
                         date: propertyForm.elements['date'].value,
                         carpetArea: propertyForm.elements['carpetArea'].value,
                         carParking: propertyForm.elements['carParking'].value,
-                        builderName: propertyForm.elements['builderName'].value
+                        builderName: propertyForm.elements['builderName'].value,
+                        possessionDate: propertyForm.elements['possessionDate'].value
                     };
                     const propertyId = propertyIdInput.value;
                     const isCreating = propertyId === '';
@@ -1264,25 +1269,26 @@
                             propertyForm.elements['carpetArea'].value = property.carpetArea || '';
                             propertyForm.elements['carParking'].value = property.carParking || '';
                             propertyForm.elements['builderName'].value = property.builderName || '';
-                            document.getElementById('propertyPanelTitle').textContent = 'Edit housingal Property';
+                            propertyForm.elements['possessionDate'].value = property.possessionDate ? new Date(property.possessionDate).toISOString().substring(0, 10) : '';
+                            document.getElementById('propertyPanelTitle').textContent = 'Edit Residential Property';
                             document.getElementById('submitPropertyBtn').textContent = 'Save Changes';
                             openPanel();
                         }
                     }
                     const deleteBtn = e.target.closest('.delete-btn');
                     if (deleteBtn) {
-                        showCustomPopup('⚠️ Are you sure you want to delete this housingal property?', true, async (confirmed) => {
+                        showCustomPopup('⚠️ Are you sure you want to delete this Residential property?', true, async (confirmed) => {
                             if (confirmed) {
                                 try {
                                     const accessToken = localStorage.getItem('token');
                                     if (!accessToken) { showCustomPopup('❌ Authentication error.'); return; }
                                     const response = await fetch(`${BASE_URL}/delete/${deleteBtn.dataset.id}`, { method: 'DELETE', headers: { 'authorization': `Bearer ${accessToken}` } });
                                     if (!response.ok) throw new Error('Failed to delete property.');
-                                    showCustomPopup('✅ housingal property deleted successfully!');
+                                    showCustomPopup('✅ Residential property deleted successfully!');
                                     await fetchAndRenderProperties();
                                 } catch (error) {
                                     console.error("Error deleting property:", error);
-                                    showCustomPopup("❌ Failed to delete housingal property.");
+                                    showCustomPopup("❌ Failed to delete Residential property.");
                                 }
                             }
                         });
@@ -1338,7 +1344,7 @@
                         if (contact && contact.startsWith('91')) {
                             contact = contact.replace('91', '+91 ');
                         }
-                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.carpetArea || ''}</td><td>${prop.carParking || ''}</td><td>${prop.price || ''}</td><td>${prop.projectName || prop.userName || ''}</td><td>${prop.builderName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                        row.innerHTML = `<td>${prop.location || ''}</td><td>${prop.area || ''}</td><td>${prop.propertyType || ''}</td><td>${prop.carpetArea || ''}</td><td>${prop.carParking || ''}</td><td>${prop.price || ''}</td><td>${prop.projectName || prop.userName || ''}</td><td>${prop.possessionDate ? new Date(prop.possessionDate).toLocaleDateString() : 'N/A'}</td><td>${prop.builderName || ''}</td><td>${contact}</td><td>${new Date(prop.date).toLocaleDateString()}</td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></td>`;
                     });
                 }
 
@@ -1351,7 +1357,7 @@
                         if (contact && contact.startsWith('91')) {
                             contact = contact.replace('91', '+91 ');
                         }
-                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${prop.carpetArea || ''}</span></div><div class="card-row"><span class="card-label">Car Parking:</span> <span class="card-value">${prop.carParking || ''}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${prop.projectName || prop.userName || ''}</span></div><div class="card-row"><span class="card-label">Builder Name:</span> <span class="card-value">${prop.builderName || ''}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
+                        card.innerHTML = `<div class="card-row"><span class="card-label">Location:</span> <span class="card-value">${prop.location}</span></div><div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${prop.propertyType}</span></div><div class="card-row"><span class="card-label">Carpet Area:</span> <span class="card-value">${prop.carpetArea || ''}</span></div><div class="card-row"><span class="card-label">Car Parking:</span> <span class="card-value">${prop.carParking || ''}</span></div><div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${prop.price}</span></div><div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${prop.projectName || prop.userName || ''}</span></div><div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${prop.possessionDate ? new Date(prop.possessionDate).toLocaleDateString() : 'N/A'}</span></div><div class="card-row"><span class="card-label">Builder Name:</span> <span class="card-value">${prop.builderName || ''}</span></div><div class="card-row"><span class="card-label">Contact:</span> <span class="card-value">${contact}</span></div><div class="card-row"><span class="card-label">Date:</span> <span class="card-value">${new Date(prop.date).toLocaleDateString()}</span></div><div class="card-actions actions-cell"><button class="action-btn edit-btn" data-id="${prop.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${prop.id}"><i class="fas fa-trash-alt"></i></button></div>`;
                         cardView.appendChild(card);
                     });
                 }
@@ -1363,7 +1369,7 @@
                 function openPanel() { propertyPanel.style.width = window.innerWidth <= 768 ? '100%' : '400px'; propertyPanel.classList.add('open'); overlay.style.display = 'block'; }
                 function closePanel() { propertyPanel.style.width = '0'; propertyPanel.classList.remove('open'); overlay.style.display = 'none'; }
 
-                addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New housingal Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
+                addNewBtn.addEventListener('click', () => { propertyForm.reset(); propertyIdInput.value = ''; document.getElementById('propertyPanelTitle').textContent = 'Add New Residential Property'; document.getElementById('submitPropertyBtn').textContent = 'Add Property'; openPanel(); });
                 closePropertyPanelBtn.addEventListener('click', closePanel);
                 overlay.addEventListener('click', closePanel);
                 hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));

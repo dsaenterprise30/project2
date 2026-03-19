@@ -32,6 +32,9 @@ const housingPropertySchema = new mongoose.Schema({
     builderName: {
         type: String,
     },
+    possessionDate: {
+        type: Date,
+    },
     reraDate: {
         type: Date,
     },

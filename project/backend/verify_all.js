@@ -61,7 +61,7 @@ async function runTests() {
         const collectionNames = collections.map(c => c.name);
         testResult('Users collection exists', collectionNames.includes('users'));
         testResult('Admin collection exists', collectionNames.includes('admin'));
-        testResult('Brokers collection exists', collectionNames.includes('brokers'));
+        testResult('Agents collection exists', collectionNames.includes('brokers'));
         testResult('Builders collection exists', collectionNames.includes('builders'));
 
         // Check if users exist
@@ -122,7 +122,7 @@ async function runTests() {
         testResult('User API endpoints', false, error.message);
     }
 
-    // Test housing routes
+    // Test housing routes (Agents)
     try {
         const housingRes = await fetch(`${API_BASE_URL}/api/housing/all-public`, {
             headers: { 'Authorization': 'Bearer fake-token' }
@@ -132,7 +132,7 @@ async function runTests() {
         testResult('Housing API', false, error.message);
     }
 
-    // Test commercial routes
+    // Test commercial routes (Agents)
     try {
         const commercialRes = await fetch(`${API_BASE_URL}/api/comercial/all-public`, {
             headers: { 'Authorization': 'Bearer fake-token' }

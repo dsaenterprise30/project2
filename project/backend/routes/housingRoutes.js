@@ -23,7 +23,7 @@ router.put("/update/:id", verifyAccessToken, checkAdminNumber, updateHousingList
 router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteHousingListingById);
 // route 4: delete a single Housing listing by ID (Admin)
 
-// Route 5: fetch all rent listings for public access (Brokers)
+// Route 5: fetch all rent listings for public access (Agents)
 router.get("/all-public", verifyAccessToken, getAllHousingListings);
 
 // Route 6: Send Interest SMS (Mock)

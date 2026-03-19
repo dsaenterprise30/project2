@@ -23,7 +23,7 @@ const cleanMobileNumber = (mobileString) => {
 
 // Route 1: Create a new housing listing
 export const createHousingListing = async (req, res) => {
-    const { contact, area, location, propertyType, price, builderName, date, projectName, carpetArea, carParking } = req.body || {};
+    const { contact, area, location, propertyType, price, builderName, date, projectName, carpetArea, carParking, possessionDate } = req.body || {};
 
     try {
         if (!contact || !location || !propertyType || !price || !projectName || !carpetArea) {
@@ -78,7 +78,8 @@ export const createHousingListing = async (req, res) => {
             carParking,
             builderId: builder._id,
             builderPlan: builder.subscription ? builder.subscription.planName : "free",
-            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0
+            builderPriority: builder.subscription ? builder.subscription.priorityScore : 0,
+            possessionDate: possessionDate
         });
 
         const savedListing = await newListing.save();
@@ -157,7 +158,7 @@ export const getAllHousingListings = async (req, res) => {
 export const updateHousingListingById = async (req, res) => {
     const { id } = req.params;
     // ✅ CORRECTED: Destructure tenantType
-    const { location, area, propertyType, price, name, contact, date, projectName, builderName, carpetArea, carParking } = req.body || {};
+    const { location, area, propertyType, price, name, contact, date, projectName, builderName, carpetArea, carParking, possessionDate } = req.body || {};
 
     try {
         const update = {
@@ -171,6 +172,7 @@ export const updateHousingListingById = async (req, res) => {
             carParking,
             contact: cleanMobileNumber(contact),
             date,
+            possessionDate
         };
 
         const result = await Housing.findByIdAndUpdate(id, { $set: update }, { new: true });

@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0f172a"> <!-- Updated to Premium Theme -->
     <meta name="author" content="QuadCoders Team">
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
-    <title>DSA Enterprise - housing Properties</title>
+    <title>DSA Enterprise - Residential Properties</title>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -759,7 +759,7 @@
     <!-- Main Content -->
     <section class="search-section" id="home">
         <div class="search-container">
-            <h2 class="search-title">Find Your Perfect Property For Housing</h2>
+            <h2 class="search-title">Find Your Perfect Property For Residence</h2>
 
             <div class="search-form" id="searchForm">
                 <div class="search-group">
@@ -836,9 +836,10 @@
                             <th>Carpet Area</th>
                             <th>Car Parking</th>
                             <th>Price</th>
+                            <th>Project Name</th>
+                            <th>Possession Date</th>
                             <th>Name</th>
                             <th>Contact</th>
-                            <th>Ownership Type</th>
                         </tr>
                     </thead>
                     <tbody id="propertiesBody">
@@ -1292,6 +1293,8 @@
                         <td data-label="Carpet Area">${property.carpetArea || ''}</td>
                         <td data-label="Car Parking">${property.carParking || ''}</td>
                         <td data-label="Price">${displayPrice}</td>
+                        <td data-label="Project Name">${property.projectName || ''}</td>
+                        <td data-label="Possession Date">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</td>
                         <td data-label="Name">${property.builderName || ''}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
@@ -1299,7 +1302,6 @@
                                 Contact
                             </button>
                         </td>
-                        <td data-label="Ownership">${property.builderPlan || 'Free'}</td>
                     `;
                     propertiesBody.appendChild(row);
                 });
@@ -1324,7 +1326,9 @@
                         <div class="card-row"><span class="card-label">Car Parking:</span> <span class="card-value">${property.carParking || ''}</span></div>
                         <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
                         <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
-                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.userName || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${property.projectName || ''}</span></div>
+                        <div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</span></div>
+                        <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.builderName || ''}</span></div>
                         <div class="card-row"><span class="card-label">Contact:</span> 
                             <span class="card-value">
                                 <button class="action-btn" style="background: var(--success); margin:0; padding: 0.5rem 1rem; font-size: 0.9em;" 
@@ -1335,7 +1339,6 @@
                             </span>
                         </div>
                         <div class="card-row"><span class="card-label">Tenant Type:</span> <span class="card-value">${property.tenantType || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Ownership Type:</span> <span class="card-value">${property.ownershipType || ''}</span></div>
                     `;
                     cardView.appendChild(card);
                 });
