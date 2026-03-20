@@ -7,7 +7,7 @@ import path from "path";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import housingRoutes from "./routes/housingRoutes.js";
-import comercialRoutes from "./routes/comercialRoutes.js";
+import commercialRoutes from "./routes/commercialRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import webhookRoutes from "./routes/webhook.js";
 import planRoutes from "./routes/planRoutes.js";
@@ -35,7 +35,7 @@ app.use(cookieParser());
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/housing', housingRoutes);
-app.use('/api/commercial', comercialRoutes);
+app.use('/api/commercial', commercialRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/builder", builderRoutes);

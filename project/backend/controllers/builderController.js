@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 // Route 1: Builder Registration
 export const registerBuilder = async (req, res) => {
-    const { fullName, mobileNumber, email, password } = req.body;
+    const { fullName, mobileNumber, email, password, plan: planName } = req.body;
     try {
         if (!fullName || !mobileNumber || !password) {
             return res.status(400).json({ message: 'Please enter all fields.' });
@@ -20,8 +20,33 @@ export const registerBuilder = async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const hashpassword = await bcrypt.hash(password, salt);
+
+        // Handle Subscription Plan
+        let subscriptionData = {
+            planName: "free",
+            priorityScore: 0,
+            status: "active",
+            startDate: new Date()
+        };
+
         const trialExpiry = new Date();
-        trialExpiry.setDate(trialExpiry.getDate() + 30);
+
+        if (planName) {
+            const planDetails = await subscriptionPlan.findOne({ plan: planName.toLowerCase() });
+            if (planDetails) {
+                subscriptionData.planName = planDetails.plan;
+                subscriptionData.priorityScore = planDetails.priorityLevel;
+                subscriptionData.endDate = new Date();
+                subscriptionData.endDate.setDate(subscriptionData.endDate.getDate() + planDetails.durationInDays);
+                
+                trialExpiry.setTime(subscriptionData.endDate.getTime());
+            } else {
+                 trialExpiry.setDate(trialExpiry.getDate() + 30);
+            }
+        } else {
+            trialExpiry.setDate(trialExpiry.getDate() + 30);
+            subscriptionData.endDate = trialExpiry;
+        }
 
         const newUser = new Builder({
             fullName,
@@ -29,7 +54,8 @@ export const registerBuilder = async (req, res) => {
             email,
             password: hashpassword,
             subscriptionStatus: 'Active',
-            planExpiryDate: trialExpiry
+            planExpiryDate: trialExpiry,
+            subscription: subscriptionData
         });
         await newUser.save();
         res.status(201).json({

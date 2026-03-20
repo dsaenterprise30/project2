@@ -33,10 +33,10 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
         const trackingId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         const mailOptions = {
-            from: `"DSA Enterprise" <${process.env.EMAIL_USER}>`,
+            from: `"DSA BUILDER" <${process.env.EMAIL_USER}>`,
             to: to,
             subject: `New Property Interest: ${senderName} - [${trackingId}]`,
-            text: `Hello ${builderName},\n\n${senderName} (Mobile: ${displayMobile}) is interested in your property: ${propertyInfo}.\n\nPlease contact them soon.\n\nBest Regards,\nDSA Enterprise Team\n\nDate: ${dateStr}\nRef: ${trackingId}`,
+            text: `Hello ${builderName},\n\n${senderName} (Mobile: ${displayMobile}) is interested in your property: ${propertyInfo}.\n\nPlease contact them soon.\n\nBest Regards,\nDSA BUILDER Team\n\nDate: ${dateStr}\nRef: ${trackingId}`,
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                     <div style="background-color: #1e293b; color: white; padding: 20px; text-align: center;">
@@ -67,7 +67,7 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
                         
                         <div style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
                             <p style="margin: 0; color: #64748b; font-size: 14px;">Best Regards,</p>
-                            <p style="margin: 5px 0 0 0; font-weight: bold; color: #1e293b; font-size: 16px;">DSA Enterprise Team</p>
+                            <p style="margin: 5px 0 0 0; font-weight: bold; color: #1e293b; font-size: 16px;">DSA BUILDER Team</p>
                         </div>
                     </div>
                     <div style="background-color: #f1f5f9; padding: 15px; text-align: center; color: #94a3b8; font-size: 12px;">

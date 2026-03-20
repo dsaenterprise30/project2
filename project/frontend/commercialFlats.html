@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DSA Enterprise - commercial Properties</title>
+    <title>DSA BUILDER - commercial Properties</title>
     <link rel="icon" type="image/x-icon" href="img/DSA.png">
 
     <!-- Fonts & Icons -->
@@ -749,7 +749,7 @@
             </a>
             <a>
                 <img src="img/DSA.png" alt="Logo">
-                <span>DSA Enterprise</span>
+                <span>DSA BUILDER</span>
             </a>
         </div>
         <ul class="nav-links">
@@ -1145,7 +1145,7 @@
                         filterAndRender();
                         fetchAndRenderLeads(); // Fetch leads after properties
                     } catch (error) {
-                        console.error("Error fetching rental properties:", error);
+                        console.error("Error fetching commercial properties:", error);
                         showCustomPopup("❌ Could not fetch listings. Please log in again.");
                     }
                 }
@@ -1225,7 +1225,7 @@
                             throw new Error(errorData.message);
                         }
 
-                        showCustomPopup(isCreating ? '✅ New sale property added!' : '✅ Sale property updated!');
+                        showCustomPopup(isCreating ? '✅ New commercial property added!' : '✅ commercial property updated!');
                         await fetchAndRenderProperties();
                         closePanel();
 
@@ -1259,13 +1259,13 @@
                     }
                     const deleteBtn = e.target.closest('.delete-btn');
                     if (deleteBtn) {
-                        showCustomPopup('⚠️ Are you sure you want to delete this sale property?', true, async (confirmed) => {
+                        showCustomPopup('⚠️ Are you sure you want to delete this commercial property?', true, async (confirmed) => {
                             if (confirmed) {
                                 try {
                                     const accessToken = localStorage.getItem('token');
                                     if (!accessToken) { showCustomPopup('❌ Authentication error.'); return; }
                                     const response = await fetch(`${BASE_URL}/delete/${deleteBtn.dataset.id}`, { method: 'DELETE', headers: { 'authorization': `Bearer ${accessToken}` } });
-                                    if (!response.ok) throw new Error('Failed to delete property.');
+                                    if (!response.ok) throw new Error('Failed to delete commercial property.');
                                     showCustomPopup('✅ Commercial property deleted successfully!');
                                     await fetchAndRenderProperties();
                                 } catch (error) {

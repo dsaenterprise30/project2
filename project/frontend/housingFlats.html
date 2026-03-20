@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DSA Enterprise - Residential Properties</title>
+    <title>DSA BUILDER - Residential Properties</title>
     <link rel="icon" type="image/x-icon" href="img/DSA.png">
 
     <!-- Fonts & Icons -->
@@ -749,7 +749,7 @@
             </a>
             <a>
                 <img src="img/DSA.png" alt="Logo">
-                <span>DSA Enterprise</span>
+                <span>DSA BUILDER</span>
             </a>
         </div>
         <ul class="nav-links">
@@ -1157,7 +1157,7 @@
                         filterAndRender();
                         fetchAndRenderLeads(); // Fetch leads after properties
                     } catch (error) {
-                        console.error("Error fetching housingal properties:", error);
+                        console.error("Error fetching housing properties:", error);
                         showCustomPopup("❌ Could not fetch listings. Please log in again.");
                     }
                 }
@@ -1243,7 +1243,7 @@
                             throw new Error(errorData.message);
                         }
 
-                        showCustomPopup(isCreating ? '✅ New housingal property added!' : '✅ housingal property updated!');
+                        showCustomPopup(isCreating ? '✅ New housing property added!' : '✅ housing property updated!');
                         await fetchAndRenderProperties();
                         closePanel();
 

@@ -1,4 +1,4 @@
-import Comercial from "../models/Commercial.js"; // Ensure this is imported
+import Commercial from "../models/Commercial.js"; // Ensure this is imported
 import ContactClick from "../models/ContactClick.js"; // Restored import
 import User from "../models/User.js"; // Added missing User import
 

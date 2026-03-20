@@ -20,8 +20,8 @@ const cleanMobileNumber = (mobileString) => {
     return mobileString.replace(/\D/g, '');
 };
 
-// Route 1: Create a new comercial listing
-export const createComercialListing = async (req, res) => {
+// Route 1: Create a new commercial listing
+export const createCommercialListing = async (req, res) => {
     const { contact, area, location, propertyType, price, date, carpetArea, projectName, builderName, possessionDate, commercialType } = req.body || {};
 
     try {
@@ -100,8 +100,8 @@ export const createComercialListing = async (req, res) => {
     }
 };
 
-// Route 2: Get all comercial listings
-export const getAllComercialListings = async (req, res) => {
+// Route 2: Get all commercial listings
+export const getAllCommercialListings = async (req, res) => {
     try {
         const listings = await Commercial.find()
             .sort({ builderPriority: -1, createdAt: -1 })
@@ -133,8 +133,8 @@ export const getAllComercialListings = async (req, res) => {
     }
 };
 
-// Route 3: Update a comercial listing by its ID
-export const updateComercialListingById = async (req, res) => {
+// Route 3: Update a commercial listing by its ID
+export const updateCommercialListingById = async (req, res) => {
     const { id } = req.params;
     const { location, area, propertyType, price, name, contact, date, projectName, builderName, carpetArea, possessionDate, commercialType } = req.body || {};
 
@@ -170,8 +170,8 @@ export const updateComercialListingById = async (req, res) => {
     }
 };
 
-// Route 4: Delete a comercial listing by its ID
-export const deleteComercialListingById = async (req, res) => {
+// Route 4: Delete a commercial listing by its ID
+export const deleteCommercialListingById = async (req, res) => {
     const { id } = req.params; // Get ID from URL parameter
 
     try {
@@ -338,7 +338,7 @@ export const sendInterestSMS = async (req, res) => {
     }
 };
 
-//Route 6: Get all comercial listings by priority for public access (Agents)
+//Route 6: Get all commercial listings by priority for public access (Agents)
 export const searchCommercialProperties = async (req, res) => {
     const commercialProperties = await Commercial.find({
         location: req.query.location
