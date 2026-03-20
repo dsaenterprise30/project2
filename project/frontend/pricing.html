@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pricing - DSA BUILDER</title>
+  <meta name="description" content="Affordable pricing plans for real estate listings in Mumbai. Choose from various subscription options for DSL BUILDER's premium property services.">
+  <meta name="keywords" content="Real Estate Pricing Mumbai, Property Listing Plans, DSA BUILDER Subscriptions, Residential Commercial Pricing">
+  <title>Affordable Real Estate Listing Plans in Mumbai | DSA BUILDER</title>
   <link rel="icon" type="image/x-icon" href="img/DSA.png">
 
   <!-- Razorpay Checkout -->
@@ -268,6 +270,83 @@
         padding: 0 1rem;
       }
     }
+
+    /* --- Custom Popup Styles --- */
+    #custom-popup-overlay {
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    #custom-popup-overlay.popup-visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .custom-popup-card {
+      background: var(--primary-light);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--glass-border);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.9);
+      transition: 0.3s;
+    }
+
+    .custom-popup-card h3 {
+      font-family: var(--font-heading);
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .custom-popup-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .custom-popup-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .popup-btn {
+      padding: 0.8rem 2rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .popup-btn-ok {
+      background: var(--accent);
+      color: white;
+    }
+
+    .popup-btn-ok:hover {
+      filter: brightness(1.1);
+    }
+
+    .popup-btn-close {
+      background: var(--primary);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+    }
   </style>
 </head>
 
@@ -278,7 +357,7 @@
         <i class="fas fa-arrow-left"></i>
       </a>
       <a>
-        <img src="img/DSA.png" alt="Logo">
+        <img src="img/DSA.png" alt="DSA BUILDER - Mumbai Real Estate Experts">
         <span>DSA BUILDER</span>
       </a>
     </div>
@@ -290,6 +369,18 @@
   <div id="plans" class="plans-container">
     <!-- Plans will load here -->
     <div style="color: var(--text-muted); width: 100%; text-align: center; padding: 2rem;">Loading plans...</div>
+  </div>
+
+  <!-- Custom Popup Overlay -->
+  <div id="custom-popup-overlay">
+    <div class="custom-popup-card">
+      <h3 id="popup-title">Notification</h3>
+      <p id="popup-message">Message goes here</p>
+      <div class="custom-popup-buttons">
+        <button id="popup-close-btn" class="popup-btn popup-btn-close" style="display: none;">Close</button>
+        <button id="popup-ok-btn" class="popup-btn popup-btn-ok">OK</button>
+      </div>
+    </div>
   </div>
 
   <!-- ================= JS ================= -->
@@ -310,12 +401,18 @@
         if (!res.ok) throw new Error('Failed to fetch plans');
         const plans = await res.json();
 
-        plansContainer.innerHTML = "";
-
         const baselineMonthlyPlan = plans.find(p => p.duration === 1 && p.interval === "monthly");
         const baselineMonthlyPrice = baselineMonthlyPlan ? baselineMonthlyPlan.price : null;
 
-        plans.forEach(plan => {
+        // Filter out plans with price 0, or missing name, OR specifically the "FREE" planType
+        // Also sort them by price ascending as per user request
+        const filteredAndSortedPlans = plans
+          .filter(p => (p.price && p.price > 0) && p.name && p.planType !== "FREE")
+          .sort((a, b) => a.price - b.price);
+
+        plansContainer.innerHTML = "";
+
+        filteredAndSortedPlans.forEach(plan => {
           const card = document.createElement("div");
           card.className = "plan-card";
 
@@ -362,15 +459,58 @@
       }
     }
 
+    loadPlans();
+
+    // --- POPUP FUNCTIONS ---
+    window.showCustomPopup = function (message, title = "Notification", onOk = null, showClose = false) {
+      const overlay = document.getElementById('custom-popup-overlay');
+      const popupTitle = document.getElementById('popup-title');
+      const popupMessage = document.getElementById('popup-message');
+      const okBtn = document.getElementById('popup-ok-btn');
+      const closeBtn = document.getElementById('popup-close-btn');
+
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+
+      closeBtn.style.display = showClose ? 'inline-block' : 'none';
+      okBtn.textContent = (onOk && showClose) ? "Continue" : "OK";
+
+      // Remove old listeners to avoid stacking
+      const newOk = okBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newOk, okBtn);
+
+      newOk.onclick = () => {
+        if (onOk) {
+          hideCustomPopup();
+          onOk();
+        } else {
+          hideCustomPopup();
+        }
+      };
+
+      const newClose = closeBtn.cloneNode(true);
+      closeBtn.parentNode.replaceChild(newClose, closeBtn);
+      newClose.onclick = () => hideCustomPopup();
+
+      overlay.classList.add('popup-visible');
+      overlay.querySelector('.custom-popup-card').style.transform = 'scale(1)';
+    }
+
+    window.hideCustomPopup = function () {
+      const overlay = document.getElementById('custom-popup-overlay');
+      overlay.classList.remove('popup-visible');
+      overlay.querySelector('.custom-popup-card').style.transform = 'scale(0.9)';
+    }
+
+    // Replace standard alerts with custom popup in the code
     async function subscribe(planType, btn) {
       btn.disabled = true;
       const originalText = btn.innerText;
       btn.innerText = "Processing...";
 
-      // Support both keys depending on where we saved it
       const mobileNumber = localStorage.getItem("userMobileNumber") || localStorage.getItem("mobileNumber");
       if (!mobileNumber) {
-        alert("Please login or register first");
+        showCustomPopup("Please login or register first", "Login Required");
         btn.disabled = false;
         btn.innerText = originalText;
         return;
@@ -385,7 +525,7 @@
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.message || "Subscription failed");
+          showCustomPopup(data.message || "Subscription failed", "Error");
           btn.disabled = false;
           btn.innerText = originalText;
           return;
@@ -398,9 +538,9 @@
           description: "Premium Subscription",
           image: "img/DSA.png",
           handler: function (response) {
-            // You can verify payment here if needed
-            alert("Payment successful! You are now subscribed.");
-            window.location.href = "housingProperties.html"; // Redirect to dashboard
+            showCustomPopup("Payment successful! You are now subscribed.", "Success", () => {
+              window.location.href = "housingProperties.html";
+            });
           },
           modal: {
             ondismiss: function () {
@@ -413,18 +553,11 @@
         rzp.open();
       } catch (error) {
         console.error(error);
-        alert("An error occurred. Please try again.");
+        showCustomPopup("An error occurred. Please try again.", "Error");
         btn.disabled = false;
         btn.innerText = originalText;
       }
     }
-
-    loadPlans();
-
-    // Make subscribe globally available if needed (though it's bound via event listener above)
-    window.subscribe = subscribe;
   </script>
-
 </body>
-
 </html>

@@ -3,6 +3,8 @@ razorpay.js
 node_modules/
 dist/
 build/
-
+.vscode/
+.DS_Store
 razorpayConfig.js
 create-config.mjs
+*.log

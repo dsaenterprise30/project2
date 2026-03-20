@@ -24,7 +24,7 @@ app.use(cors());
 // Serve frontend static files (so /pricing.html is available)
 const frontendPath = path.join(process.cwd(), "..", "frontend");
 app.use(express.static(frontendPath));
-app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'staticpricingpage.html')));
+app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'pricing.html')));
 
 // razorpay webhook route
 app.use("/api/webhook", webhookRoutes);
