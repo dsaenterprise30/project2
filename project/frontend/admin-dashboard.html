@@ -1111,8 +1111,41 @@
                 const plan = document.getElementById("subscriptionPlanSelect").value;
                 const submitBtn = this.querySelector('button[type="submit"]');
 
-                if (!plan || plan === "free") {
-                    alert("Free plan does not require payment.");
+                if (!plan) {
+                    showCustomPopup("Please select a plan.", "Error");
+                    return;
+                }
+
+                if (plan === "free") {
+                    // Manual update for free plan
+                    try {
+                        submitBtn.disabled = true;
+                        submitBtn.innerText = "Updating...";
+                        
+                        const res = await fetch(`${API_BASE_URL}/api/subscription/${builderId}/subscriptions`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                            },
+                            body: JSON.stringify({ plan })
+                        });
+
+                        if (res.ok) {
+                            showCustomPopup("✅ Subscription updated to Free successfully!", "Success", () => {
+                                closeSubscriptionPlanModal();
+                                fetchUsers();
+                            });
+                        } else {
+                            const err = await res.json();
+                            throw new Error(err.message || "Failed to update subscription");
+                        }
+                    } catch (error) {
+                        showCustomPopup("Error: " + error.message, "Error");
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Update Subscription";
+                    }
                     return;
                 }
 
@@ -1124,7 +1157,8 @@
                     const response = await fetch(`${API_BASE_URL}/api/subscription/create-subscription-order`, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
                         },
                         body: JSON.stringify({
                             builderId,
@@ -1139,6 +1173,11 @@
                     }
 
                     // 2️⃣ Configure Razorpay popup
+                    if (typeof Razorpay === 'undefined') {
+                        throw new Error("Razorpay script not loaded. Check your internet connection or console.");
+                    }
+
+                    console.log("[DEBUG] Creating Razorpay options with Key ID:", RAZORPAY_KEY_ID);
                     const options = {
                         key: RAZORPAY_KEY_ID,
                         amount: order.amount,
@@ -1154,7 +1193,8 @@
                                 const verifyRes = await fetch(`${API_BASE_URL}/api/subscription/verifyPayment`, {
                                     method: "POST",
                                     headers: {
-                                        "Content-Type": "application/json"
+                                        "Content-Type": "application/json",
+                                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                                     },
                                     body: JSON.stringify({
                                         razorpay_order_id: paymentResponse.razorpay_order_id,

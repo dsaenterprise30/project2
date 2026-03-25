@@ -35,7 +35,9 @@ export const verifyPayment = async (req, res) => {
     .update(sign)
     .digest("hex");
 
+  console.log(`[DEBUG] verifyPayment: Received verification request for builderId: ${builderId}, plan: ${plan}`);
   if (expectedSignature !== razorpay_signature) {
+    console.warn(`[DEBUG] verifyPayment: Signature mismatch for order: ${razorpay_order_id}`);
     return res.status(400).json({ message: "Payment verification failed" });
   }
 
@@ -91,6 +93,7 @@ export const verifyPayment = async (req, res) => {
 // Route 2 : to create a new subscription
 export const createSubscriptionOrder = async (req, res) => {
   const { builderId, plan } = req.body;
+  console.log(`[DEBUG] createSubscriptionOrder: builderId=${builderId}, plan=${plan}`);
 
   try {
     const planDetails = await subscriptionPlan.findOne({ plan: plan });
@@ -113,7 +116,7 @@ export const createSubscriptionOrder = async (req, res) => {
     res.json(order);
   } catch (error) {
     console.error("Error creating order:", error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({ message: "Error creating Razorpay order: " + error.message });
   }
 };
 

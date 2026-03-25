@@ -55,10 +55,17 @@ export const loginBuilder = async (req, res) => {
             return res.status(400).json({ message: 'Please enter all fields.' });
         }
 
-        if (length.password < 6) {
+        if (password.length < 6) {
             return res.status(400).json({ message: 'Password should be atleast 6 digits long.' });
         }
-        const user = await Builder.findOne({ mobileNumber });
+        const user = await Builder.findOne({
+            $or: [
+                { mobileNumber: mobileNumber },
+                { mobileNumber: '91' + mobileNumber.replace(/\D/g, '') },
+                { mobileNumber: '+' + mobileNumber.replace(/\D/g, '') },
+                { mobileNumber: mobileNumber.replace(/\D/g, '').replace(/^91/, '') }
+            ]
+        });
         if (!user) {
             return res.status(400).json({ message: 'Invalid mobile number or password.' });
         }
@@ -165,12 +172,16 @@ export const validateBuilderByContact = async (req, res) => {
         // Clean the mobile number (remove non-digits)
         const cleanNumber = mobileNumber.replace(/\D/g, '');
 
-        // Try both with and without 91 prefix
+        // Try multiple formats to find the builder
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanNumber },
                 { mobileNumber: '91' + cleanNumber },
-                { mobileNumber: cleanNumber.replace(/^91/, '') }
+                { mobileNumber: '+' + cleanNumber },
+                { mobileNumber: '+91' + cleanNumber },
+                { mobileNumber: cleanNumber.replace(/^91/, '') },
+                { mobileNumber: '+' + cleanNumber.replace(/^91/, '') },
+                { mobileNumber: '+91' + cleanNumber.replace(/^91/, '') }
             ]
         });
 

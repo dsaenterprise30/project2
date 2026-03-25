@@ -10,10 +10,10 @@ const router = express.Router();
 router.post("/verifyPayment", verifyPayment);
 
 //Route 2: To create the subscription order.
-router.post("/create-subscription-order", checkAdminNumber, createSubscriptionOrder);
+router.post("/create-subscription-order", verifyAccessToken, checkAdminNumber, createSubscriptionOrder);
 
 //Route 3: To update subscription manually/directly
-router.put("/:id/subscriptions", checkAdminNumber, updateSubscription);
+router.put("/:id/subscriptions", verifyAccessToken, checkAdminNumber, updateSubscription);
 
 //Route 4: To get all subscription plans
 router.get("/subscriptionPlans", getAllPlans); 

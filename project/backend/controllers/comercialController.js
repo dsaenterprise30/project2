@@ -38,7 +38,11 @@ export const createComercialListing = async (req, res) => {
             $or: [
                 { mobileNumber: sanitizedContact },
                 { mobileNumber: '91' + sanitizedContact },
-                { mobileNumber: sanitizedContact.replace(/^91/, '') }
+                { mobileNumber: '+' + sanitizedContact },
+                { mobileNumber: '+91' + sanitizedContact },
+                { mobileNumber: sanitizedContact.replace(/^91/, '') },
+                { mobileNumber: '+' + sanitizedContact.replace(/^91/, '') },
+                { mobileNumber: '+91' + sanitizedContact.replace(/^91/, '') }
             ]
         });
 
@@ -283,6 +287,8 @@ export const sendInterestSMS = async (req, res) => {
             $or: [
                 { mobileNumber: cleanOwnerContact },
                 { mobileNumber: '91' + cleanOwnerContact },
+                { mobileNumber: '+' + cleanOwnerContact },
+                { mobileNumber: '+91' + cleanOwnerContact },
                 { mobileNumber: propertyOwnerContact },
                 { mobileNumber: Number(cleanOwnerContact) },
                 { mobileNumber: Number('91' + cleanOwnerContact) }
