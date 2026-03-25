@@ -2,6 +2,7 @@ import express from "express";
 import Builder from "../models/Builder.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import subscriptionPlan from "../models/subscriptionPlan.js";
 
 // Route 1: Builder Registration
 export const registerBuilder = async (req, res) => {
