@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const comercialPropertySchema = new mongoose.Schema({
+const commercialPropertySchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -60,11 +60,11 @@ const comercialPropertySchema = new mongoose.Schema({
 // Note: explicit index for `contact` removed to avoid collisions with existing DB indexes.
 // If you need a new index, add it after cleaning up existing indexes in the DB.
 
-const comercialProperty = mongoose.model('comercialProperty', comercialPropertySchema, 'comercialproperties');
+const commercialProperty = mongoose.model('commercialProperty', commercialPropertySchema, 'commercialproperties');
 
 // ✅ Ensure indexes build at startup
-comercialProperty.init()
+commercialProperty.init()
     .then(() => console.log(""))
-    .catch(err => console.error("❌ Error ensuring comercialProperty indexes:", err));
+    .catch(err => console.error("❌ Error ensuring commercialProperty indexes:", err));
 
-export default comercialProperty;
+export default commercialProperty;

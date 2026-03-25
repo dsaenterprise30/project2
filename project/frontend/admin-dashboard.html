@@ -7,7 +7,7 @@
     <meta name="description" content="Admin Panel for Real Estate User Management">
     <meta name="theme-color" content="#FFFDF9">
     <link rel="icon" href="img/DSA.png" type="image/x-icon">
-    <title>DSA Enterprise - Admin Panel</title>
+    <title>DSA BUILDER - Admin Panel</title>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -700,7 +700,7 @@
             </a>
             <a>
                 <img src="img/DSA.png" alt="Logo">
-                <span>DSA Enterprise</span>
+                <span>DSA BUILDER</span>
             </a>
         </div>
         <ul class="nav-links">
@@ -922,6 +922,14 @@
                 <label for="newBuilderPassword">Password</label>
                 <input type="password" id="newBuilderPassword" required minlength="6">
 
+                <label for="newBuilderPlan">Subscription Plan</label>
+                <select id="newBuilderPlan" required>
+                    <option value="free">Free Plan (Default)</option>
+                    <option value="silver">Silver Plan</option>
+                    <option value="gold">Gold Plan</option>
+                    <option value="platinum">Platinum Plan</option>
+                </select>
+
                 <button type="submit" class="btn" style="margin-top: 2rem;">Register Builder</button>
             </form>
         </div>
@@ -1050,7 +1058,7 @@
                     <img src="img/DSA.png" alt="Logo">
                     <span
                         style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-heading); margin-left:10px; vertical-align: middle;">DSA
-                        Enterprise</span>
+                        BUILDER</span>
                 </div>
                 <p style="margin-top: 1rem; color: var(--text-muted); line-height: 1.6;">
                     Your trusted partner in finding the perfect property. We combine years of experience with modern
@@ -1085,13 +1093,13 @@
                     <a href="https://wa.link/qykos7" class="social-link"><i class="fab fa-whatsapp"></i></a>
                     <a href="https://www.facebook.com/share/14R1w7XsyMb/" class="social-link"><i
                             class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/dsa.enterprise" class="social-link"><i
+                    <a href="https://www.instagram.com/dsa.builder" class="social-link"><i
                             class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2025 DSA Enterprise. All rights reserved.
+            &copy; 2025 DSA BUILDER. All rights reserved.
         </div>
     </footer>
 
@@ -1182,7 +1190,7 @@
                         key: RAZORPAY_KEY_ID,
                         amount: order.amount,
                         currency: "INR",
-                        name: "DSA Enterprise",
+                        name: "DSA BUILDER",
                         description: plan.toUpperCase() + " Subscription",
                         order_id: order.id,
 
@@ -1548,7 +1556,7 @@
                         const doc = new jsPDF();
 
                         doc.setFontSize(18);
-                        doc.text('DSA Enterprise - Registered Users', 14, 22);
+                        doc.text('DSA BUILDER - Registered Users', 14, 22);
                         doc.setFontSize(11);
                         doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
 
@@ -1597,6 +1605,7 @@
                     const mobileNumber = document.getElementById('newBuilderMobile').value;
                     const email = document.getElementById('newBuilderEmail').value;
                     const password = document.getElementById('newBuilderPassword').value;
+                    const plan = document.getElementById('newBuilderPlan').value;
 
                     try {
                         const response = await fetch(`${getApiBase()}/create`, {
@@ -1606,7 +1615,8 @@
                                 fullName,
                                 mobileNumber: "+91" + mobileNumber,
                                 email,
-                                password
+                                password,
+                                plan
                             })
                         });
 
