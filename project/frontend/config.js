@@ -1,5 +1,4 @@
 // Centralized API Configuration
-// Centralized API Configuration
 let base = window.location.origin;
 
 // If running on localhost/127.0.0.1 (e.g. via Live Server on port 5500), 
@@ -10,4 +9,8 @@ if (base.includes("localhost") || base.includes("127.0.0.1")) {
     }
 }
 
-export const API_BASE_URL = base;
+// Production URL
+export const API_BASE_URL = "https://project2-mj7h.onrender.com";
+
+// Localhost URL (Commented out)
+// export const API_BASE_URL = "http://localhost:3000";

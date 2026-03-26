@@ -20,17 +20,17 @@ dotenv.config();
 const app = express(); // Initialize Express app
 
 app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
 
-// Serve frontend static files (so /pricing.html is available)
+// Serve frontend static files
 const frontendPath = path.join(process.cwd(), "..", "frontend");
 app.use(express.static(frontendPath));
+
 app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'pricing.html')));
 
 // razorpay webhook route
 app.use("/api/webhook", webhookRoutes);
-
-app.use(express.json());
-app.use(cookieParser());
 
 // Use routes
 app.use('/api/users', userRoutes);
@@ -56,4 +56,14 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+// Global error handler to ensure JSON response for all errors
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err.stack);
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });

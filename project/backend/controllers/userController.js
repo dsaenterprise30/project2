@@ -32,7 +32,14 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ msg: 'Please enter all fields.' });
     }
 
-    const existingUser = await User.findOne({ mobileNumber });
+    // Normalize mobile number to 10 digits
+    const last10Digits = String(mobileNumber).replace(/\D/g, '').slice(-10);
+    const dbMobileNumber12 = Number("91" + last10Digits);
+    const dbMobileNumber10 = Number(last10Digits);
+
+    const existingUser = await User.findOne({ 
+      mobileNumber: { $in: [dbMobileNumber12, dbMobileNumber10] }
+    });
     if (existingUser) {
       return res.status(400).json({ msg: 'A user with this mobile number already exists.' });
     }
@@ -44,19 +51,12 @@ export const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashpassword = await bcrypt.hash(password, salt);
 
-    pendingUsers[mobileNumber] = {
-      fullName,
-      mobileNumber,
-      password: hashpassword,
-      location
-    };
-
     const trialExpiry = new Date();
     trialExpiry.setDate(trialExpiry.getDate() + 30);
 
     const newUser = new User({
       fullName,
-      mobileNumber,
+      mobileNumber: dbMobileNumber12,
       password: hashpassword,
       location,
       type: userType || 'Individual',
@@ -97,7 +97,14 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ mobileNumber });
+    // Normalize mobile number to 10 digits
+    const last10Digits = String(mobileNumber).replace(/\D/g, '').slice(-10);
+    const dbMobileNumber12 = Number("91" + last10Digits);
+    const dbMobileNumber10 = Number(last10Digits);
+
+    const existingUser = await User.findOne({ 
+      mobileNumber: { $in: [dbMobileNumber12, dbMobileNumber10] }
+    });
     if (!existingUser) {
       return res.status(400).json({
         message: "Mobile number is not registered."
@@ -254,14 +261,28 @@ export const resetPassword = async (req, res) => {
 export const adminLogin = async (req, res) => {
   const { mobileNumber, password } = req.body;
   try {
-    const user = await User.findOne({ mobileNumber });
-    if (!user) {
-      return res.status(400).json({ message: "Admin not found" });
+    if (!mobileNumber || !password) {
+      return res.status(400).json({ message: "Mobile number and password are required." });
     }
 
-    const adminNumber = process.env.ADMIN_NUMBER;
-    const phoneNumber = user.mobileNumber;
-    if (String(phoneNumber) !== String(adminNumber)) {
+    // Normalize input number to 10-digits
+    const last10Digits = String(mobileNumber).replace(/\D/g, '').slice(-10);
+    const searchNums = [Number("91" + last10Digits), Number(last10Digits)];
+
+    // Try both 12-digit (91 prefix) and 10-digit formats in DB
+    const user = await User.findOne({ 
+      mobileNumber: { $in: searchNums }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Admin not found in database" });
+    }
+
+    // Normalize admin number from .env to 10-digits
+    const adminNumberEnv = process.env.ADMIN_NUMBER;
+    const adminLast10 = String(adminNumberEnv).replace(/\D/g, '').slice(-10);
+
+    if (last10Digits !== adminLast10) {
       return res.status(403).json({
         message: "Access denied, only admin can access."
       });
