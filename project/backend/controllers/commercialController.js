@@ -117,10 +117,14 @@ export const getAllCommercialListings = async (req, res) => {
                 ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
                 : "Price on request";
 
+            // Format contact number for display, adding a hint for client-side nowrap
+            const formattedContact = listing.contact ? `+91 ${listing.contact.replace(/^(\d{5})(\d{5})$/, '$1 $2')}` : 'N/A';
+
             return {
                 ...listing,
                 id: listing._id.toString(),
                 price: formattedPrice,
+                formattedContact: formattedContact, // Add formatted contact for display
                 builderPriority: listing.builderPriority || 0
             };
         });
@@ -203,8 +207,12 @@ export const sendInterestSMS = async (req, res) => {
         console.log("DEBUG: Commercial sendInterestSMS called");
         console.log("DEBUG Body:", JSON.stringify(req.body, null, 2));
 
-        if (!propertyOwnerContact || !senderMobile) {
-            return res.status(400).json({ message: "Missing contact information." });
+        if (!propertyOwnerContact || !propertyDetails || typeof propertyDetails !== 'object') {
+            return res.status(400).json({ message: "Missing or invalid property information." });
+        }
+
+        if (!propertyDetails.id) {
+            return res.status(400).json({ message: "Missing property ID." });
         }
 
         // --- REAL SMS PROVIDER INTEGRATION POINT ---
@@ -281,8 +289,8 @@ export const sendInterestSMS = async (req, res) => {
         }
 
         // Fetch Builder to get their email
-        const cleanOwnerContact = String(propertyOwnerContact).replace(/^91/, '').replace(/\D/g, '');
-        console.log(`DEBUG: Cleaned owner contact for DB lookup: ${cleanOwnerContact}`);
+        const cleanOwnerContact = String(propertyOwnerContact).replace(/\D/g, '').slice(-10);
+        console.log(`DEBUG: Cleaned owner contact for DB lookup (Commercial): ${cleanOwnerContact}`);
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanOwnerContact },

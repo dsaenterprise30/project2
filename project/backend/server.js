@@ -1,9 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
+import { globalLimiter } from './middleware/rateLimit.js';
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import housingRoutes from "./routes/housingRoutes.js";
@@ -17,7 +18,26 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import "./subscriptionCron.js";
 
 dotenv.config();
+
+// --- FOOLPROOF: Environment Validation ---
+const REQUIRED_ENV = [
+  'MONGODB_URI',
+  'JWT_ACCESS_TOKEN_SECRET',
+  'EMAIL_USER',
+  'EMAIL_PASS'
+];
+
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`\n❌ CRITICAL ERROR: Missing required environment variables: ${missingEnv.join(', ')}`);
+  console.error("Please check your .env file before starting the server.\n");
+  process.exit(1);
+}
+
 const app = express(); // Initialize Express app
+
+// Apply global limiter to all routes
+app.use(globalLimiter);
 
 app.use(cors());
 app.use(express.json());

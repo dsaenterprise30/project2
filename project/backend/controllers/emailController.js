@@ -87,11 +87,20 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
         }
 
         const info = await transporter.sendMail(mailOptions);
-
         console.log("✅ Email Sent Successfully: %s", info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error("❌ Error sending email:", error);
-        return { success: false, error: error.message };
+        let errorMessage = error.message;
+        
+        if (error.code === 'EAUTH') {
+            errorMessage = "Email authentication failed. Please check EMAIL_USER and EMAIL_PASS.";
+        } else if (error.code === 'ESOCKET') {
+            errorMessage = "Connection to email server failed. Check network or EMAIL_HOST.";
+        } else if (error.code === 'EENVELOPE') {
+            errorMessage = "Invalid recipient address or sender configuration.";
+        }
+
+        console.error(`❌ Email Notification Failed (${error.code || 'UNKNOWN'}):`, errorMessage);
+        return { success: false, error: errorMessage, code: error.code };
     }
 };

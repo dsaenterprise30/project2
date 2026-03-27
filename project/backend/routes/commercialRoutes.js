@@ -1,4 +1,5 @@
 import express from "express";
+import { interestLimiter } from "../middleware/rateLimit.js";
 import {
     createCommercialListing,
     getAllCommercialListings,
@@ -29,6 +30,6 @@ router.delete("/delete/:id", verifyAccessToken, deleteCommercialListingById);
 //Route 5: fetch all commercial listings for public access
 router.get("/all-public", verifyAccessToken, getAllCommercialListings);
 
-router.post("/send-interest", verifyAccessToken, sendInterestSMS);
+router.post("/send-interest", verifyAccessToken, interestLimiter, sendInterestSMS);
 
 export default router;

@@ -224,8 +224,12 @@ export const sendInterestSMS = async (req, res) => {
         console.log("DEBUG: sendInterestSMS called");
         console.log("DEBUG Body:", JSON.stringify(req.body, null, 2));
 
-        if (!propertyOwnerContact || !senderMobile) {
-            return res.status(400).json({ message: "Missing contact information." });
+        if (!propertyOwnerContact || !propertyDetails || typeof propertyDetails !== 'object') {
+            return res.status(400).json({ message: "Missing or invalid property information." });
+        }
+
+        if (!propertyDetails.id) {
+            return res.status(400).json({ message: "Missing property ID." });
         }
 
         // --- REAL SMS PROVIDER INTEGRATION POINT ---
@@ -314,8 +318,8 @@ export const sendInterestSMS = async (req, res) => {
         }
 
         // Fetch Builder to get their email
-        const cleanOwnerContact = String(propertyOwnerContact).replace(/^91/, '').replace(/\D/g, '');
-        console.log(`DEBUG: Housing Cleaned owner contact for DB lookup: ${cleanOwnerContact}`);
+        const cleanOwnerContact = String(propertyOwnerContact).replace(/\D/g, '').slice(-10);
+        console.log(`DEBUG: Housing Cleaned owner contact for DB lookup (Housing): ${cleanOwnerContact}`);
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanOwnerContact },

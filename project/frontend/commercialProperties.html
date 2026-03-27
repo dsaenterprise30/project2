@@ -1084,7 +1084,7 @@
 
                 // Immediately show contact number
                 const td = button.parentElement;
-                td.innerHTML = `<a href="tel:${contactNumber}" style="color: var(--success); font-weight: 600; text-decoration: none;">${formattedContact}</a>`;
+                td.innerHTML = `<a href="tel:${contactNumber}" style="color: var(--success); font-weight: 600; text-decoration: none; white-space: nowrap;">${formattedContact}</a>`;
 
                 // Send interest message in background silently (no user notification)
                 try {
