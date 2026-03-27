@@ -1,9 +1,17 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import dns from 'dns';
+
+// Force Node.js to use IPv4 instead of IPv6. 
+// Render often fails to route outgoing IPv6 correctly on its free tier, causing the ENETUNREACH error.
+dns.setDefaultResultOrder('ipv4first');
+
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
