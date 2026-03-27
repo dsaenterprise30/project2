@@ -29,7 +29,7 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
             ? senderMobile.toString().substring(2)
             : senderMobile.toString();
 
-        const dateStr = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        const dateStr = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
         const trackingId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         const mailOptions = {
