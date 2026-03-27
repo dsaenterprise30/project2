@@ -36,6 +36,9 @@ if (missingEnv.length > 0) {
 
 const app = express(); // Initialize Express app
 
+// IMPORTANT: Trust the reverse proxy (Render) so express-rate-limit works correctly
+app.set('trust proxy', 1);
+
 // Apply global limiter to all routes
 app.use(globalLimiter);
 
