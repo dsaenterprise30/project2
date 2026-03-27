@@ -1541,7 +1541,8 @@
                     //     showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
                     // }
                 } catch (error) {
-                    console.log('Background Email send failed, but contact revealed');
+                    console.error('Background Email send failed:', error);
+                    // On live link, this will help see if it's a 404, 500, or CORS issue
                 }
             };
 

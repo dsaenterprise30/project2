@@ -100,7 +100,8 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
             errorMessage = "Invalid recipient address or sender configuration.";
         }
 
-        console.error(`❌ Email Notification Failed (${error.code || 'UNKNOWN'}):`, errorMessage);
-        return { success: false, error: errorMessage, code: error.code };
+        console.error(`❌ Email Notification Failed to ${to} (${error.code || 'UNKNOWN'}):`, errorMessage);
+        if (error.stack) console.error("Stack Trace:", error.stack);
+        return { success: false, error: errorMessage, code: error.code, details: error };
     }
 };
