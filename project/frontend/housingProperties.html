@@ -978,6 +978,7 @@
                     link.style.textDecoration = 'none';
                     link.style.color = '#10b981'; // Success color
                     link.style.fontWeight = 'bold';
+                    link.style.whiteSpace = 'nowrap';
                     cell.appendChild(link);
 
                     // Muted intentionally: showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
@@ -995,6 +996,7 @@
                     link.style.textDecoration = 'none';
                     link.style.color = '#10b981';
                     link.style.fontWeight = 'bold';
+                    link.style.whiteSpace = 'nowrap';
                     cell.appendChild(link);
                 });
             }
@@ -1290,7 +1292,7 @@
                         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                         const day = String(dateObj.getDate()).padStart(2, '0');
                         const year = dateObj.getFullYear();
-                        formattedDate = `${month}/${day}/${year}`;
+                        formattedDate = `${day}/${month}/${year}`;
                     }
 
                     // Format RERA date as MM/DD/YYYY
@@ -1300,7 +1302,7 @@
                         const month = String(reraDateObj.getMonth() + 1).padStart(2, '0');
                         const day = String(reraDateObj.getDate()).padStart(2, '0');
                         const year = reraDateObj.getFullYear();
-                        formattedReraDate = `${month}/${day}/${year}`;
+                        formattedReraDate = `${day}/${month}/${year}`;
                     }
 
                     row.innerHTML = `
@@ -1311,7 +1313,7 @@
                         <td data-label="Car Parking">${property.carParking || ''}</td>
                         <td data-label="Price">${displayPrice}</td>
                         <td data-label="Project Name">${property.projectName || ''}</td>
-                        <td data-label="Possession Date">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</td>
+                        <td data-label="Possession Date">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString('en-GB') : 'N/A'}</td>
                         <td data-label="Name">${property.builderName || ''}</td>
                         <td data-label="Contact">
                             <button class="action-btn" style="background: var(--success); margin:0;" 
@@ -1344,7 +1346,7 @@
                         <div class="card-row"><span class="card-label">Type:</span> <span class="card-value">${property.propertyType || ''}</span></div>
                         <div class="card-row"><span class="card-label">Price:</span> <span class="card-value">${displayPrice}</span></div>
                         <div class="card-row"><span class="card-label">Project Name:</span> <span class="card-value">${property.projectName || ''}</span></div>
-                        <div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString() : 'N/A'}</span></div>
+                        <div class="card-row"><span class="card-label">Possession Date:</span> <span class="card-value">${property.possessionDate ? new Date(property.possessionDate).toLocaleDateString('en-GB') : 'N/A'}</span></div>
                         <div class="card-row"><span class="card-label">Name:</span> <span class="card-value">${property.builderName || ''}</span></div>
                         <div class="card-row"><span class="card-label">Contact:</span> 
                             <span class="card-value">
@@ -1539,7 +1541,8 @@
                     //     showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
                     // }
                 } catch (error) {
-                    console.log('Background Email send failed, but contact revealed');
+                    console.error('Background Email send failed:', error);
+                    // On live link, this will help see if it's a 404, 500, or CORS issue
                 }
             };
 

@@ -117,10 +117,14 @@ export const getAllCommercialListings = async (req, res) => {
                 ? `₹${new Intl.NumberFormat('en-IN').format(listing.price)}`
                 : "Price on request";
 
+            // Format contact number for display, adding a hint for client-side nowrap
+            const formattedContact = listing.contact ? `+91 ${listing.contact.replace(/^(\d{5})(\d{5})$/, '$1 $2')}` : 'N/A';
+
             return {
                 ...listing,
                 id: listing._id.toString(),
                 price: formattedPrice,
+                formattedContact: formattedContact, // Add formatted contact for display
                 builderPriority: listing.builderPriority || 0
             };
         });
@@ -203,8 +207,12 @@ export const sendInterestSMS = async (req, res) => {
         console.log("DEBUG: Commercial sendInterestSMS called");
         console.log("DEBUG Body:", JSON.stringify(req.body, null, 2));
 
-        if (!propertyOwnerContact || !senderMobile) {
-            return res.status(400).json({ message: "Missing contact information." });
+        if (!propertyOwnerContact || !propertyDetails || typeof propertyDetails !== 'object') {
+            return res.status(400).json({ message: "Missing or invalid property information." });
+        }
+
+        if (!propertyDetails.id) {
+            return res.status(400).json({ message: "Missing property ID." });
         }
 
         // --- REAL SMS PROVIDER INTEGRATION POINT ---
@@ -281,8 +289,8 @@ export const sendInterestSMS = async (req, res) => {
         }
 
         // Fetch Builder to get their email
-        const cleanOwnerContact = String(propertyOwnerContact).replace(/^91/, '').replace(/\D/g, '');
-        console.log(`DEBUG: Cleaned owner contact for DB lookup: ${cleanOwnerContact}`);
+        const cleanOwnerContact = String(propertyOwnerContact).replace(/\D/g, '').slice(-10);
+        console.log(`DEBUG: Cleaned owner contact for DB lookup (Commercial): ${cleanOwnerContact}`);
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanOwnerContact },
@@ -296,32 +304,36 @@ export const sendInterestSMS = async (req, res) => {
         });
 
         if (builder && builder.email) {
-            // Check if builder has an active subscription (not free, not expired)
+            // --- TEMPORARY for Production Debugging: Allow all plans to get emails ---
             const sub = builder.subscription || {};
             const planName = sub.planName || sub.plan || 'free';
-
-            // Trial active if status is Active AND expiry date hasn't passed
             const isTrialActive = builder.subscriptionStatus === 'Active' &&
                 (!builder.planExpiryDate || new Date(builder.planExpiryDate) > new Date());
-
             const hasActivePlan = isTrialActive || (planName !== 'free' && sub.status !== 'expired');
 
-            if (hasActivePlan) {
-                console.log(`Email Service (Commercial): Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
-                // Pass the senderEmail, senderName, and builderName
-                const builderName = builder.fullName || builder.builderName || "Builder";
+            console.log(`Email Service (Commercial): Builder found (${builder.email}). Plan: ${planName}, Status: ${sub.status || 'N/A'}.`);
+            
+            // We proceed even if hasActivePlan is false for now to ensure emails work on live
+            if (!hasActivePlan) {
+                console.log("DEBUG: Commercial Builder is on FREE/EXPIRED plan, but emailing anyway for debugging.");
+            }
 
-                try {
-                    const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
-                    if (!res.success) console.warn("Commercial Email Send Failed:", res.error);
-                } catch (err) {
-                    console.error("Commercial Email Send Validation Error", err);
+            console.log(`Email Service (Commercial): Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
+            // Pass the senderEmail, senderName, and builderName
+            const builderName = builder.fullName || builder.builderName || "Builder";
+
+            try {
+                const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
+                if (!res.success) {
+                    console.warn("Commercial Email Send Failed:", res.error);
+                } else {
+                    console.log("✅ Commercial Lead Email sent successfully to:", builder.email);
                 }
-            } else {
-                console.log(`Email Service (Commercial): Builder ${builder.email} has no active plan (Free/Expired). Email suppressed. Lead saved in admin panel.`);
+            } catch (err) {
+                console.error("Commercial Email Send Validation Error", err);
             }
         } else {
-            console.warn(`Email Service (Commercial): Builder not found or email missing for contact ${propertyOwnerContact}`);
+            console.warn(`Email Service (Commercial): Builder not found or email missing for contact ${propertyOwnerContact}. Cleanup: ${cleanOwnerContact}`);
         }
 
         // --- WHATSAPP CODE PRESERVED (Commented Out) ---

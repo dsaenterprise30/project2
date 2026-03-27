@@ -1,4 +1,5 @@
 import express from "express";
+import { interestLimiter } from "../middleware/rateLimit.js";
 import {
     createHousingListing,
     getAllHousingListings,
@@ -27,6 +28,6 @@ router.delete("/delete/:id", verifyAccessToken, checkAdminNumber, deleteHousingL
 router.get("/all-public", verifyAccessToken, getAllHousingListings);
 
 // Route 6: Send Interest SMS (Mock)
-router.post("/send-interest", verifyAccessToken, sendInterestSMS);
+router.post("/send-interest", verifyAccessToken, interestLimiter, sendInterestSMS);
 
 export default router;

@@ -1,9 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
+import { globalLimiter } from './middleware/rateLimit.js';
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import housingRoutes from "./routes/housingRoutes.js";
@@ -17,20 +18,39 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import "./subscriptionCron.js";
 
 dotenv.config();
+
+// --- FOOLPROOF: Environment Validation ---
+const REQUIRED_ENV = [
+  'MONGODB_URI',
+  'JWT_ACCESS_TOKEN_SECRET',
+  'EMAIL_USER',
+  'EMAIL_PASS'
+];
+
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`\n❌ CRITICAL ERROR: Missing required environment variables: ${missingEnv.join(', ')}`);
+  console.error("Please check your .env file before starting the server.\n");
+  process.exit(1);
+}
+
 const app = express(); // Initialize Express app
 
-app.use(cors());
+// Apply global limiter to all routes
+app.use(globalLimiter);
 
-// Serve frontend static files (so /pricing.html is available)
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+
+// Serve frontend static files
 const frontendPath = path.join(process.cwd(), "..", "frontend");
 app.use(express.static(frontendPath));
+
 app.get('/pricing', (req, res) => res.sendFile(path.join(frontendPath, 'pricing.html')));
 
 // razorpay webhook route
 app.use("/api/webhook", webhookRoutes);
-
-app.use(express.json());
-app.use(cookieParser());
 
 // Use routes
 app.use('/api/users', userRoutes);
@@ -56,4 +76,14 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+// Global error handler to ensure JSON response for all errors
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err.stack);
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });

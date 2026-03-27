@@ -224,8 +224,12 @@ export const sendInterestSMS = async (req, res) => {
         console.log("DEBUG: sendInterestSMS called");
         console.log("DEBUG Body:", JSON.stringify(req.body, null, 2));
 
-        if (!propertyOwnerContact || !senderMobile) {
-            return res.status(400).json({ message: "Missing contact information." });
+        if (!propertyOwnerContact || !propertyDetails || typeof propertyDetails !== 'object') {
+            return res.status(400).json({ message: "Missing or invalid property information." });
+        }
+
+        if (!propertyDetails.id) {
+            return res.status(400).json({ message: "Missing property ID." });
         }
 
         // --- REAL SMS PROVIDER INTEGRATION POINT ---
@@ -314,8 +318,8 @@ export const sendInterestSMS = async (req, res) => {
         }
 
         // Fetch Builder to get their email
-        const cleanOwnerContact = String(propertyOwnerContact).replace(/^91/, '').replace(/\D/g, '');
-        console.log(`DEBUG: Housing Cleaned owner contact for DB lookup: ${cleanOwnerContact}`);
+        const cleanOwnerContact = String(propertyOwnerContact).replace(/\D/g, '').slice(-10);
+        console.log(`DEBUG: Housing Cleaned owner contact for DB lookup (Housing): ${cleanOwnerContact}`);
         const builder = await Builder.findOne({
             $or: [
                 { mobileNumber: cleanOwnerContact },
@@ -329,32 +333,36 @@ export const sendInterestSMS = async (req, res) => {
         });
 
         if (builder && builder.email) {
-            // Check if builder has an active subscription (not free, not expired)
+            // --- TEMPORARY for Production Debugging: Allow all plans to get emails ---
             const sub = builder.subscription || {};
             const planName = sub.planName || sub.plan || 'free';
-
-            // Trial active if status is Active AND expiry date hasn't passed
             const isTrialActive = builder.subscriptionStatus === 'Active' &&
                 (!builder.planExpiryDate || new Date(builder.planExpiryDate) > new Date());
-
             const hasActivePlan = isTrialActive || (planName !== 'free' && sub.status !== 'expired');
 
-            if (hasActivePlan) {
-                console.log(`Email Service: Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
-                // Pass the senderEmail, senderName, and builderName
-                const builderName = builder.fullName || builder.builderName || "Builder";
+            console.log(`Email Service: Builder found (${builder.email}). Plan: ${planName}, Status: ${sub.status || 'N/A'}.`);
+            
+            // We proceed even if hasActivePlan is false for now to ensure emails work on live
+            if (!hasActivePlan) {
+                console.log("DEBUG: Builder is on FREE/EXPIRED plan, but emailing anyway for debugging.");
+            }
 
-                try {
-                    const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
-                    if (!res.success) console.warn("Email Send Failed:", res.error);
-                } catch (err) {
-                    console.error("Email Send Validation Error", err);
+            console.log(`Email Service: Sending interest to ${builder.email} from ${senderEmail || senderMobile}`);
+            // Pass the senderEmail, senderName, and builderName
+            const builderName = builder.fullName || builder.builderName || "Builder";
+
+            try {
+                const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
+                if (!res.success) {
+                    console.warn("Email Send Failed:", res.error);
+                } else {
+                    console.log("✅ Lead Email sent successfully to:", builder.email);
                 }
-            } else {
-                console.log(`Email Service: Builder ${builder.email} has no active plan (Free/Expired). Email suppressed. Lead saved in admin panel.`);
+            } catch (err) {
+                console.error("Email Send Validation Error", err);
             }
         } else {
-            console.warn(`Email Service: Builder not found or email missing for contact ${propertyOwnerContact}`);
+            console.warn(`Email Service: Builder not found or email missing for contact ${propertyOwnerContact}. Cleanup: ${cleanOwnerContact}`);
         }
 
         // --- WHATSAPP CODE PRESERVED (Commented Out) ---

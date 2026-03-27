@@ -1512,7 +1512,7 @@
                     else if (!formattedMobile.startsWith('+')) formattedMobile = '+91' + formattedMobile;
 
                     const registrationDate = user.createdAt || user.registrationDate;
-                    const regDateText = registrationDate ? new Date(registrationDate).toLocaleDateString('en-IN') : "N/A";
+                    const regDateText = registrationDate ? new Date(registrationDate).toLocaleDateString('en-GB') : "N/A";
 
                     const subscriptionStatus = user.subscriptionStatus || user.subscriptionActive ? 'Active' : 'Inactive';
                     const statusClass = subscriptionStatus === 'Active' ? 'status-active' : 'status-inactive';
@@ -1558,14 +1558,14 @@
                         doc.setFontSize(18);
                         doc.text('DSA BUILDER - Registered Users', 14, 22);
                         doc.setFontSize(11);
-                        doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
+                        doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, 14, 30);
 
                         const tableData = users.map(user => [
                             user.fullName || "N/A",
                             user.mobileNumber || "N/A",
-                            user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : "N/A",
+                            user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : "N/A",
                             user.subscriptionActive ? 'Active' : 'Inactive',
-                            user.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString('en-IN') : "N/A",
+                            user.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString('en-GB') : "N/A",
                             user.type || "User"
                         ]);
 
