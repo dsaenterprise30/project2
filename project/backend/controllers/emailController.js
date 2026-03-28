@@ -9,17 +9,21 @@ dns.setDefaultResultOrder('ipv4first');
 dotenv.config();
 const smtpConfig = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 465,
-    secure: (process.env.EMAIL_PORT == '465' || !process.env.EMAIL_PORT), // default to true if 465 or not specified
+    port: parseInt(process.env.EMAIL_PORT) || 587, // 587 is often better supported on cloud platforms
+    secure: (process.env.EMAIL_PORT == '465'), // true only for 465
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : '',
     },
     tls: {
         // Do not fail on invalid certs
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
     },
-    family: 4 // 🔥 Force IPv4 to avoid ENETUNREACH on Render's IPv6-limited network
+    family: 4, // 🔥 Force IPv4
+    connectionTimeout: 10000, // 10s timeout
+    greetingTimeout: 5000,
+    socketTimeout: 30000
 };
 
 console.log(`Email Service: Initializing with host ${smtpConfig.host}:${smtpConfig.port}`);
