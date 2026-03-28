@@ -1,5 +1,7 @@
 import express from "express";
 const router = express.Router();
+import { sendInterestEmail } from "../controllers/emailController.js";
+
 
 import {
   registerUser,
@@ -92,5 +94,23 @@ router.put("/update/:id", verifyAccessToken, checkAdminNumber, updateUser);
 
 // Route 14 - Create User (Admin only)
 router.post("/admin-create", verifyAccessToken, checkAdminNumber, registerUserByAdmin);
+
+// Route 15 - Test Email (Diagnostic)
+router.get("/test-email", async (req, res) => {
+  try {
+    const result = await sendInterestEmail(
+      req.query.to || "dsaunderconstruction@gmail.com",
+      "9911000088",
+      "Diagnostic Test from Live Server",
+      "test@example.com",
+      "Diagnostic Bot",
+      "Builder"
+    );
+    res.status(result.success ? 200 : 500).json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 export default router;

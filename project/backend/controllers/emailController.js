@@ -7,15 +7,31 @@ import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+const smtpConfig = {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT) || 465,
+    secure: (process.env.EMAIL_PORT == '465' || !process.env.EMAIL_PORT), // default to true if 465 or not specified
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : '',
     },
+    tls: {
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
+    }
+};
+
+console.log(`Email Service: Initializing with host ${smtpConfig.host}:${smtpConfig.port}`);
+
+const transporter = nodemailer.createTransport(smtpConfig);
+
+// Verify connection configuration
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("❌ Email Service Verification Failed:", error.message);
+    } else {
+        console.log("✅ Email Service is ready to send messages");
+    }
 });
 
 /**
@@ -108,8 +124,17 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
             errorMessage = "Invalid recipient address or sender configuration.";
         }
 
-        console.error(`❌ Email Notification Failed to ${to} (${error.code || 'UNKNOWN'}):`, errorMessage);
+        console.error(`❌ Email Notification Failed to ${to}:`, errorMessage);
+        console.error("Error Code:", error.code);
+        if (error.response) console.error("SMTP Response:", error.response);
         if (error.stack) console.error("Stack Trace:", error.stack);
-        return { success: false, error: errorMessage, code: error.code, details: error };
+        
+        return { 
+            success: false, 
+            error: errorMessage, 
+            code: error.code, 
+            details: error.message,
+            smtpResponse: error.response
+        };
     }
 };

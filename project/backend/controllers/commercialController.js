@@ -323,14 +323,20 @@ export const sendInterestSMS = async (req, res) => {
             const builderName = builder.fullName || builder.builderName || "Builder";
 
             try {
-                const res = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
-                if (!res.success) {
-                    console.warn("Commercial Email Send Failed:", res.error);
+                const emailResult = await sendInterestEmail(builder.email, senderMobile, propertyInfo, senderEmail, senderName, builderName);
+                if (!emailResult.success) {
+                    console.warn("Commercial Email Send Failed:", emailResult.error);
+                    return res.status(500).json({ 
+                        message: "Interest recorded, but email notification failed.", 
+                        error: emailResult.error,
+                        code: emailResult.code
+                    });
                 } else {
                     console.log("✅ Commercial Lead Email sent successfully to:", builder.email);
                 }
             } catch (err) {
                 console.error("Commercial Email Send Validation Error", err);
+                return res.status(500).json({ message: "Internal error during email dispatch.", error: err.message });
             }
         } else {
             console.warn(`Email Service (Commercial): Builder not found or email missing for contact ${propertyOwnerContact}. Cleanup: ${cleanOwnerContact}`);
