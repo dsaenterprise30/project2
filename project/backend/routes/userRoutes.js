@@ -98,6 +98,13 @@ router.post("/admin-create", verifyAccessToken, checkAdminNumber, registerUserBy
 // Route 15 - Test Email (Diagnostic)
 router.get("/test-email", async (req, res) => {
   try {
+    const config = {
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: process.env.EMAIL_PORT || 465,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS ? "SET (****" + process.env.EMAIL_PASS.slice(-4) + ")" : "NOT SET"
+    };
+
     const result = await sendInterestEmail(
       req.query.to || "dsaunderconstruction@gmail.com",
       "9911000088",
@@ -106,7 +113,7 @@ router.get("/test-email", async (req, res) => {
       "Diagnostic Bot",
       "Builder"
     );
-    res.status(result.success ? 200 : 500).json(result);
+    res.status(result.success ? 200 : 500).json({ ...result, config });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
