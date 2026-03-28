@@ -18,7 +18,8 @@ const smtpConfig = {
     tls: {
         // Do not fail on invalid certs
         rejectUnauthorized: false
-    }
+    },
+    family: 4 // 🔥 Force IPv4 to avoid ENETUNREACH on Render's IPv6-limited network
 };
 
 console.log(`Email Service: Initializing with host ${smtpConfig.host}:${smtpConfig.port}`);
