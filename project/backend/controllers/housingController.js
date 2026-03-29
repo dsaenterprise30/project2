@@ -381,6 +381,10 @@ export const sendInterestSMS = async (req, res) => {
             }
         } else {
             console.warn(`Email Service: Builder not found or email missing for contact ${propertyOwnerContact}. Cleanup: ${cleanOwnerContact}`);
+            return res.status(404).json({ 
+                message: "Builder profile is incomplete. Email notification could not be sent. Please contact the builder at " + propertyOwnerContact + " directly.",
+                error: "Builder email missing" 
+            });
         }
 
         // --- WHATSAPP CODE PRESERVED (Commented Out) ---

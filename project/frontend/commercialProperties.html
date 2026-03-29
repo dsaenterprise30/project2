@@ -1105,12 +1105,16 @@
                         })
                     });
 
-                    // Show confirmation popup intentionally muted
-                    // if (window.showCustomPopup) {
-                    //     showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
-                    // }
+                    // Show confirmation popup with full details
+                    if (window.showCustomPopup) {
+                        showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
+                    }
                 } catch (error) {
                     console.error('Background Commercial Email send failed:', error);
+                    // Show error on failure so user knows it didn't send
+                    if (window.showCustomPopup) {
+                        showCustomPopup("⚠️ " + error.message, "Email Failed");
+                    }
                 }
             };
 
