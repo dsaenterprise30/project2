@@ -30,6 +30,7 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
         const trackingId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        const replyToEmail = process.env.RESEND_REPLY_TO || 'dsaenterprise30@gmail.com';
         const subject = `New Property Interest: ${senderName} - [${trackingId}]`;
         
         const htmlContent = `
@@ -75,7 +76,7 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
         const { data, error } = await resend.emails.send({
             from: `DSA BUILDER <${fromEmail}>`,
             to: [to],
-            replyTo: senderEmail || fromEmail,
+            replyTo: [senderEmail, replyToEmail].filter(Boolean),
             subject: subject,
             html: htmlContent,
             text: `Hello ${builderName},\n\n${senderName} (Mobile: ${displayMobile}) is interested in your property: ${propertyInfo}.\n\nPlease contact them soon.\n\nBest Regards,\nDSA BUILDER Team\n\nDate: ${dateStr}\nRef: ${trackingId}`
