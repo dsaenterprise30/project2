@@ -1050,14 +1050,14 @@
 
                             if (res.ok && data.fullName) {
                                 userNameInput.value = data.fullName;
-                                showCustomPopup(`✅ Data is fetched successfully: ${data.message}`);
+                                // Auto-filled: no popup needed for better UX
                             } else if (res.status === 403) {
                                 userNameInput.value = "";
                                 showCustomPopup("⚠️ " + data.message);
                                 closePanel();
                             } else {
                                 userNameInput.value = "";
-                                showCustomPopup("⚠️ " + data.message);
+                                // Silently clear if not found, no technical alerts like "sell"/"housing"
                             }
                         } catch (err) {
                             console.error("Error checking user:", err);
