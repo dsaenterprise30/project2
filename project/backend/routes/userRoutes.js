@@ -99,10 +99,8 @@ router.post("/admin-create", verifyAccessToken, checkAdminNumber, registerUserBy
 router.get("/test-email", async (req, res) => {
   try {
     const config = {
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: process.env.EMAIL_PORT || 465,
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS ? "SET (****" + process.env.EMAIL_PASS.slice(-4) + ")" : "NOT SET"
+      api_key: process.env.RESEND_API_KEY ? "SET (****" + process.env.RESEND_API_KEY.slice(-4) + ")" : "NOT SET",
+      from_email: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev (default)"
     };
 
     const result = await sendInterestEmail(
