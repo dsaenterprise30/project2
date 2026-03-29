@@ -84,6 +84,16 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
 
         if (error) {
             console.error(`❌ Email Service (Resend Error):`, JSON.stringify(error, null, 2));
+            
+            // Helpful error for Sandbox mode
+            if (error.message && error.message.includes('send testing emails to your own email address')) {
+                return { 
+                    success: false, 
+                    error: "Resend Sandbox Restriction: Emails can only be sent to the account owner (secondcount18@gmail.com). Please verify your domain dsabuilder.online in Resend to enable emails for all builders.",
+                    code: 'SANDBOX_RESTRICTION'
+                };
+            }
+
             return { success: false, error: error.message || 'Resend error' };
         }
 
