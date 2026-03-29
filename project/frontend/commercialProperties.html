@@ -1124,6 +1124,13 @@
                     const response = await fetch(`${window.API_BASE_URL}/api/properties/locations`, {
                         headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token}` }
                     });
+                    if (response.status === 401) {
+                        localStorage.removeItem("userToken");
+                        localStorage.removeItem("user");
+                        showCustomPopup("⚠️ Your session has expired. Please log in again.", "Session Expired");
+                        setTimeout(() => window.location.href = "commercialLogin.html", 2500);
+                        return;
+                    }
                     if (!response.ok) throw new Error('Failed to fetch locations');
                     const result = await response.json();
                     const locations = result.locations || [];
@@ -1170,9 +1177,24 @@
                     const response = await fetch(`${BASE_URL}/all-public`, {
                         headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token}` }
                     });
+                    if (response.status === 401) {
+                        localStorage.removeItem("userToken");
+                        localStorage.removeItem("user");
+                        showCustomPopup("⚠️ Your session has expired. Please log in again.", "Session Expired");
+                        setTimeout(() => window.location.href = "commercialLogin.html", 2500);
+                        return;
+                    }
                     if (!response.ok) throw new Error('Failed to fetch properties');
                     const result = await response.json();
                     propertiesData = result.data || result.commercialFlatsList || [];
+                    
+                    // Render properties immediately on load
+                    if (propertiesData.length > 0) {
+                        filteredData = [...propertiesData]; // Initialize filteredData with all properties
+                        reRenderForViewport();
+                    } else {
+                        showTableMessage("❌ No properties available at the moment.");
+                    }
                 } catch (error) {
                     console.error('Error fetching properties:', error);
                     showTableMessage('❌ Error loading properties. Please try again later.');
@@ -1416,7 +1438,7 @@
                     dropdown.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
                 });
                 updateSelectedFilters();
-                showTableMessage('⚠️ Please use the search filters above to find properties.');
+                showTableMessage("🔍 Use the search filters above to find properties.");
             });
 
             function reRenderForViewport() {
@@ -1438,7 +1460,7 @@
                 window.addEventListener('orientationchange', reRenderForViewport);
             }
 
-            showTableMessage('⚠️ Please use the search filters above to find properties.');
+            showTableMessage("⏳ Loading properties, please wait...");
             fetchLocations();
             fetchProperties();
         });

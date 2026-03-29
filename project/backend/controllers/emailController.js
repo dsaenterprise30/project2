@@ -83,14 +83,14 @@ export const sendInterestEmail = async (to, senderMobile, propertyInfo, senderEm
         });
 
         if (error) {
-            console.error(`❌ Resend Email Notification Failed to ${to}:`, error.message);
-            return { success: false, error: error.message, details: error };
+            console.error(`❌ Email Service (Resend Error):`, JSON.stringify(error, null, 2));
+            return { success: false, error: error.message || 'Resend error' };
         }
 
-        console.log("✅ Email Sent via Resend: %s", data.id);
-        return { success: true, messageId: data.id };
+        console.log(`✅ Email Sent via Resend. ID: ${data?.id || 'N/A'}`);
+        return { success: true, messageId: data?.id };
     } catch (err) {
-        console.error("❌ Resend Dispatch Error:", err.message);
+        console.error("❌ Email Service (Unexpected Error):", err.message);
         return { success: false, error: err.message };
     }
 };
