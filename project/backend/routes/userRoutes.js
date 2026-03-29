@@ -95,27 +95,5 @@ router.put("/update/:id", verifyAccessToken, checkAdminNumber, updateUser);
 // Route 14 - Create User (Admin only)
 router.post("/admin-create", verifyAccessToken, checkAdminNumber, registerUserByAdmin);
 
-// Route 15 - Test Email (Diagnostic)
-router.get("/test-email", async (req, res) => {
-  try {
-    const config = {
-      api_key: process.env.RESEND_API_KEY ? "SET (****" + process.env.RESEND_API_KEY.slice(-4) + ")" : "NOT SET",
-      from_email: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev (default)"
-    };
-
-    const result = await sendInterestEmail(
-      req.query.to || "dsaunderconstruction@gmail.com",
-      "9911000088",
-      "Diagnostic Test from Live Server",
-      "test@example.com",
-      "Diagnostic Bot",
-      "Builder"
-    );
-    res.status(result.success ? 200 : 500).json({ ...result, config });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
 
 export default router;

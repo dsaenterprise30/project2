@@ -317,20 +317,32 @@ export const sendInterestSMS = async (req, res) => {
             console.error("Error fetching sender details:", error.message);
         }
 
-        // Fetch Builder to get their email
+        // Fetch Builder to get their email (Priority: By Name, Fallback: By Contact)
+        const propertyBuilderName = (property.builderName || "").trim();
         const cleanOwnerContact = String(propertyOwnerContact).replace(/\D/g, '').slice(-10);
-        console.log(`DEBUG: Housing Cleaned owner contact for DB lookup (Housing): ${cleanOwnerContact}`);
-        const builder = await Builder.findOne({
+        
+        console.log(`DEBUG: Searching builder by Name: "${propertyBuilderName}" or Contact: ${cleanOwnerContact}`);
+        
+        let builder = await Builder.findOne({
             $or: [
-                { mobileNumber: cleanOwnerContact },
-                { mobileNumber: '91' + cleanOwnerContact },
-                { mobileNumber: '+' + cleanOwnerContact },
-                { mobileNumber: '+91' + cleanOwnerContact },
-                { mobileNumber: propertyOwnerContact },
-                { mobileNumber: Number(cleanOwnerContact) },
-                { mobileNumber: Number('91' + cleanOwnerContact) }
+                { fullName: new RegExp('^' + propertyBuilderName + '$', 'i') },
+                { builderName: new RegExp('^' + propertyBuilderName + '$', 'i') }
             ]
         });
+
+        // Fallback: If no builder found by name, try fuzzy name or then mobile number
+        if (!builder) {
+            builder = await Builder.findOne({
+                $or: [
+                    { fullName: new RegExp(propertyBuilderName, 'i') },
+                    { mobileNumber: cleanOwnerContact },
+                    { mobileNumber: '91' + cleanOwnerContact },
+                    { mobileNumber: '+' + cleanOwnerContact },
+                    { mobileNumber: '+91' + cleanOwnerContact },
+                    { mobileNumber: propertyOwnerContact }
+                ]
+            });
+        }
 
         if (builder && builder.email) {
             // --- TEMPORARY for Production Debugging: Allow all plans to get emails ---
