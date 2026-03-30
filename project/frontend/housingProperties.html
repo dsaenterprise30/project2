@@ -1540,7 +1540,7 @@
 
                 // Send interest message in background silently (no user notification)
                 try {
-                    await fetch(`${window.API_BASE_URL}/api/housing/send-interest`, {
+                    const response = await fetch(`${window.API_BASE_URL}/api/housing/send-interest`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1556,6 +1556,11 @@
                             }
                         })
                     });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: 'Server error' }));
+                        throw new Error(errorData.message || 'Notification failed to send');
+                    }
 
                     // Show confirmation popup with full details
                     if (window.showCustomPopup) {

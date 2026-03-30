@@ -402,8 +402,11 @@ export const sendInterestSMS = async (req, res) => {
         res.status(200).json({ message: "Interest expressed successfully. Email sent to owner." });
 
     } catch (error) {
-        console.error("Error sending SMS:", error.message);
-        res.status(500).json({ message: "Server error while sending SMS." });
+        console.error("❌ CRITICAL ERROR in sendInterest:", error);
+        res.status(500).json({ 
+            message: "A server error occurred while processing your interest notification.", 
+            error: error.message 
+        });
     }
 };
 
