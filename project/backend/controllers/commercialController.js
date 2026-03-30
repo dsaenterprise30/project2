@@ -215,7 +215,11 @@ export const sendInterestSMS = async (req, res) => {
             return res.status(400).json({ message: "Missing property ID." });
         }
 
-        // --- REAL SMS PROVIDER INTEGRATION POINT ---
+        // Fetch the property record from the database to get accurate builder information
+        const property = await Commercial.findById(propertyDetails.id);
+        if (!property) {
+            return res.status(404).json({ message: "Commercial property not found in our records." });
+        }
 
         // --- 3. Save Click Data for Analytics ---
         try {

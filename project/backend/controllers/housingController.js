@@ -232,8 +232,11 @@ export const sendInterestSMS = async (req, res) => {
             return res.status(400).json({ message: "Missing property ID." });
         }
 
-        // --- REAL SMS PROVIDER INTEGRATION POINT ---
-        // Example: await axios.post('https://api.textlocal.in/send/', { ... });
+        // Fetch the property record from the database to get accurate builder information
+        const property = await Housing.findById(propertyDetails.id);
+        if (!property) {
+            return res.status(404).json({ message: "Property not found in our records." });
+        }
 
 
         // --- 3. Save Click Data for Analytics ---
