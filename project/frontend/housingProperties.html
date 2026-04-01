@@ -688,6 +688,10 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .navbar {
+                padding: 0.75rem 1rem;
+            }
+
             .nav-links {
                 display: none;
                 position: absolute;
@@ -696,9 +700,10 @@
                 width: 100%;
                 background: var(--primary-light);
                 flex-direction: column;
-                padding: 2rem;
+                padding: 1.5rem;
                 gap: 1rem;
                 border-bottom: 1px solid var(--glass-border);
+                z-index: 999;
             }
 
             .nav-links.active {
@@ -713,7 +718,101 @@
                 width: 100% !important;
             }
 
-            /* If open */
+            section {
+                padding: 0.75rem;
+            }
+
+            .search-container,
+            .property-container {
+                padding: 1.25rem;
+                border-radius: var(--radius-sm);
+            }
+
+            .search-title,
+            .property-title {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .search-group {
+                width: 100%;
+            }
+
+            .selected-filters-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .table-message {
+                padding: 1.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .property-table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .property-table th,
+            .property-table td {
+                padding: 0.75rem 0.6rem;
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }
+
+            .action-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .card-item {
+                padding: 1rem;
+            }
+
+            .footer {
+                padding: 2rem 1rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .footer-bottom {
+                font-size: 0.8rem;
+                padding-top: 1rem;
+            }
+
+            .social-links {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-title,
+            .property-title {
+                font-size: 1rem;
+            }
+
+            .filter-tag {
+                font-size: 0.78rem;
+                padding: 0.3rem 0.75rem;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .logo img {
+                width: 28px;
+                height: 28px;
+            }
         }
     </style>
 </head>
