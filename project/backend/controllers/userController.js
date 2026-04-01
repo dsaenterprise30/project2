@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Admin from '../models/Admin.js';
 import bcrypt from "bcrypt";
 import express from 'express';
 import jwt from "jsonwebtoken";
@@ -164,7 +165,7 @@ export const getUserByContact = async (req, res) => {
     const housingUserDetails = await Housing.findOne({ contact: contact });
     if (housingUserDetails) {
       return res.json({
-        message: "housing",
+        message: "Residential",
         fullName: housingUserDetails.userName,
         mobileNumber: housingUserDetails.contact.toString().slice(-10),
       });
@@ -174,7 +175,7 @@ export const getUserByContact = async (req, res) => {
     const commercialUserDetails = await Commercial.findOne({ contact: contact });
     if (commercialUserDetails) {
       return res.json({
-        message: "sell",
+        message: "Commercial",
         fullName: commercialUserDetails.userName,
         mobileNumber: commercialUserDetails.contact.toString().slice(-10),
       });
@@ -270,7 +271,7 @@ export const adminLogin = async (req, res) => {
     const searchNums = [Number("91" + last10Digits), Number(last10Digits)];
 
     // Try both 12-digit (91 prefix) and 10-digit formats in DB
-    const user = await User.findOne({ 
+    const user = await Admin.findOne({ 
       mobileNumber: { $in: searchNums }
     });
 
