@@ -910,7 +910,7 @@
                             <i class="fas fa-envelope"></i>
                             <span>
                                 <a href="mailto:dsaunderconstruction@gmail.com"
-                                    style="text-decoration: none; color: inherit;">dsaunderconstruction@gmail.com</a>
+                                    style="text-decoration: none; color: inherit;">dsabuilder.support@gmail.com</a>
                             </span>
                         </div>
                     <li class="contact-item">
@@ -981,7 +981,7 @@
                     link.style.whiteSpace = 'nowrap';
                     cell.appendChild(link);
 
-                    // Muted intentionally: showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
+                    //showCustomPopup("✅ Contact Revealed! An SMS has been sent to the owner with your interest.");
                 } else {
                     throw new Error("Failed to send interest.");
                 }
@@ -1211,10 +1211,10 @@
                     const result = await response.json();
                     propertiesData = result.housingFlatsList || [];
 
-                    // Render properties immediately on load
+                    // Data loaded silently — properties only shown after user searches
                     if (propertiesData.length > 0) {
-                        filteredData = [...propertiesData]; // Initialize filteredData with all properties
-                        reRenderForViewport();
+                        filteredData = [...propertiesData];
+                        showTableMessage("🔍 Apply filters above and click Search to find properties.");
                     } else {
                         showTableMessage("❌ No properties available at the moment.");
                     }
@@ -1538,7 +1538,7 @@
                 const td = button.parentElement;
                 td.innerHTML = `<a href="tel:${contactNumber}" style="color: var(--success); font-weight: 600; text-decoration: none;">${formattedContact}</a>`;
 
-                // Send interest message in background silently (no user notification)
+                // Send interest email in background silently (no popup shown to user)
                 try {
                     const response = await fetch(`${window.API_BASE_URL}/api/housing/send-interest`, {
                         method: 'POST',
@@ -1556,26 +1556,19 @@
                             }
                         })
                     });
-                    
+
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({ message: 'Server error' }));
                         throw new Error(errorData.message || 'Notification failed to send');
                     }
-
-                    // Show confirmation popup with full details
-                    if (window.showCustomPopup) {
-                        showCustomPopup("✅ Contact details revealed. An interest notification has been sent to the property owner via email.", "Interest Sent");
-                    }
+                    // Email sent successfully — no popup
                 } catch (error) {
                     console.error('Background Email send failed:', error);
-                    // Show error on failure so user knows it didn't send
-                    if (window.showCustomPopup) {
-                        showCustomPopup("⚠️ " + error.message, "Email Failed");
-                    }
+                    // Silent fail — no popup shown to user
                 }
             };
 
-            showTableMessage("⏳ Loading properties... Please wait.");
+            showTableMessage("🔍 Please use the filters above and click Search to find properties.");
             fetchLocations();
             fetchProperties();
         });
