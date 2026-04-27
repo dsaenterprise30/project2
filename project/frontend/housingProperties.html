@@ -693,7 +693,6 @@
             }
 
             .nav-links {
-                display: none;
                 position: absolute;
                 top: 100%;
                 left: 0;
@@ -704,9 +703,16 @@
                 gap: 1rem;
                 border-bottom: 1px solid var(--glass-border);
                 z-index: 999;
+                transform: translateY(-20px);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
             }
 
             .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
                 display: flex;
             }
 
@@ -714,7 +720,7 @@
                 display: flex;
             }
 
-            .side-panel {
+            .side-panel.open {
                 width: 100% !important;
             }
 

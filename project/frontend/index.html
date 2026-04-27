@@ -545,25 +545,53 @@
                 padding: 2rem;
                 gap: 1.5rem;
                 border-top: 1px solid var(--glass-border);
-                transform: translateY(-150%);
-                transition: transform 0.3s ease;
-                z-index: -1;
+                transform: translateY(-20px);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
             }
 
             .nav-links.active {
                 transform: translateY(0);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                opacity: 1;
+                visibility: visible;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             }
 
             .hamburger {
                 display: flex;
             }
 
-            .hero-container h1 {
-                font-size: 2.5rem;
+            .hero {
+                padding: 100px 15px 40px;
             }
 
             .hero-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .hero-container h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-container h2 {
+                font-size: 1.2rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .rent-btn, .buy-btn {
+                width: 100%;
+            }
+
+            .about-section {
+                padding: 60px 1.5rem;
+            }
+
+            .about-content {
                 padding: 2rem 1.5rem;
             }
         }
