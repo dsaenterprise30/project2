@@ -16,7 +16,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-
+    <!-- SheetJS Library for Excel Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
         /* --- Premium Design System — Light Warm Theme --- */
@@ -780,6 +781,28 @@
         </div>
     </div>
 
+    <!-- Bulk Upload Progress Modal -->
+    <div id="bulkUploadModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px; text-align: left;">
+            <h3 style="font-family: var(--font-heading); margin-bottom: 1rem; text-align: center;" id="bulkUploadTitle">Excel Bulk Upload</h3>
+            <div id="bulkUploadProgressContainer" style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                    <span id="bulkUploadStatus">Preparing...</span>
+                    <span id="bulkUploadPercentage">0%</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(201, 168, 108, 0.1); border-radius: 5px; overflow: hidden; border: 1px solid var(--glass-border);">
+                    <div id="bulkUploadProgressBar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.2s;"></div>
+                </div>
+            </div>
+            <div id="bulkUploadResults" style="max-height: 200px; overflow-y: auto; background: var(--primary-light); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); font-family: monospace; font-size: 0.85rem; margin-bottom: 1.5rem;">
+                <!-- Logs will appear here -->
+            </div>
+            <div class="modal-actions" style="justify-content: flex-end;">
+                <button id="bulkUploadCloseBtn" class="btn" style="display: none; background: var(--accent);">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Side Panel for Adding Property -->
     <div id="propertyPanel" class="side-panel">
         <div class="panel-header">
@@ -901,7 +924,12 @@
         <div class="property-container">
             <div class="property-header">
                 <h2 class="property-title">Listed Properties For Residence</h2>
-                <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i>Add New</button>
+                <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" id="downloadTemplateBtn" style="padding: 0.8rem 1.2rem;"><i class="fas fa-file-download"></i> Download Template</button>
+                    <button class="btn btn-secondary" id="uploadExcelBtn" style="padding: 0.8rem 1.2rem;"><i class="fas fa-file-excel"></i> Upload Excel</button>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+                    <button class="add-property-btn" id="addNewBtn"><i class="fas fa-plus"></i>Add New</button>
+                </div>
             </div>
 
             <div class="property-counters">
@@ -1383,6 +1411,266 @@
                 hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
                 window.addEventListener('resize', filterAndRender);
                 window.matchMedia("(orientation: portrait)").addEventListener('change', filterAndRender);
+
+                // --- EXCEL BULK UPLOAD LOGIC ---
+                const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+                const uploadExcelBtn = document.getElementById('uploadExcelBtn');
+                const excelFileInput = document.getElementById('excelFileInput');
+                const bulkUploadModal = document.getElementById('bulkUploadModal');
+                const bulkUploadProgressBar = document.getElementById('bulkUploadProgressBar');
+                const bulkUploadPercentage = document.getElementById('bulkUploadPercentage');
+                const bulkUploadStatus = document.getElementById('bulkUploadStatus');
+                const bulkUploadResults = document.getElementById('bulkUploadResults');
+                const bulkUploadCloseBtn = document.getElementById('bulkUploadCloseBtn');
+
+                // Excel template columns
+                const templateHeaders = ["Location", "Area Name", "Property Type", "Price", "Project Name", "Possession Date", "Contact", "Listed on Date", "Carpet Area", "Car Parking", "Builder Name"];
+
+                downloadTemplateBtn.addEventListener('click', () => {
+                    const sampleRow = {
+                        "Location": "Mumbai",
+                        "Area Name": "Kandivali West",
+                        "Property Type": "2 BHK",
+                        "Price": "25000",
+                        "Project Name": "Premium Residency",
+                        "Possession Date": "2026-12-31",
+                        "Contact": "9876543210",
+                        "Listed on Date": "2026-06-03",
+                        "Carpet Area": "650",
+                        "Car Parking": "1 Covered",
+                        "Builder Name": "ABC Builders"
+                    };
+                    
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.json_to_sheet([sampleRow], { header: templateHeaders });
+                    XLSX.utils.book_append_sheet(wb, ws, "Residential Template");
+                    XLSX.writeFile(wb, "residential_properties_template.xlsx");
+                });
+
+                uploadExcelBtn.addEventListener('click', () => {
+                    excelFileInput.value = '';
+                    excelFileInput.click();
+                });
+
+                excelFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = async (evt) => {
+                        try {
+                            const data = evt.target.result;
+                            const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
+                            const sheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[sheetName];
+                            // Scan rows to find the actual header row
+                            const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                            let headerRowIndex = 0;
+                            let maxMatches = 0;
+                            const allHeaderVariations = [
+                                "location", "city",
+                                "area", "area name", "locality",
+                                "property type", "type", "bhk", "flat type",
+                                "price", "budget", "rent", "cost",
+                                "project name", "project", "name",
+                                "possession date", "possession",
+                                "contact", "mobile", "phone", "contact number", "mobile number",
+                                "date", "listed date", "listed on date",
+                                "carpet area", "carpet area (sq. ft.)", "carpet",
+                                "car parking", "parking",
+                                "commercial type", "type of commercial", "comm type", "commercial",
+                                "builder name", "builder"
+                            ];
+
+                            for (let r = 0; r < rawRows.length; r++) {
+                                const rowCells = rawRows[r];
+                                if (!Array.isArray(rowCells)) continue;
+                                let matchCount = 0;
+                                rowCells.forEach(cell => {
+                                    const val = String(cell).toLowerCase().trim();
+                                    if (val && allHeaderVariations.includes(val)) {
+                                        matchCount++;
+                                    }
+                                });
+                                if (matchCount > maxMatches && matchCount >= 3) {
+                                    maxMatches = matchCount;
+                                    headerRowIndex = r;
+                                }
+                            }
+
+                            // Adjust range to start from the detected header row
+                            const range = XLSX.utils.decode_range(worksheet['!ref']);
+                            range.s.r = headerRowIndex;
+                            worksheet['!ref'] = XLSX.utils.encode_range(range);
+
+                            const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                            
+                            if (json.length === 0) {
+                                showCustomPopup("⚠️ The uploaded Excel file is empty.");
+                                return;
+                            }
+                            
+                            // Start processing
+                            bulkUploadModal.style.display = 'flex';
+                            bulkUploadCloseBtn.style.display = 'none';
+                            bulkUploadResults.innerHTML = '';
+                            updateUploadProgress(0, json.length, "Starting import...");
+                            
+                            // Map of standard fields to fuzzy headers
+                            const fieldMappings = {
+                                location: ["location", "city"],
+                                area: ["area", "area name", "locality"],
+                                propertyType: ["property type", "type", "bhk", "flat type"],
+                                price: ["price", "budget", "rent", "cost"],
+                                projectName: ["project name", "project", "name"],
+                                possessionDate: ["possession date", "possession"],
+                                contact: ["contact", "mobile", "phone", "contact number", "mobile number"],
+                                date: ["date", "listed date", "listed on date"],
+                                carpetArea: ["carpet area", "carpet area (sq. ft.)", "carpet"],
+                                carParking: ["car parking", "parking"],
+                                builderName: ["builder name", "builder"]
+                            };
+
+                            let successCount = 0;
+                            let failCount = 0;
+                            const accessToken = localStorage.getItem('token');
+                            
+                            if (!accessToken) {
+                                appendUploadLog("❌ Authentication error: Please log in again.", "danger");
+                                updateUploadProgress(0, json.length, "Failed: Not logged in.");
+                                bulkUploadCloseBtn.style.display = 'block';
+                                return;
+                            }
+
+                            for (let i = 0; i < json.length; i++) {
+                                const row = json[i];
+                                // Match headers dynamically
+                                const parsedRow = {};
+                                Object.keys(fieldMappings).forEach(field => {
+                                    const variations = fieldMappings[field];
+                                    const matchKey = Object.keys(row).find(k => 
+                                        variations.includes(k.toLowerCase().trim())
+                                    );
+                                    parsedRow[field] = matchKey ? String(row[matchKey]).trim() : '';
+                                });
+
+                                // Validation
+                                const missingFields = [];
+                                if (!parsedRow.location) missingFields.push("Location");
+                                if (!parsedRow.propertyType) missingFields.push("Property Type");
+                                if (!parsedRow.price) missingFields.push("Price");
+                                if (!parsedRow.projectName) missingFields.push("Project Name");
+                                if (!parsedRow.carpetArea) missingFields.push("Carpet Area");
+                                if (!parsedRow.contact) missingFields.push("Contact");
+
+                                if (missingFields.length > 0) {
+                                    appendUploadLog(`⚠️ Row ${headerRowIndex + i + 2}: Missing required fields: ${missingFields.join(", ")}`, "warning");
+                                    failCount++;
+                                    updateUploadProgress(i + 1, json.length, `Processed ${i + 1}/${json.length}...`);
+                                    continue;
+                                }
+
+                                // Format Date
+                                if (parsedRow.date) {
+                                    parsedRow.date = formatExcelDate(row[Object.keys(row).find(k => fieldMappings.date.includes(k.toLowerCase().trim()))] || parsedRow.date);
+                                } else {
+                                    parsedRow.date = new Date().toISOString().split('T')[0];
+                                }
+                                
+                                if (parsedRow.possessionDate) {
+                                    parsedRow.possessionDate = formatExcelDate(row[Object.keys(row).find(k => fieldMappings.possessionDate.includes(k.toLowerCase().trim()))] || parsedRow.possessionDate);
+                                }
+
+                                // Format contact: strip non-digits
+                                parsedRow.contact = parsedRow.contact.replace(/\D/g, '');
+
+                                try {
+                                    const response = await fetch(`${BASE_URL}/create`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'authorization': `Bearer ${accessToken}`
+                                        },
+                                        body: JSON.stringify(parsedRow)
+                                    });
+
+                                    const resData = await response.json().catch(() => ({ message: 'Server error' }));
+                                    
+                                    if (response.ok) {
+                                        appendUploadLog(`✅ Row ${headerRowIndex + i + 2}: Successfully added "${parsedRow.projectName}"`, "success");
+                                        successCount++;
+                                    } else {
+                                        appendUploadLog(`❌ Row ${headerRowIndex + i + 2}: ${resData.message || 'Error'}`, "danger");
+                                        failCount++;
+                                    }
+                                } catch (err) {
+                                    appendUploadLog(`❌ Row ${headerRowIndex + i + 2}: Network error: ${err.message}`, "danger");
+                                    failCount++;
+                                }
+
+                                updateUploadProgress(i + 1, json.length, `Processed ${i + 1}/${json.length}...`);
+                                await new Promise(r => setTimeout(r, 100));
+                            }
+
+                            updateUploadProgress(json.length, json.length, `Completed! Success: ${successCount}, Failed: ${failCount}`);
+                            bulkUploadCloseBtn.style.display = 'block';
+                            fetchAndRenderProperties();
+
+                        } catch (ex) {
+                            showCustomPopup("❌ Error reading Excel file: " + ex.message);
+                        }
+                    };
+                    reader.readAsBinaryString(file);
+                });
+
+                bulkUploadCloseBtn.addEventListener('click', () => {
+                    bulkUploadModal.style.display = 'none';
+                });
+
+                function updateUploadProgress(current, total, statusText) {
+                    const percentage = Math.round((current / total) * 100);
+                    bulkUploadProgressBar.style.width = `${percentage}%`;
+                    bulkUploadPercentage.textContent = `${percentage}%`;
+                    bulkUploadStatus.textContent = statusText;
+                }
+
+                function appendUploadLog(message, type) {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '0.4rem';
+                    if (type === 'success') div.style.color = '#2ECC71';
+                    else if (type === 'warning') div.style.color = '#F39C12';
+                    else if (type === 'danger') div.style.color = '#E74C3C';
+                    
+                    div.textContent = message;
+                    bulkUploadResults.appendChild(div);
+                    bulkUploadResults.scrollTop = bulkUploadResults.scrollHeight;
+                }
+
+                function formatExcelDate(val) {
+                    if (!val) return '';
+                    if (val instanceof Date) {
+                        return val.toISOString().split('T')[0];
+                    }
+                    if (typeof val === 'number') {
+                        const date = new Date((val - 25569) * 86400 * 1000);
+                        return date.toISOString().split('T')[0];
+                    }
+                    if (typeof val === 'string') {
+                        const parsed = Date.parse(val);
+                        if (!isNaN(parsed)) {
+                            return new Date(parsed).toISOString().split('T')[0];
+                        }
+                        const parts = val.split(/[-/]/);
+                        if (parts.length === 3) {
+                            if (parts[0].length === 4) {
+                                return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+                            } else if (parts[2].length === 4) {
+                                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                            }
+                        }
+                    }
+                    return val;
+                }
 
                 // Initial location fetch
                 fetchLocations();
