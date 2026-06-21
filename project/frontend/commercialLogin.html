@@ -915,7 +915,7 @@
           if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "Sending..."; }
 
           try {
-            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, setupRecaptchaRegister());
+            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaRegister);
             window.confirmationResult = confirmationResult;
             showCustomPopup("✅ OTP sent for registration!");
 
@@ -969,7 +969,7 @@
             }
 
             showCustomPopup("✅ " + data.message);
-            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, setupRecaptchaForgot());
+            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaForgot);
             window.confirmationResult = confirmationResult;
             localStorage.setItem("tempMobileNumber", phoneNumber);
             renderOtpForm("forgot", phoneNumber);

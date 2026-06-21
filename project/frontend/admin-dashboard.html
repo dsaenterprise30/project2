@@ -17,9 +17,10 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
-    <!-- PDF Generation Libraries -->
+    <!-- PDF & Excel Generation Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
@@ -695,6 +696,46 @@
                 color: var(--text-muted);
             }
         }
+
+        /* Excel Bulk Upload Custom Styles */
+        #excelUploadPanel.open {
+            width: 600px;
+        }
+        @media (max-width: 768px) {
+            #excelUploadPanel.open {
+                width: 100%;
+            }
+        }
+        
+        /* City item styles */
+        .city-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+        .city-item:hover {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: var(--accent);
+        }
+        .delete-city-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .delete-city-btn:hover {
+            transform: scale(1.2);
+        }
     </style>
 </head>
 
@@ -714,6 +755,7 @@
             <li><a href="#" id="addBuilderBtn"><i class="fas fa-hammer"></i> Add Builder</a></li>
             <li><a href="#" id="addCityBtn"><i class="fas fa-city"></i> Add City</a></li>
             <li><a href="#" id="viewRegisteredUsersBtn"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#" id="excelUploadBtn"><i class="fas fa-file-excel"></i> Bulk Import</a></li>
             <li><a href="commercialFlats.html">Commercial</a></li>
             <li><a href="housingFlats.html">Residential</a></li>
             <li><a href="#home">Home</a></li>
@@ -954,6 +996,12 @@
 
                 <button type="submit" class="btn" style="margin-top: 2rem;">Add City</button>
             </form>
+            <div class="existing-cities-section" style="margin-top: 2.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem;">Existing Cities</h3>
+                <div id="existingCitiesList" style="display: flex; flex-direction: column; gap: 0.8rem; max-height: 350px; overflow-y: auto; padding-right: 0.5rem;">
+                    <!-- Dynamically populated cities will go here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1052,6 +1100,68 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- Bulk Property Import Panel (Excel) -->
+    <div id="excelUploadPanel" class="side-panel" style="transition: width 0.3s ease;">
+        <div class="panel-header">
+            <span><i class="fas fa-file-excel" style="color: #27ae60; margin-right: 8px;"></i> Bulk Property Import</span>
+            <button class="close-btn" id="closeExcelUploadBtn">&times;</button>
+        </div>
+        <div class="panel-content" style="padding: 1.5rem;">
+            <form id="excelUploadForm" onsubmit="event.preventDefault();">
+                <label for="importListingType" style="font-weight: 600; color: var(--text-main); display: block; margin-bottom: 0.5rem;">Listing Type</label>
+                <select id="importListingType" required style="margin-bottom: 1.5rem; width: 100%; padding: 0.8rem; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); color: var(--text-main);">
+                    <option value="housing">Residential (Housing)</option>
+                    <option value="commercial">Commercial</option>
+                </select>
+
+                <label style="font-weight: 600; color: var(--text-main); display: block; margin-bottom: 0.5rem;">Excel Document File</label>
+                <div id="excelDropZone" style="border: 2px dashed var(--accent); border-radius: var(--radius-md); padding: 2.5rem 1rem; text-align: center; cursor: pointer; background: var(--input-bg); transition: all 0.3s ease; margin-bottom: 1.5rem;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--accent); margin-bottom: 0.8rem; transition: transform 0.3s ease;"></i>
+                    <p style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">Drag & Drop Excel file here or click to browse</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Supports .xlsx, .xls</p>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+                </div>
+
+                <!-- Column Mapping Guide -->
+                <div id="excelColumnsGuide" style="background: rgba(201, 168, 108, 0.1); border: 1px solid var(--glass-border); padding: 1.2rem; border-radius: var(--radius-md); font-size: 0.85rem; color: var(--text-main); margin-bottom: 1.5rem;">
+                    <strong style="display: block; margin-bottom: 0.6rem; color: var(--accent-dark);"><i class="fas fa-info-circle"></i> Excel Structure Guide:</strong>
+                    <p style="margin-bottom: 0.4rem; color: var(--text-muted);">Intelligently mapping these column names from your sheet:</p>
+                    <div style="font-family: monospace; background: var(--primary); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); word-break: break-all;" id="requiredColumnsList">
+                        Project Name, Builder name, Location, Area, Flat type(bhk), Carpet area, Price, Contact No.
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.6rem; line-height: 1.4;">
+                        * <strong>Builder Validation:</strong> The 'Contact No.' column must contain a mobile number registered to an existing builder in the system.
+                    </p>
+                </div>
+
+                <!-- Preview Area -->
+                <div id="excelPreviewSection" style="display: none; margin-top: 1.5rem;">
+                    <h4 style="font-family: var(--font-heading); margin-bottom: 0.8rem; font-size: 1.2rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+                        <span>Parsed Sheet Preview (<span id="parsedRowsCount">0</span> rows)</span>
+                    </h4>
+                    <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: var(--input-bg); margin-bottom: 1.5rem; box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;" id="excelPreviewTable">
+                            <thead>
+                                <tr style="background: var(--primary-light); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 1;">
+                                    <th style="padding: 0.75rem 1rem; color: var(--text-muted); font-weight: 600;">Row</th>
+                                    <th style="padding: 0.75rem 1rem; color: var(--text-muted); font-weight: 600;">Project</th>
+                                    <th style="padding: 0.75rem 1rem; color: var(--text-muted); font-weight: 600;">Contact</th>
+                                    <th style="padding: 0.75rem 1rem; color: var(--text-muted); font-weight: 600;">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="excelPreviewBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="button" id="confirmImportBtn" class="btn" style="flex: 1;"><i class="fas fa-check"></i> Import Listings</button>
+                        <button type="button" id="clearExcelBtn" class="btn btn-secondary" style="flex: 1;"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1346,7 +1456,7 @@
                 const popupOkBtn = document.getElementById('popup-ok-btn');
                 const popupCloseBtn = document.getElementById('popup-close-btn');
 
-                popupMessage.textContent = message;
+                popupMessage.innerHTML = message;
 
                 if (isConfirm) {
                     popupOkBtn.textContent = "Yes";
@@ -1377,6 +1487,12 @@
                 const overlay = document.getElementById('custom-popup-overlay');
                 overlay.classList.remove('popup-visible');
                 overlay.classList.add('popup-hidden');
+                
+                // Reset message styles to default
+                const popupMessage = document.getElementById('popup-message');
+                if (popupMessage) {
+                    popupMessage.style.textAlign = 'center';
+                }
             }
 
             // --- Populate Profile ---
@@ -1409,6 +1525,7 @@
                     if (addCityModal) {
                         addCityModal.classList.add('open');
                         overlay.classList.add('show');
+                        loadExistingCities();
                     }
                 });
             }
@@ -1419,6 +1536,75 @@
                     overlay.classList.remove('show');
                     if (addCityForm) addCityForm.reset();
                 });
+            }
+
+            // Function to fetch and display existing cities
+            async function loadExistingCities() {
+                const existingCitiesList = document.getElementById('existingCitiesList');
+                if (!existingCitiesList) return;
+
+                existingCitiesList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Loading cities...</p>';
+
+                try {
+                    const token = localStorage.getItem("token");
+                    const res = await fetch(`${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/properties/locations`, {
+                        headers: { 'authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+
+                    if (data.success && data.locations) {
+                        if (data.locations.length === 0) {
+                            existingCitiesList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No cities added yet.</p>';
+                            return;
+                        }
+
+                        existingCitiesList.innerHTML = data.locations.map(city => `
+                            <div class="city-item">
+                                <span style="color: var(--text-main); font-weight: 500;">${city}</span>
+                                <button class="delete-city-btn" data-name="${city}" title="Delete City">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `).join('');
+
+                        // Attach event listeners to delete buttons
+                        const deleteButtons = existingCitiesList.querySelectorAll('.delete-city-btn');
+                        deleteButtons.forEach(btn => {
+                            btn.addEventListener('click', async (e) => {
+                                e.preventDefault();
+                                const cityName = btn.getAttribute('data-name');
+                                if (confirm(`Are you sure you want to delete "${cityName}"?`)) {
+                                    await deleteCity(cityName);
+                                }
+                            });
+                        });
+                    } else {
+                        existingCitiesList.innerHTML = '<p style="color: var(--danger); font-size: 0.9rem;">Failed to load cities.</p>';
+                    }
+                } catch (error) {
+                    console.error("Error loading cities:", error);
+                    existingCitiesList.innerHTML = '<p style="color: var(--danger); font-size: 0.9rem;">Error loading cities.</p>';
+                }
+            }
+
+            // Function to delete a city from collection
+            async function deleteCity(cityName) {
+                const token = localStorage.getItem("token");
+                try {
+                    const res = await fetch(`${window.API_BASE_URL || 'https://project2-mj7h.onrender.com'}/api/properties/delete-city/${encodeURIComponent(cityName)}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'authorization': `Bearer ${token}`
+                        }
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || "Failed to delete city");
+
+                    showCustomPopup("✅ City deleted successfully!");
+                    await loadExistingCities();
+                } catch (error) {
+                    showCustomPopup("❌ " + error.message);
+                }
             }
 
             if (addCityForm) {
@@ -2290,6 +2476,297 @@
                 closeUserAnalyticsBtn.addEventListener('click', () => {
                     userAnalyticsPanel.classList.remove('open');
                     overlay.classList.remove('show');
+                });
+            }
+
+            // ==========================================
+            // EXCEL BULK PROPERTY IMPORT FUNCTIONALITY
+            // ==========================================
+
+            const excelUploadBtn = document.getElementById('excelUploadBtn');
+            const excelUploadPanel = document.getElementById('excelUploadPanel');
+            const closeExcelUploadBtn = document.getElementById('closeExcelUploadBtn');
+            const excelDropZone = document.getElementById('excelDropZone');
+            const excelFileInput = document.getElementById('excelFileInput');
+            const excelPreviewSection = document.getElementById('excelPreviewSection');
+            const excelPreviewBody = document.getElementById('excelPreviewBody');
+            const parsedRowsCount = document.getElementById('parsedRowsCount');
+            const confirmImportBtn = document.getElementById('confirmImportBtn');
+            const clearExcelBtn = document.getElementById('clearExcelBtn');
+            const importListingType = document.getElementById('importListingType');
+            
+            let parsedExcelProperties = [];
+
+            // Open/Close Event Listeners
+            if (excelUploadBtn) {
+                excelUploadBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (excelUploadPanel) {
+                        excelUploadPanel.classList.add('open');
+                        overlay.classList.add('show');
+                    }
+                });
+            }
+
+            if (closeExcelUploadBtn) {
+                closeExcelUploadBtn.addEventListener('click', () => {
+                    if (excelUploadPanel) excelUploadPanel.classList.remove('open');
+                    overlay.classList.remove('show');
+                    resetExcelUploadForm();
+                });
+            }
+
+            // Extend overlay click handler to close excel upload panel too
+            overlay.addEventListener('click', () => {
+                if (excelUploadPanel) excelUploadPanel.classList.remove('open');
+                resetExcelUploadForm();
+            });
+
+            // Drop zone click triggers file input
+            if (excelDropZone && excelFileInput) {
+                excelDropZone.addEventListener('click', () => {
+                    excelFileInput.click();
+                });
+
+                // Drag & Drop events
+                excelDropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    excelDropZone.style.borderColor = 'var(--text-main)';
+                    excelDropZone.style.background = 'rgba(201, 168, 108, 0.05)';
+                });
+
+                excelDropZone.addEventListener('dragleave', () => {
+                    excelDropZone.style.borderColor = 'var(--accent)';
+                    excelDropZone.style.background = 'var(--input-bg)';
+                });
+
+                excelDropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    excelDropZone.style.borderColor = 'var(--accent)';
+                    excelDropZone.style.background = 'var(--input-bg)';
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        excelFileInput.files = files;
+                        handleExcelFileSelect(files[0]);
+                    }
+                });
+
+                excelFileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        handleExcelFileSelect(e.target.files[0]);
+                    }
+                });
+            }
+
+            // Reset Excel Form
+            function resetExcelUploadForm() {
+                if (excelFileInput) excelFileInput.value = '';
+                parsedExcelProperties = [];
+                if (excelPreviewSection) excelPreviewSection.style.display = 'none';
+                if (excelPreviewBody) excelPreviewBody.innerHTML = '';
+                if (parsedRowsCount) parsedRowsCount.textContent = '0';
+                if (excelDropZone) {
+                    excelDropZone.querySelector('p').textContent = 'Drag & Drop Excel file here or click to browse';
+                    excelDropZone.querySelector('i').style.transform = 'none';
+                    excelDropZone.querySelector('i').style.color = 'var(--accent)';
+                }
+            }
+
+            if (clearExcelBtn) {
+                clearExcelBtn.addEventListener('click', resetExcelUploadForm);
+            }
+
+            // Map Excel header columns intelligently
+            const columnMappings = {
+                projectName: ['project name', 'projectname', 'project', 'name', 'title'],
+                builderName: ['builder name', 'buildername', 'builder'],
+                location: ['location', 'city', 'region'],
+                area: ['area', 'sector', 'locality', 'sub-location'],
+                propertyType: ['flat type(bhk)', 'flat type', 'property type', 'propertytype', 'bhk', 'type'],
+                carpetArea: ['carpet area', 'carpetarea', 'build up area', 'builduparea', 'area (sqft)', 'size'],
+                price: ['price', 'cost', 'amount'],
+                contact: ['contact no.', 'contact no', 'phone no.', 'phone no', 'mobile', 'mobile no', 'contact', 'phone']
+            };
+
+            function findMappedColumn(rowObject, key) {
+                const candidates = columnMappings[key];
+                const rowKeys = Object.keys(rowObject);
+                
+                for (let cand of candidates) {
+                    // Try exact match case insensitive
+                    const foundKey = rowKeys.find(k => k.toLowerCase().trim() === cand.toLowerCase());
+                    if (foundKey) return rowObject[foundKey];
+                }
+                return '';
+            }
+
+            // Parse Excel File
+            function handleExcelFileSelect(file) {
+                if (!file) return;
+
+                // Update Drop zone display
+                if (excelDropZone) {
+                    excelDropZone.querySelector('p').innerHTML = `Selected file: <strong style="color: var(--accent);">${file.name}</strong>`;
+                    excelDropZone.querySelector('i').style.transform = 'scale(1.1)';
+                    excelDropZone.querySelector('i').style.color = '#27ae60';
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+
+                        if (workbook.SheetNames.length === 0) {
+                            showCustomPopup("❌ Excel file is empty.");
+                            return;
+                        }
+
+                        // Intelligent default sheet selection: search for 'Project Detail'
+                        let sheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('project detail')) || workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        
+                        // Parse sheet into JSON objects
+                        const rows = XLSX.utils.sheet_to_json(sheet, { raw: false, defval: '' });
+                        if (rows.length === 0) {
+                            showCustomPopup(`❌ Sheet "${sheetName}" contains no data.`);
+                            return;
+                        }
+
+                        parsedExcelProperties = [];
+                        if (excelPreviewBody) excelPreviewBody.innerHTML = '';
+
+                        rows.forEach((row, index) => {
+                            // Extract values mapping columns
+                            const projectName = findMappedColumn(row, 'projectName');
+                            const builderName = findMappedColumn(row, 'builderName');
+                            const location = findMappedColumn(row, 'location');
+                            const area = findMappedColumn(row, 'area');
+                            const propertyType = findMappedColumn(row, 'propertyType');
+                            const carpetArea = findMappedColumn(row, 'carpetArea');
+                            const price = findMappedColumn(row, 'price');
+                            const contact = findMappedColumn(row, 'contact');
+
+                            // We only add rows that have at least a Project Name or Contact to skip empty rows
+                            if (projectName || contact) {
+                                const propObj = {
+                                    projectName,
+                                    builderName,
+                                    location,
+                                    area,
+                                    propertyType,
+                                    carpetArea,
+                                    price,
+                                    contact
+                                };
+
+                                parsedExcelProperties.push(propObj);
+
+                                // Append to preview table
+                                if (excelPreviewBody && index < 20) { // Limit live preview to first 20 rows for rendering speed
+                                    const tr = document.createElement('tr');
+                                    tr.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                                    tr.innerHTML = `
+                                        <td style="padding: 0.75rem 1rem; color: var(--text-muted);">${index + 2}</td>
+                                        <td style="padding: 0.75rem 1rem; font-weight: 500;">${projectName || '<span style="color: var(--danger);">Missing</span>'}</td>
+                                        <td style="padding: 0.75rem 1rem;">${contact || '<span style="color: var(--danger);">Missing</span>'}</td>
+                                        <td style="padding: 0.75rem 1rem; color: var(--accent);">${price || '<span style="color: var(--danger);">Missing</span>'}</td>
+                                    `;
+                                    excelPreviewBody.appendChild(tr);
+                                }
+                            }
+                        });
+
+                        if (parsedExcelProperties.length > 20 && excelPreviewBody) {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `<td colspan="4" style="text-align: center; padding: 0.75rem; color: var(--text-muted); font-style: italic;">...and ${parsedExcelProperties.length - 20} more rows</td>`;
+                            excelPreviewBody.appendChild(tr);
+                        }
+
+                        if (parsedRowsCount) parsedRowsCount.textContent = parsedExcelProperties.length;
+                        if (excelPreviewSection) excelPreviewSection.style.display = 'block';
+
+                    } catch (err) {
+                        console.error("Excel parse error:", err);
+                        showCustomPopup("❌ Error parsing Excel file: " + err.message);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            // Submit / Confirm Import
+            if (confirmImportBtn) {
+                confirmImportBtn.addEventListener('click', async () => {
+                    if (parsedExcelProperties.length === 0) {
+                        showCustomPopup("❌ No parsed properties to import. Please select a valid Excel file.");
+                        return;
+                    }
+
+                    const type = importListingType.value;
+                    const token = localStorage.getItem("token");
+
+                    if (!token) {
+                        showCustomPopup("❌ Authorization error. Please log in again.");
+                        return;
+                    }
+
+                    try {
+                        confirmImportBtn.disabled = true;
+                        confirmImportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+
+                        const response = await fetch(`${API_BASE_URL}/api/properties/bulk-import`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                type,
+                                properties: parsedExcelProperties
+                            })
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) throw new Error(result.message || "Bulk import failed.");
+
+                        // Show detailed rich results popup
+                        const summary = result.summary;
+                        let detailMsg = `📊 <strong>Import Summary:</strong><br>`;
+                        detailMsg += `• Total Processed: ${summary.total}<br>`;
+                        detailMsg += `• Successful Imports: <span style="color: #27ae60; font-weight: 700;">${summary.imported}</span><br>`;
+                        detailMsg += `• Skipped (Duplicates): <span style="color: var(--accent); font-weight: 700;">${summary.skipped}</span><br>`;
+                        detailMsg += `• Failed Rows: <span style="color: var(--danger); font-weight: 700;">${summary.failed}</span><br>`;
+
+                        if (summary.failed > 0) {
+                            detailMsg += `<br>⚠️ <strong>First few failures/skips:</strong><br>`;
+                            const errorReports = result.results.filter(r => r.status !== 'success').slice(0, 5);
+                            errorReports.forEach(err => {
+                                detailMsg += `Row ${err.row} (${err.projectName}): ${err.message}<br>`;
+                            });
+                        }
+
+                        // Display the report custom popup
+                        showCustomPopup(detailMsg, false, () => {
+                            excelUploadPanel.classList.remove('open');
+                            overlay.classList.remove('show');
+                            resetExcelUploadForm();
+                            if (typeof fetchUsers === 'function') fetchUsers(); // Refresh background tables
+                        });
+
+                        // Set custom popup text alignment to left for readability of the report
+                        const popupMessage = document.getElementById('popup-message');
+                        if (popupMessage) {
+                            popupMessage.style.textAlign = 'left';
+                            popupMessage.style.lineHeight = '1.6';
+                        }
+
+                    } catch (err) {
+                        showCustomPopup("❌ " + err.message);
+                    } finally {
+                        confirmImportBtn.disabled = false;
+                        confirmImportBtn.innerHTML = '<i class="fas fa-check"></i> Import Listings';
+                    }
                 });
             }
         });
