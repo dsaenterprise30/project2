@@ -354,6 +354,102 @@
       border: 1px solid var(--glass-border);
       color: var(--text-main);
     }
+
+    /* Footer */
+    .footer {
+        margin-top: 4rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid var(--glass-border);
+        padding: 3rem 2rem;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .footer-logo img {
+        width: 40px;
+    }
+
+    .footer h3 {
+        font-family: var(--font-heading);
+        margin-bottom: 1rem;
+        color: var(--text-main);
+    }
+
+    .footer p {
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    .footer-nav,
+    .contact-info {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .footer-nav a {
+        color: var(--text-muted);
+        text-decoration: none;
+    }
+
+    .footer-nav a:hover {
+        color: var(--text-main);
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-muted);
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: var(--text-main);
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .social-link:hover {
+        background: var(--accent);
+        transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid var(--glass-border);
+        margin-top: 2rem;
+        padding-top: 1rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .footer-content {
+            grid-template-columns: 1fr;
+        }
+    }
   </style>
 </head>
 
@@ -377,6 +473,67 @@
     <!-- Plans will load here -->
     <div style="color: var(--text-muted); width: 100%; text-align: center; padding: 2rem;">Loading plans...</div>
   </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <div class="footer-logo">
+          <img src="img/DSA.png" alt="Logo">
+          <span style="font-size: 1.5rem; font-weight: 700; font-family: var(--font-heading); margin-left: 10px; vertical-align: middle;">DSA BUILDER</span>
+        </div>
+        <p>
+          Your trusted partner in finding the perfect property. We combine years of experience with modern technology to help you buy, sell, or rent with confidence.
+        </p>
+        <div class="footer-copyright" style="margin-top: 1rem; color: var(--text-muted); font-size: 0.8rem;">
+          © 2025 DSA BUILDER. All rights reserved.
+        </div>
+      </div>
+      <div class="footer-center">
+        <h3>Quick Links</h3>
+        <ul class="footer-nav">
+          <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="housingProperties.html">Residential Properties</a></li>
+          <li><a href="commercialProperties.html">Commercial Properties</a></li>
+          <li><a href="https://www.dsaenterprises.online/" target="_blank"><i class="fas fa-external-link-alt"></i> DSA Enterprises</a></li>
+        </ul>
+      </div>
+      <div class="footer-right">
+        <h3>Get In Touch</h3>
+        <ul class="contact-info">
+          <li class="contact-item" style="align-items: flex-start;">
+            <i class="fas fa-map-marker-alt" style="margin-top: 4px;"></i>
+            <span>Pokhran Road No.1, Eastern Express Highway, Thane West, Maharashtra 400606</span>
+          </li>
+          <li class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>
+              <a href="mailto:dsabuilder.support@gmail.com" style="text-decoration: none; color: inherit;">dsabuilder.support@gmail.com</a>
+            </span>
+          </li>
+          <li class="contact-item" style="align-items: flex-start;">
+            <i class="fas fa-phone" style="margin-top: 4px;"></i>
+            <span>
+              <a href="tel:+918433731810" style="text-decoration: none; color: inherit;">+91 8433731810</a><br>
+              <a href="tel:+919137900608" style="text-decoration: none; color: inherit;">+91 9137900608</a>
+            </span>
+          </li>
+          <li class="contact-item" style="align-items: flex-start;">
+            <i class="fas fa-clock" style="margin-top: 4px;"></i>
+            <span>
+              9:00AM to 7:00PM<br>
+              <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px;">(Sales and support responses are prioritized during business hours)</span>
+            </span>
+          </li>
+        </ul>
+        <div class="social-links">
+          <a href="https://wa.link/qykos7" class="social-link" title="Whatsapp"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://www.facebook.com/share/14R1w7XsyMb/" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/dsa.builder" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom"> Privacy Policy | Terms of Service </div>
+  </footer>
 
   <!-- Custom Popup Overlay -->
   <div id="custom-popup-overlay">
